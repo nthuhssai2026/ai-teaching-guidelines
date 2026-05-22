@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 教學指引 — 全球政策資料庫平台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans TC',sans-serif;background:#f0f9ff;overflow:hidden;height:100vh}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:#f1f5f9}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
+input,select,button{font-family:'Noto Sans TC',sans-serif}
+a{text-decoration:none}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useMemo}=React;
+
+// ─── COLOUR TOKENS ───────────────────────────────────────────
+const C = {
+  navy: "#0f172a", navyMid: "#1e293b", navyLight: "#334155",
+  sky: "#0ea5e9", skyLight: "#38bdf8", skyBg: "#f0f9ff",
+  teal: "#0d9488", tealBg: "#f0fdfa",
+  text: "#1e293b", muted: "#64748b", subtle: "#94a3b8",
+  surface: "#ffffff", border: "#e2e8f0",
+  red: "#dc2626", redBg: "#fef2f2",
+  orange: "#ea580c", orangeBg: "#fff7ed",
+  amber: "#ca8a04", amberBg: "#fefce8",
+  green: "#16a34a", greenBg: "#f0fdf4",
+  gray: "#6b7280", grayBg: "#f9fafb",
+};
+
+const POLICY_CODE_MAP = {
+  A: { label: "禁止", color: C.red, bg: C.redBg },
+  B: { label: "限制", color: C.orange, bg: C.orangeBg },
+  C: { label: "指定允許", color: C.amber, bg: C.amberBg },
+  D: { label: "開放鼓勵", color: C.green, bg: C.greenBg },
+  E: { label: "待編碼", color: C.gray, bg: C.grayBg },
+};
+
+// ─── DATA ────────────────────────────────────────────────────
+
+const TABS = [
+  { id: "summary",    icon: "📋", label: "執行摘要" },
+  { id: "howto",     icon: "🧭", label: "使用說明" },
+  { id: "decision",  icon: "⚖️", label: "課程決策表" },
+  { id: "templates", icon: "📝", label: "課綱模板" },
+  { id: "codes",     icon: "🏷️", label: "政策分級" },
+  { id: "taiwan",    icon: "🇹🇼", label: "台灣資料" },
+  { id: "intl",      icon: "🌐", label: "國際機構" },
+  { id: "keyuni",    icon: "🎓", label: "重點大學" },
+  { id: "globaldb",  icon: "🗃️", label: "全球資料庫" },
+  { id: "tools",     icon: "🛠️", label: "實用工具" },
+  { id: "updates",   icon: "🔄", label: "資料更新" },
+];
+
+const DECISION_TABLE = [
+  { context: "人文寫作、文學詮釋、哲學論證", policy: "限制使用", code: "B", allowed: "查找背景、語句潤飾、反向檢查論點漏洞", prohibited: "代寫提綱、論點、段落、最終稿", disclosure: "列出工具、提示詞摘要、使用位置與自行修正內容" },
+  { context: "社會科學大型講課", policy: "指定情境允許", code: "C", allowed: "複習概念、製作練習題、整理閱讀重點", prohibited: "取代指定閱讀、產生可直接提交的答案", disclosure: "作業後附 AI 使用聲明與錯誤檢核" },
+  { context: "量化研究、資料分析、統計作業", policy: "有限允許", code: "C", allowed: "程式除錯、公式解釋、資料視覺化建議", prohibited: "偽造資料、未驗證統計結論、不可重現分析", disclosure: "提供工具、版本、提示詞、程式碼與人工驗證步驟" },
+  { context: "創意寫作、設計、媒體製作", policy: "依學習目標分級", code: "C", allowed: "發想、風格比較、素材草案、修稿建議", prohibited: "未揭露完整生成作品、冒充個人創作歷程", disclosure: "附創作歷程、AI 參與比例、人工選擇與修改說明" },
+  { context: "考試、核心能力認證、個人表現評量", policy: "原則禁止", code: "A", allowed: "除非教師明確設計為 AI 協作測驗", prohibited: "即時答題、替代個人推理、外部工具協助", disclosure: "若允許使用，須在題目或考試規則中明確列示" },
+];
+
+const SYLLABUS_TEMPLATES = [
+  { id: "A", code: "A", title: "原則禁止型", content: `本課程的主要學習目標包含個人閱讀、論證、寫作與判斷能力的培養。除教師於特定作業另行說明外，學生不得使用生成式 AI 產生提綱、論點、段落、引用資料或最終提交內容。若使用 AI 作為字詞查詢或一般背景理解工具，仍須自行查證並於作業中揭露。` },
+  { id: "B", code: "B", title: "有限允許型", content: `學生可以使用生成式 AI 進行發想、資料搜尋輔助、語句潤飾、程式除錯或概念複習，但不得直接提交未經判斷、查證與改寫的 AI 生成內容。學生須在作業末尾註明使用的工具、使用目的、主要提示詞摘要，以及哪些部分受到 AI 協助。` },
+  { id: "C", code: "C", title: "指定任務允許型", content: `本課程僅允許在教師指定的任務中使用生成式 AI。每項作業會明列可使用與不可使用的範圍。未列為可使用的作業，視同不得使用。違反規定且未揭露者，將依本校學術誠信規範處理。` },
+  { id: "D", code: "D", title: "AI 素養導向型", content: `本課程鼓勵學生以批判方式使用生成式 AI，並將 AI 產出視為需要驗證、比較與修正的材料，而非權威答案。學生須對最終提交內容負完全責任，包含事實正確性、引用完整性、偏誤辨識與倫理考量。` },
+];
+
+const POLICY_CODES = [
+  { code: "A", label: "禁止", def: "不得使用 AI 完成核心任務", contexts: "考試、個人寫作能力評量、學術誠信高風險作業" },
+  { code: "B", label: "限制", def: "可用於輔助，但不得產生可直接提交內容", contexts: "人文寫作、閱讀心得、論證訓練" },
+  { code: "C", label: "指定允許", def: "教師列明哪些作業或步驟可使用", contexts: "資料分析、程式除錯、指定 AI literacy 活動" },
+  { code: "D", label: "開放鼓勵", def: "鼓勵使用，但要求揭露、查證與反思", contexts: "AI 素養課、創作比較、工具批判分析" },
+  { code: "E", label: "待編碼", def: "資料不足，需讀原文後分類", contexts: "只有網址或摘要過短的資料" },
+];
+
+const TAIWAN_DATA = [
+  { id:1, level:"國家法規", inst:"數位發展部", name:"人工智慧基本法", type:"治理框架", url:"https://moda.gov.tw/major-policies/ai/governance/19248", date:"2026-01-14", status:"需確認最新版本" },
+  { id:2, level:"國家法規", inst:"國科會", name:"行政院使用生成式AI參考指引", type:"AI素養框架", url:"https://www.nstc.gov.tw/folksonomy/list/c79bf57b-dc94-4aff-8d14-3262b5559cfc?l=ch", date:"", status:"需確認最新版本" },
+  { id:3, level:"教育部", inst:"教育部", name:"中小學數位教學指引3.0版", type:"評量與學術誠信", url:"https://pads.moe.edu.tw", date:"2024", status:"需確認最新版本" },
+  { id:4, level:"教育部", inst:"教育部", name:"中小學使用生成式人工智慧注意事項", type:"教師教學支援", url:"https://pads.moe.edu.tw/download.php", date:"2024", status:"需確認最新版本" },
+  { id:5, level:"學術倫理", inst:"臺灣學術倫理教育學會", name:"人工智慧技術對學術倫理的影響及因應建議", type:"待編碼", url:"https://www.taaee.org.tw/docs/20230223_conclusion_final.pdf", date:"2023-02-23", status:"需確認最新版本" },
+  { id:6, level:"大學校級", inst:"師大", name:"生成式AI之學習應用及參考指引", type:"學生使用指引", url:"https://ctld.ntnu.edu.tw/generative_ai", date:"", status:"需確認最新版本" },
+  { id:7, level:"大學校級", inst:"政大", name:"生成式人工智慧運用簡要原則", type:"學生使用指引", url:"https://sites.google.com/g.nccu.edu.tw/nccubasicprincipleforai", date:"", status:"需確認最新版本" },
+  { id:8, level:"大學校級", inst:"臺大", name:"針對生成式 AI 工具之教學因應措施", type:"教師教學支援", url:"https://www.dlc.ntu.edu.tw/ai-tools/", date:"", status:"需確認最新版本" },
+  { id:9, level:"大學校級", inst:"清大", name:"AI 協作、共學與素養培養指引", type:"AI素養框架", url:"https://ctld.site.nthu.edu.tw/p/450-1217-253458,c0.php?Lang=zh-tw", date:"", status:"需確認最新版本" },
+  { id:10, level:"大學校級", inst:"成大", name:"AI 及相關學習工具參考指南", type:"待編碼", url:"", date:"", status:"需確認最新版本" },
+  { id:11, level:"大學校級", inst:"中山", name:"生成式AI工具使用參照指引", type:"學生使用指引", url:"https://oaa.nsysu.edu.tw/p/406-1003-313202,r1365.php?Lang=zh-tw", date:"", status:"需確認最新版本" },
+  { id:12, level:"大學校級", inst:"陽明交大", name:"因應生成式AI之指引及教學建議", type:"教師教學支援", url:"https://oaeri.nycu.edu.tw/", date:"", status:"需確認最新版本" },
+  { id:13, level:"大學校級", inst:"北科大", name:"因應生成式AI工具之教學參考指引", type:"教師教學支援", url:"https://oaa.ntut.edu.tw/p/406-1008-129455,r11.php?Lang=zh-tw", date:"", status:"需確認最新版本" },
+  { id:14, level:"大學校級", inst:"臺科大", name:"生成式AI簡介與教學策略調整建議方針", type:"教師教學支援", url:"https://ctld.ntust.edu.tw/p/406-1051-111193,r1430.php?Lang=zh-tw", date:"", status:"需確認最新版本" },
+  { id:15, level:"大學校級", inst:"中國醫", name:"針對生成式 AI 工具之教學指引", type:"教師教學支援", url:"https://academic.cmu.edu.tw/?q=zh-hant/node/69", date:"", status:"需確認最新版本" },
+  { id:16, level:"大學校級", inst:"北醫", name:"生成式AI工具之課程教學參考指引", type:"教師教學支援", url:"https://aca.tmu.edu.tw/", date:"", status:"需確認最新版本" },
+  { id:17, level:"大學校級", inst:"逢甲", name:"針對生成式AI工具之教學因應措施", type:"教師教學支援", url:"https://reurl.cc/N2xOm9", date:"", status:"需確認最新版本" },
+  { id:18, level:"大學校級", inst:"慈濟", name:"AI賦能大學教育指引", type:"待編碼", url:"https://info.tcu.edu.tw/hot_news/attch/1120602001/AI.pdf", date:"", status:"需確認最新版本" },
+];
+
+const INTL_ORGS = [
+  { id:1, org:"UNESCO", name:"Guidance for Generative AI in Education and Research (2023)", type:"研究倫理", url:"https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research", summary:"全球首份生成式AI教育指引，涵蓋立即行動、長期政策規劃及人本願景", date:"2023" },
+  { id:2, org:"UNESCO", name:"AI Competency Framework for Teachers (2024)", type:"AI素養框架", url:"https://www.unesco.org/en/digital-education/ai-future-learning/teachers-framework", summary:"協助各國教師系統建立AI能力框架，納入課程設計與教學實踐", date:"2024" },
+  { id:3, org:"UNESCO", name:"AI Competency Framework for Students (2024)", type:"課綱政策範本", url:"https://www.unesco.org/en/digital-education/ai-future-learning/students-framework", summary:"建立學生AI素養路徑，已支持58個國家課綱設計與師資培訓", date:"2024" },
+  { id:4, org:"UNESCO", name:"AI and Education: Guidance for Policy-Makers (2021)", type:"治理框架", url:"https://www.unesco.org/en/articles/ai-and-education-guidance-policy-makers", summary:"針對政策制定者的AI教育指引，提供機會分析、風險管理及政策建議", date:"2021" },
+  { id:5, org:"OECD", name:"Digital Education Outlook 2023", type:"治理框架", url:"https://www.oecd.org/en/publications/oecd-digital-education-outlook-2023_c74f03de-en.html", summary:"18國比較分析，檢視各國對生成式AI的教育監管與指引現況", date:"2023" },
+  { id:6, org:"OECD", name:"Digital Education Outlook 2026（最新版）", type:"研究倫理", url:"https://www.oecd.org/en/publications/oecd-digital-education-outlook-2026_062a7394-en.html", summary:"探討生成式AI在教與學各情境的應用研究、機會、挑戰與政策建議", date:"2026" },
+  { id:7, org:"TeachAI", name:"AI Guidance for Schools Toolkit", type:"待編碼", url:"https://www.teachai.org/toolkit", summary:"協助各國政府及教育機構制定AI指引的實用工具包，含政策原則與三階段轉型架構", date:"" },
+  { id:8, org:"TeachAI", name:"Global AI Education Policy Tracker", type:"治理框架", url:"https://www.teachai.org/policy-tracker", summary:"即時追蹤全球各國及美國各州AI教育政策現況的互動地圖", date:"" },
+  { id:9, org:"TeachAI", name:"Guidance for AI in Education: A Landscape Analysis", type:"待編碼", url:"https://www.teachai.org/guidance-landscape-analysis", summary:"整合美國各州及9個國際脈絡AI教育指引的主題分析，供指引制定者參考", date:"" },
+  { id:10, org:"EDUCAUSE", name:"2024 AI Policies and Guidelines Action Plan", type:"研究倫理", url:"https://www.educause.edu/research/2024/2024-educause-action-plan-ai-policies-and-guidelines", summary:"基於900+高教技術人員調查，提供高等教育AI政策差距分析與行動方案", date:"2024" },
+];
+
+const KEY_UNIVERSITIES = [
+  { rank:"★★★", inst:"Yale University", name:"AI Course & Assignment Design — Sample AI Policies", type:"課綱政策範本", url:"https://poorvucenter.yale.edu/teaching/teaching-resource-library/ai-guidance-for-teachers/ai-course-assignment-design/sample-ai", summary:"依不同課程類型提供教師在授課大綱上應敘明的AI使用政策範本，實用性極高。偵蓉老師推薦！" },
+  { rank:"★★★", inst:"MIT", name:"Using AI Tools — Academic Integrity Handbook", type:"評量與學術誠信", url:"https://integrity.mit.edu/handbook/academic-writing/using-ai-tools", summary:"明確規範學術誠信框架下的AI使用原則與邊界，適用各學科" },
+  { rank:"★★★", inst:"Stanford University", name:"Artificial Intelligence in Teaching — CTL Guidelines", type:"課綱政策範本", url:"https://teachingcommons.stanford.edu/teaching-guides/artificial-intelligence", summary:"教學中心提供教師課綱融入AI政策的實用指引，含課程設計建議與案例" },
+  { rank:"★★★", inst:"Harvard University", name:"AI Guidance for Teaching — Bok Center", type:"評量與學術誠信", url:"https://bokcenter.harvard.edu/ai", summary:"哈佛教學中心AI使用方針，含學術誠信框架與多元作業設計建議" },
+  { rank:"★★★", inst:"University of Oxford", name:"Generative AI — Student and Staff Guidance", type:"評量與學術誠信", url:"https://www.ox.ac.uk/students/academic/good-practice/ai", summary:"牛津大學對生成式AI的教學研究倫理與學術誠信規範" },
+  { rank:"★★", inst:"Imperial College London", name:"AI in Education Hub", type:"教師教學支援", url:"https://www.imperial.ac.uk/staff/tools-and-reference/education-technology/artificial-intelligence/", summary:"含AI介紹、Teaching Toolkit、個案研究、Training & Events、倫理政策與FAQ的完整資源中心" },
+  { rank:"★★", inst:"JISC（英國高教資訊中心）", name:"Navigating Generative AI in Higher Education", type:"治理框架", url:"https://nationalcentreforai.jiscinvolve.org/wp/2024/07/31/navigating-the-future-higher-education-policies-and-guidance-on-generative-ai/", summary:"彙整英國各大學生成式AI政策，持續更新（最後更新2025年4月），含各校政策摘要" },
+  { rank:"★★", inst:"University of Melbourne", name:"Artificial Intelligence and Academic Integrity", type:"評量與學術誠信", url:"https://melbourne-cshe.unimelb.edu.au/ai-aai", summary:"澳洲領先大學的AI評量整合指引，含學術誠信框架與多元評量設計方法" },
+];
+
+const GLOBAL_DB = [
+  { id:1, region:"Africa 非洲", country:"South Africa", uni:"University of Cape Town", name:"Artificial Intelligence for Teaching & Learning", date:"", type:"教師教學支援", status:"缺日期", url:"https://cilt.uct.ac.za/teaching-resources/artificial-intelligence-teaching-learning" },
+  { id:2, region:"Africa 非洲", country:"Egypt", uni:"Cairo University", name:"FCAI Policy and Guidelines for use of Generative AI", date:"2023-09-04", type:"治理框架", status:"需複核", url:"https://fcai.cu.edu.eg/PG/wp-content/uploads/2023/09/FCAI-GAI-Use-Guidelines-v1.1-fnl.pdf" },
+  { id:3, region:"Africa 非洲", country:"South Africa", uni:"University of Witwatersrand", name:"Approach to the use of AI in teaching and learning at Wits", date:"2023-01", type:"教師教學支援", status:"需複核", url:"https://www.wits.ac.za/media/wits-university/learning-and-teaching/cltd/documents/AI-in-teaching-and-learning-at-Wits.pdf" },
+  { id:4, region:"Africa 非洲", country:"South Africa", uni:"University of Pretoria", name:"Student's Guide: Leveraging Generative AI for Teaching and Learning", date:"2023", type:"學生使用指引", status:"需複核", url:"https://www.up.ac.za/media/shared/391/pdfs/up-student-guide_-leveraging-generative-artificial-intelligence-for-learning.zp242396.pdf" },
+  { id:5, region:"Africa 非洲", country:"South Africa", uni:"University of Johannesburg", name:"UJ PRACTICE Notes: Generative AI in Teaching, Learning and Research", date:"", type:"教師教學支援", status:"缺日期", url:"https://www.uj.ac.za/wp-content/uploads/2023/08/uj-ai-practice-guide-2023.pdf" },
+  { id:6, region:"Africa 非洲", country:"South Africa", uni:"Stellenbosch University", name:"Generative AI in TLA at SU", date:"", type:"待編碼", status:"缺日期", url:"https://www.sun.ac.za/english/learning-teaching/ctl/t-l-resources/ai-in-tla-at-su" },
+  { id:7, region:"Africa 非洲", country:"South Africa", uni:"Stellenbosch University", name:"Cool Things Academics Do: AI Literacy in Higher Education", date:"", type:"AI素養框架", status:"缺日期", url:"https://www.sun.ac.za/english/learning-teaching/ctl/Documents/Cool%20Things%20AI%20Case%20Studies%20Booklet%20(25.03.2025).pdf" },
+  { id:8, region:"Africa 非洲", country:"South Africa", uni:"Stellenbosch University", name:"Draft interim SU guidelines on allowable AI use and academic integrity", date:"", type:"評量與學術誠信", status:"缺日期", url:"https://www.sun.ac.za/english/learning-teaching/ctl/Documents/Interim%20SU%20guidelines%20on%20allowable%20AI%20use%20and%20academic%20integrity.pdf" },
+  { id:9, region:"Africa 非洲", country:"South Africa", uni:"University of the Free State", name:"Stepping up with ChatGPT - AI-assisted Technology in Education", date:"", type:"待編碼", status:"缺日期", url:"https://ufs.libguides.com/AI/SteppingupwithChatGPT" },
+  { id:10, region:"Africa 非洲", country:"Egypt", uni:"The American University in Cairo", name:"AUC's Statement on the Use of Artificial Intelligence Tools", date:"", type:"待編碼", status:"缺日期", url:"https://www.aucegypt.edu/about/leadership/provost/use-of-artificial-intelligence-tools" },
+  { id:11, region:"Africa 非洲", country:"South Africa", uni:"North-West University", name:"Guidelines for the Utilization of AI in Teaching and Learning at NWU", date:"", type:"教師教學支援", status:"缺日期", url:"https://news.nwu.ac.za/sites/news.nwu.ac.za/files/files/Robert.Balfour/Utilization-AI-TL.pdf" },
+  { id:12, region:"North America 北美", country:"USA", uni:"Harvard University", name:"Guidelines for Using ChatGPT and other Generative AI tools at Harvard", date:"", type:"待編碼", status:"缺日期", url:"https://provost.harvard.edu/guidelines-using-chatgpt-and-other-generative-ai-tools-harvard" },
+  { id:13, region:"North America 北美", country:"USA", uni:"Stanford University", name:"Generative AI Policy Guidance", date:"2023-02-16", type:"治理框架", status:"需複核", url:"https://communitystandards.stanford.edu/generative-ai-policy-guidance" },
+  { id:14, region:"North America 北美", country:"USA", uni:"MIT", name:"Getting Started with AI-Enhanced Teaching: A Practical Guide for Instructors", date:"", type:"教師教學支援", status:"缺日期", url:"https://mitsloanedtech.mit.edu/ai/teach/getting-started/" },
+  { id:15, region:"North America 北美", country:"USA", uni:"Princeton University", name:"Generative AI Guidance", date:"", type:"待編碼", status:"缺日期", url:"https://mcgraw.princeton.edu/generative-ai" },
+  { id:16, region:"North America 北美", country:"USA", uni:"University of Chicago", name:"Guidance for Syllabus Statements on the Use of AI Tools", date:"", type:"課綱政策範本", status:"缺日期", url:"https://teaching.uchicago.edu/sites/default/files/2023-09/CCTL_AI%20Syllabus%20Statements.pdf" },
+  { id:17, region:"North America 北美", country:"USA", uni:"Columbia University", name:"Considerations for AI Tools in the Classroom", date:"", type:"待編碼", status:"缺日期", url:"https://ctl.columbia.edu/resources-and-technology/resources/ai-tools/" },
+  { id:18, region:"North America 北美", country:"USA", uni:"California Institute of Technology", name:"Guidance on the Use of Generative AI and LLM Tools", date:"", type:"待編碼", status:"缺日期", url:"https://www.imss.caltech.edu/services/ai" },
+  { id:19, region:"North America 北美", country:"USA", uni:"UC Berkeley", name:"Appropriate Use of Generative AI Tools", date:"", type:"待編碼", status:"缺日期", url:"https://oercs.berkeley.edu/appropriate-use-generative-ai-tools" },
+  { id:20, region:"North America 北美", country:"USA", uni:"Yale University", name:"Guidelines for the Use of Generative AI Tools", date:"", type:"待編碼", status:"缺日期", url:"https://provost.yale.edu/news/guidelines-use-generative-ai-tools" },
+  { id:21, region:"North America 北美", country:"USA", uni:"University of Pennsylvania", name:"Statement on Guidance for UPenn Community on Use of Generative AI", date:"", type:"待編碼", status:"缺日期", url:"https://isc.upenn.edu/security/AI-guidance" },
+  { id:22, region:"North America 北美", country:"USA", uni:"UCLA", name:"Generative AI for Teaching and Learning at UCLA", date:"", type:"教師教學支援", status:"缺日期", url:"https://docs.google.com/document/d/1V9OpwizUiHgLVMeEx-7g3AV1QrTAkBo0D-dsFv0DlwM/edit" },
+  { id:23, region:"North America 北美", country:"USA", uni:"Cornell University", name:"Guidelines for Artificial Intelligence", date:"", type:"待編碼", status:"缺日期", url:"https://it.cornell.edu/ai/ai-guidelines" },
+  { id:24, region:"North America 北美", country:"Canada", uni:"University of Toronto", name:"Generative Artificial Intelligence in the Classroom: FAQs", date:"", type:"待編碼", status:"缺日期", url:"https://www.viceprovostundergrad.utoronto.ca/16072-2/teaching-initiatives/generative-artificial-intelligence/" },
+  { id:25, region:"North America 北美", country:"Canada", uni:"University of British Columbia", name:"UBC Guidance on GenAI Syllabus", date:"", type:"課綱政策範本", status:"缺日期", url:"https://academicintegrity.ubc.ca/generative-ai-syllabus/" },
+  { id:26, region:"North America 北美", country:"Canada", uni:"McGill University", name:"Principles on Generative AI in Teaching and Learning at McGill", date:"", type:"教師教學支援", status:"缺日期", url:"https://www.mcgill.ca/provost/files/provost/principles_on_generative_ai_in_teaching_and_learning_at_mcgill.pdf" },
+  { id:27, region:"North America 北美", country:"Canada", uni:"University of Alberta", name:"Academic Integrity and AI Use", date:"", type:"評量與學術誠信", status:"缺日期", url:"https://www.ualberta.ca/en/centre-for-teaching-and-learning/resources/generative-ai/academic-integrity-ai-use/index.html" },
+  { id:28, region:"North America 北美", country:"Canada", uni:"University of Waterloo", name:"Artificial intelligence and ChatGPT", date:"", type:"待編碼", status:"缺日期", url:"https://uwaterloo.ca/academic-integrity/artificial-intelligence-and-chatgpt" },
+  { id:29, region:"North America 北美", country:"Canada", uni:"University of Montreal", name:"About the Montréal Declaration on Responsible AI", date:"", type:"待編碼", status:"缺日期", url:"https://montrealdeclaration-responsibleai.com/about/" },
+  { id:30, region:"North America 北美", country:"Canada", uni:"McMaster University", name:"Provisional Guidelines: Use of Generative AI in Teaching and Learning", date:"2024-09", type:"教師教學支援", status:"需複核", url:"https://www.humanities.mcmaster.ca/wp-content/uploads/2024/11/Provisional-Guidelines-on-the-Use-of-Generative-AI-in-Research_For-Feedback.pdf" },
+  { id:31, region:"South America 南美洲", country:"Colombia", uni:"Universidad del Rosario", name:"Guidelines for the Use of AI in University Courses", date:"2023-02-21", type:"待編碼", status:"需複核", url:"https://forogpp.com/wp-content/uploads/2023/02/guidelines-for-the-use-of-artificial-intelligence-in-university-courses-v4.3.pdf" },
+  { id:32, region:"South America 南美洲", country:"Argentina", uni:"University of Buenos Aires", name:"Guidelines for the use of ChatGPT and text generative AI", date:"", type:"待編碼", status:"缺日期", url:"https://ialab.com.ar/webia/wp-content/uploads/2024/02/Guia-uso-IAG-.pdf" },
+  { id:33, region:"South America 南美洲", country:"Colombia", uni:"Universidad de Los Andes", name:"Guidelines for the use of AI in university contexts", date:"2023-08-15", type:"待編碼", status:"需複核", url:"https://juangutierrez.co/wp-content/uploads/2023/08/guidelines-for-the-use-of-artificial-intelligence-in-university-contexts-v5.0.pdf" },
+  { id:34, region:"South America 南美洲", country:"Colombia", uni:"Pontifical Javeriana University", name:"Editorial Policy, Publication Ethics and Malpractice Statement", date:"", type:"治理框架", status:"缺日期", url:"" },
+  { id:35, region:"South America 南美洲", country:"Argentina", uni:"Universidad de San Andres", name:"Readiness of the judicial sector for AI in Latin America", date:"", type:"待編碼", status:"缺日期", url:"https://www.researchgate.net/publication/360849668" },
+  { id:36, region:"South America 南美洲", country:"Chile", uni:"Pontificia Universidad Católica de Chile", name:"ChatGPT: ¿Cómo usarlo en clases?", date:"", type:"待編碼", status:"缺日期", url:"https://www.uc.cl/noticias/chatgpt-como-usarlo-en-clases/" },
+  { id:37, region:"Asia 亞洲", country:"China", uni:"Tsinghua University", name:"International AI Cooperation and Governance Forum 2022", date:"", type:"治理框架", status:"缺日期", url:"https://aiig.tsinghua.edu.cn/en/International_Forum/2022/About_the_Forum.htm" },
+  { id:38, region:"Asia 亞洲", country:"Singapore", uni:"National University of Singapore", name:"Responsible Use of AI – Guidance from a Singapore Regulatory Perspective", date:"", type:"待編碼", status:"缺日期", url:"https://law.nus.edu.sg/trail/responsible-use-of-ai/" },
+  { id:39, region:"Asia 亞洲", country:"Japan", uni:"Nagoya University", name:"Regarding the Use of Generative AI", date:"", type:"待編碼", status:"缺日期", url:"https://en.nagoya-u.ac.jp/academics/ai/index.html" },
+  { id:40, region:"Asia 亞洲", country:"Japan", uni:"Tokyo University of Foreign Studies", name:"Guidelines for Instructors Regarding AI in University Education", date:"2023-03-22", type:"教師教學支援", status:"需複核", url:"https://www.tufs.ac.jp/documents/education/guideline/ai_guideline_en.pdf" },
+  { id:41, region:"Asia 亞洲", country:"Hong Kong", uni:"University of Hong Kong", name:"Use of AI Tools in Teaching, Learning and Assessments", date:"", type:"評量與學術誠信", status:"缺日期", url:"" },
+  { id:42, region:"Asia 亞洲", country:"South Korea", uni:"Seoul National University", name:"Seoul National University AI Policy Initiative", date:"", type:"治理框架", status:"缺日期", url:"" },
+  { id:43, region:"Asia 亞洲", country:"Japan", uni:"Kyushu University", name:"Note on the Use of Generative AI in Education at Kyushu University", date:"", type:"教師教學支援", status:"缺日期", url:"https://catalog.lib.kyushu-u.ac.jp/opac_download_md/7343643/60_p019.pdf" },
+  { id:44, region:"Asia 亞洲", country:"Japan", uni:"Waseda University", name:"About the Use of Generative Artificial Intelligence (ChatGPT, etc.)", date:"2023-04-21", type:"待編碼", status:"需複核", url:"https://www.waseda.jp/top/en/news/77786" },
+  { id:45, region:"Asia 亞洲", country:"South Korea", uni:"UNIST 蔚山科學技術院", name:"A Guide to the Use of Generative AI", date:"2023", type:"待編碼", status:"需複核", url:"https://heyzine.com/flip-book/3a9d4cb37e.html#page/1" },
+  { id:46, region:"Asia 亞洲", country:"Singapore", uni:"Singapore Management University", name:"SMU Framework for The Use of Generative AI Tools", date:"", type:"學生使用指引", status:"缺日期", url:"https://cte.smu.edu.sg/resources/smu-framework-generative-ai" },
+  { id:47, region:"Asia 亞洲", country:"Singapore", uni:"Nanyang Technological University", name:"NTU Position on the Use of Generative AI in Research", date:"", type:"研究倫理", status:"缺日期", url:"https://www.ntu.edu.sg/research/resources/use-of-gai-in-research" },
+  { id:48, region:"Asia 亞洲", country:"Taiwan", uni:"National Tsing Hua University 清大", name:"Guidelines for Collaboration, Co-learning, and Cultivation of AI Competencies", date:"", type:"待編碼", status:"缺日期", url:"https://ctld.site.nthu.edu.tw/var/file/217/1217/img/555612445.pdf" },
+  { id:49, region:"Asia 亞洲", country:"Taiwan", uni:"National Taiwan University 臺大", name:"Guidance for Use of Generative AI Tools for Teaching and Learning", date:"", type:"教師教學支援", status:"缺日期", url:"https://www.dlc.ntu.edu.tw/en/ai-tools-en/" },
+  { id:50, region:"Asia 亞洲", country:"Hong Kong", uni:"The Chinese University of Hong Kong", name:"Use of AI Tools in Teaching, Learning and Assessments", date:"", type:"評量與學術誠信", status:"缺日期", url:"https://www.aqs.cuhk.edu.hk/documents/A-guide-for-students_use-of-AI-tools.pdf" },
+  { id:51, region:"Asia 亞洲", country:"Thailand", uni:"Chulalongkorn University", name:"Principles and Guidelines for using AI Tools", date:"", type:"待編碼", status:"缺日期", url:"https://www.chula.ac.th/en/news/125190/" },
+  { id:52, region:"Asia 亞洲", country:"Malaysia", uni:"Universiti Malaya", name:"Guideline (English Version)", date:"", type:"待編碼", status:"缺日期", url:"https://umresearch.um.edu.my/wp-content/uploads/2023/07/Guideline-English-Version.docx" },
+  { id:53, region:"Asia 亞洲", country:"Malaysia", uni:"Universiti Putra Malaysia", name:"Guide for ChatGPT usage in Teaching and Learning", date:"", type:"教師教學支援", status:"缺日期", url:"https://cadelead.upm.edu.my/upload/dokumen/20230202105701Guide_for_ChatGPT_Usage_in_Teaching_and_Learning.pdf" },
+  { id:54, region:"Oceania 大洋洲", country:"Australia", uni:"University of Melbourne", name:"AI governance", date:"", type:"治理框架", status:"缺日期", url:"https://www.unimelb.edu.au/ai/home/governance-and-ai-principles" },
+  { id:55, region:"Oceania 大洋洲", country:"Australia", uni:"University of Sydney", name:"AI in Education, University of Sydney guidelines", date:"", type:"待編碼", status:"缺日期", url:"https://www.sydney.edu.au/news-opinion/news/2024/11/15/how-to-use-ai-to-learn-without-cheating-students-develop-new-guide.html" },
+  { id:56, region:"Oceania 大洋洲", country:"Australia", uni:"University of New South Wales", name:"UNSW's AI Guidelines and Framework", date:"", type:"待編碼", status:"缺日期", url:"https://www.teaching.unsw.edu.au/ai/guidelines" },
+  { id:57, region:"Oceania 大洋洲", country:"Australia", uni:"Australian National University", name:"Guide for students: best practice when using Generative AI", date:"", type:"學生使用指引", status:"缺日期", url:"https://www.anu.edu.au/students/academic-skills/academic-integrity/best-practice-principles/guide-for-students-best" },
+  { id:58, region:"Oceania 大洋洲", country:"Australia", uni:"University of Technology Sydney", name:"The Use of AI in Research Guidelines", date:"", type:"研究倫理", status:"缺日期", url:"https://www.uts.edu.au/about/leadership-governance/policies/a-z/use-of-ai-in-research-guidelines" },
+  { id:59, region:"Oceania 大洋洲", country:"Australia", uni:"University of Adelaide", name:"Working with Artificial Intelligence", date:"", type:"待編碼", status:"缺日期", url:"https://www.adelaide.edu.au/student/academic-skills/academic-integrity-for-students/working-with-artificial-intelligence" },
+  { id:60, region:"Oceania 大洋洲", country:"Australia", uni:"University of Western Australia", name:"Using AI Tools at UWA: A Guide for Students", date:"", type:"學生使用指引", status:"缺日期", url:"https://www.uwa.edu.au/students/-/media/project/uwa/uwa/students/docs/studysmarter/using-ai-tools-at-uwa.pdf" },
+  { id:61, region:"Oceania 大洋洲", country:"Australia", uni:"University of Queensland", name:"UQ's rules for using AI", date:"", type:"待編碼", status:"缺日期", url:"https://web.library.uq.edu.au/study-and-learning-support/ai-student-hub/uqs-rules-using-ai" },
+  { id:62, region:"Oceania 大洋洲", country:"Australia", uni:"Monash University", name:"AI policies and guidelines", date:"", type:"待編碼", status:"缺日期", url:"https://www.monash.edu/ai/tools-training-and-resources/ai-policies-and-guidelines" },
+  { id:63, region:"Oceania 大洋洲", country:"New Zealand", uni:"University of Auckland", name:"Advice for students on using generative AI in coursework", date:"", type:"學生使用指引", status:"缺日期", url:"https://www.auckland.ac.nz/en/students/forms-policies-and-guidelines/student-policies-and-guidelines/academic-integrity-copyright/advice-for-student-on-using-generative-ai.html" },
+  { id:64, region:"Oceania 大洋洲", country:"New Zealand", uni:"University of Otago", name:"Use of Generative AI and Autonomous Content Generation in Learning and Teaching Policy", date:"", type:"治理框架", status:"缺日期", url:"https://www.otago.ac.nz/administration/policies/policy-collection/use-of-generative-artificial-intelligences-and-autonomous-content-generation-in-learning-and-teaching-policy" },
+  { id:65, region:"Oceania 大洋洲", country:"New Zealand", uni:"University of Canterbury", name:"Responsible use of Gen-AI tools", date:"", type:"待編碼", status:"缺日期", url:"https://www.canterbury.ac.nz/study/study-support-info/gen-ai-at-uc/responsible-use-gen-ai-tools" },
+  { id:66, region:"Oceania 大洋洲", country:"New Zealand", uni:"Victoria University of Wellington", name:"Student use of artificial intelligence", date:"", type:"學生使用指引", status:"缺日期", url:"https://www.wgtn.ac.nz/students/study/exams/academic-integrity/student-use-of-artificial-intelligence" },
+  { id:67, region:"Oceania 大洋洲", country:"New Zealand", uni:"Massey University", name:"Artificial Intelligence (AI) usage and detection", date:"", type:"待編碼", status:"缺日期", url:"https://www.massey.ac.nz/study/study-and-assignment-support-and-guides/academic-integrity-student-guide/artificial-intelligence-ai-usage-and-detection/" },
+  { id:68, region:"Oceania 大洋洲", country:"New Zealand", uni:"University of Waikato", name:"Guidelines for Student Use of Generative AI Tools", date:"", type:"學生使用指引", status:"缺日期", url:"https://www.waikato.ac.nz/assets/Uploads/Student-life/Student-assessment-Handbook/Guidelines-for-student-use-of-generative-AI-tools-FINAL.pdf" },
+  { id:69, region:"Oceania 大洋洲", country:"New Zealand", uni:"Auckland University of Technology", name:"Generative AI and assessment at AUT", date:"", type:"評量與學術誠信", status:"缺日期", url:"https://www.aut.ac.nz/about/teaching-learning-and-assessment/generative-ai-and-assessment-at-aut" },
+  { id:70, region:"Oceania 大洋洲", country:"New Zealand", uni:"Lincoln University", name:"AI guidelines", date:"", type:"待編碼", status:"缺日期", url:"https://learning.lincoln.ac.uk/academic-skills/ai-guidelines/" },
+  { id:71, region:"Europe 歐洲", country:"UK", uni:"University of Oxford", name:"Use of generative AI tools to support learning", date:"", type:"待編碼", status:"缺日期", url:"https://www.ox.ac.uk/students/academic/good-practice/ai" },
+  { id:72, region:"Europe 歐洲", country:"UK", uni:"University of Cambridge", name:"Artificial intelligence and teaching, learning, and assessment", date:"", type:"評量與學術誠信", status:"缺日期", url:"https://www.cambridgeinternational.org/support-and-training-for-schools/teaching-cambridge-at-your-school/artificial-intelligence/" },
+  { id:73, region:"Europe 歐洲", country:"UK", uni:"Imperial College London", name:"Generative AI Guidance", date:"", type:"待編碼", status:"缺日期", url:"https://www.imperial.ac.uk/admin-services/library/learning-support/generative-ai-guidance/" },
+  { id:74, region:"Europe 歐洲", country:"UK", uni:"London School of Economics", name:"Statement on Generative AI and Education", date:"", type:"待編碼", status:"缺日期 / 待補URL", url:"" },
+  { id:75, region:"Europe 歐洲", country:"UK", uni:"University College London", name:"Three categories of GenAI use in assessment", date:"", type:"評量與學術誠信", status:"缺日期", url:"https://www.ucl.ac.uk/teaching-learning/generative-ai-hub/three-categories-genai-use-assessment" },
+  { id:76, region:"Europe 歐洲", country:"UK", uni:"University of Edinburgh", name:"Guidance for working with Generative AI in your studies", date:"", type:"待編碼", status:"缺日期", url:"https://information-services.ed.ac.uk/computing/comms-and-collab/elm/guidance-for-working-with-generative-ai" },
+  { id:77, region:"Europe 歐洲", country:"Netherlands", uni:"Erasmus University Rotterdam", name:"Generative AI Usage Guidelines", date:"", type:"待編碼", status:"缺日期", url:"https://www.eur.nl/en/about-university/policy-and-regulations/regulations-and-guidelines/ai-usage-guidelines" },
+  { id:78, region:"Europe 歐洲", country:"Belgium", uni:"KU Leuven", name:"Responsible use of Generative AI", date:"", type:"待編碼", status:"缺日期", url:"https://www.kuleuven.be/english/genai" },
+  { id:79, region:"Europe 歐洲", country:"Switzerland", uni:"ETH Zurich", name:"Generative AI in Teaching & Learning", date:"", type:"教師教學支援", status:"缺日期", url:"https://ethz.ch/content/dam/ethz/main/eth-zurich/education/ai_in_education/Generative%20AI%20in%20Teaching%20and%20Learning%20-%20Guidelines%20ETH.pdf" },
+  { id:80, region:"Europe 歐洲", country:"Netherlands", uni:"University of Amsterdam", name:"AI tools and your studies", date:"", type:"待編碼", status:"缺日期", url:"https://student.uva.nl/en/topics/ai-tools-and-your-studies" },
+  { id:81, region:"Europe 歐洲", country:"Norway", uni:"University of Oslo", name:"Guidelines for use of AI at UiO", date:"", type:"待編碼", status:"缺日期", url:"https://www.uio.no/english/services/ai/" },
+  { id:82, region:"Europe 歐洲", country:"Finland", uni:"University of Helsinki", name:"Using AI to support learning", date:"", type:"待編碼", status:"缺日期", url:"https://studies.helsinki.fi/instructions/article/using-ai-support-learning" },
+  { id:83, region:"Europe 歐洲", country:"Italy", uni:"University of Padua", name:"Artificial Intelligence and Thesis Writing", date:"", type:"待編碼", status:"缺日期", url:"https://biologia-molecolare.biologia.unipd.it/en/masters-degrees/artificial-intelligence-and-thesis-writing/" },
+  { id:84, region:"Europe 歐洲", country:"Sweden", uni:"Stockholm University", name:"Guidelines on using AI-powered chatbots in education and research", date:"", type:"研究倫理", status:"缺日期", url:"https://medarbetare.su.se/en/our-su/communicate-su/communication-support/guidelines-on-using-ai-powered-chatbots-in-education-and-research" },
+  { id:85, region:"Europe 歐洲", country:"Sweden", uni:"Stockholm University", name:"DSV's AI policy", date:"", type:"治理框架", status:"缺日期", url:"https://www.su.se/department-of-computer-and-systems-sciences/education/during-your-studies/dsv-s-ai-policy-1.705912" },
+  { id:86, region:"Europe 歐洲", country:"Denmark", uni:"Technical University of Denmark", name:"DTU opens up for the use of AI in teaching", date:"", type:"教師教學支援", status:"缺日期", url:"https://www.dtu.dk/english/newsarchive/2024/01/dtu-opens-up-for-the-use-of-artificial-intelligence-in-teaching" },
+  { id:87, region:"Europe 歐洲", country:"Netherlands", uni:"Delft University of Technology", name:"AI chatbots in unsupervised assessment", date:"", type:"評量與學術誠信", status:"缺日期", url:"https://www.tudelft.nl/teaching-support/educational-advice/assess/guidelines/ai-chatbots-in-unsupervised-assessment" },
+  { id:88, region:"Europe 歐洲", country:"Portugal", uni:"Universidade de Lisboa", name:"Artificial Intelligence in education – Técnico presents resolution", date:"", type:"待編碼", status:"缺日期", url:"https://tecnico.ulisboa.pt/en/news/campus-community/artificial-intelligence-in-education-tecnico-presents-resolution-on-the-use-of-tools-such-as-chatgpt/" },
+  { id:89, region:"Europe 歐洲", country:"Netherlands", uni:"University of Utrecht", name:"Guidelines for the use of generative AI", date:"", type:"待編碼", status:"待補URL", url:"" },
+  { id:90, region:"Europe 歐洲", country:"Switzerland", uni:"University of Zurich", name:"Guidelines for the Use of AI Tools", date:"", type:"待編碼", status:"待補URL", url:"" },
+];
+
+// ─── HELPER COMPONENTS ───────────────────────────────────────
+
+function Badge({ code }) {
+  const m = POLICY_CODE_MAP[code] || POLICY_CODE_MAP.E;
+  return (
+    <span style={{ display:"inline-block", padding:"2px 8px", borderRadius:4, fontSize:11, fontWeight:600, color:m.color, background:m.bg, border:`1px solid ${m.color}30` }}>
+      {code} · {m.label}
+    </span>
+  );
+}
+
+function StatusDot({ status }) {
+  const ok = status === "需複核";
+  const warn = status === "缺日期";
+  const err = status.includes("URL");
+  const color = ok ? C.amber : warn ? C.orange : err ? C.red : C.gray;
+  return <span style={{ display:"inline-block", width:8, height:8, borderRadius:"50%", background:color, marginRight:5 }} title={status} />;
+}
+
+function SectionHeader({ icon, title, sub }) {
+  return (
+    <div style={{ marginBottom:24 }}>
+      <h2 style={{ fontSize:22, fontWeight:700, color:C.navy, margin:0, display:"flex", alignItems:"center", gap:8 }}>
+        <span>{icon}</span>{title}
+      </h2>
+      {sub && <p style={{ color:C.muted, fontSize:13, margin:"6px 0 0", lineHeight:1.6 }}>{sub}</p>}
+      <div style={{ height:3, width:48, background:`linear-gradient(90deg,${C.sky},${C.teal})`, borderRadius:2, marginTop:10 }} />
+    </div>
+  );
+}
+
+function Card({ children, style={} }) {
+  return <div style={{ background:C.surface, borderRadius:10, border:`1px solid ${C.border}`, padding:20, ...style }}>{children}</div>;
+}
+
+function StatCard({ value, label, color=C.sky }) {
+  return (
+    <Card style={{ textAlign:"center", flex:"1 1 120px" }}>
+      <div style={{ fontSize:32, fontWeight:800, color }}>{value}</div>
+      <div style={{ fontSize:12, color:C.muted, marginTop:4 }}>{label}</div>
+    </Card>
+  );
+}
+
+// ─── TAB CONTENTS ────────────────────────────────────────────
+
+function SummaryTab() {
+  const regionDist = { "Africa 非洲":11, "North America 北美":19, "South America 南美洲":6, "Asia 亞洲":17, "Oceania 大洋洲":17, "Europe 歐洲":20 };
+  return (
+    <div>
+      <SectionHeader icon="📋" title="執行摘要" sub="本文件為全球 AI 教學指引的可查核、可比較、可落地採用的教師與校級政策參考工具包。" />
+      <div style={{ display:"flex", gap:12, flexWrap:"wrap", marginBottom:20 }}>
+        <StatCard value="90" label="全球大學資料筆數" color={C.sky} />
+        <StatCard value="26" label="台灣機構資料筆數" color={C.teal} />
+        <StatCard value="10" label="國際機構指引筆數" color="#8b5cf6" />
+        <StatCard value="80" label="缺發布日期筆數" color={C.orange} />
+      </div>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16, marginBottom:20 }}>
+        <Card>
+          <h3 style={{ margin:"0 0 12px", fontSize:14, fontWeight:700, color:C.navy }}>🎯 核心用途升級方向</h3>
+          {["課綱政策範本（可直接改寫）","作業設計決策輔助工具","學術誠信揭露要求範例","AI 素養教學活動設計"].map(i=>(
+            <div key={i} style={{ display:"flex", alignItems:"center", gap:8, padding:"6px 0", borderBottom:`1px solid ${C.border}`, fontSize:13, color:C.text }}>
+              <span style={{ color:C.teal }}>✓</span> {i}
+            </div>
+          ))}
+        </Card>
+        <Card>
+          <h3 style={{ margin:"0 0 12px", fontSize:14, fontWeight:700, color:C.navy }}>🌍 全球資料分布</h3>
+          {Object.entries(regionDist).map(([r,n])=>(
+            <div key={r} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"5px 0", borderBottom:`1px solid ${C.border}`, fontSize:13 }}>
+              <span style={{ color:C.text }}>{r.split(" ")[0]}</span>
+              <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                <div style={{ width: n*5, height:8, background:`linear-gradient(90deg,${C.sky},${C.teal})`, borderRadius:4 }} />
+                <span style={{ color:C.muted, fontWeight:600, minWidth:20, textAlign:"right" }}>{n}</span>
+              </div>
+            </div>
+          ))}
+        </Card>
+      </div>
+      <Card style={{ background:`linear-gradient(135deg,${C.skyBg},${C.tealBg})` }}>
+        <h3 style={{ margin:"0 0 10px", fontSize:14, fontWeight:700, color:C.navy }}>⚡ 後續優先工作清單</h3>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
+          {[
+            ["補日期","80 筆資料缺發布/更新日期，優先補查"],
+            ["確認 URL","3 筆網址欄仍需補正式 URL"],
+            ["人工校對","中文摘要需人工查核，不依賴機器翻譯"],
+            ["政策強度編碼","依 A-E 分類，完成 E（待編碼）資料"],
+          ].map(([t,d])=>(
+            <div key={t} style={{ background:C.surface, borderRadius:8, padding:12, border:`1px solid ${C.border}` }}>
+              <div style={{ fontWeight:700, color:C.sky, fontSize:13, marginBottom:4 }}>{t}</div>
+              <div style={{ color:C.muted, fontSize:12 }}>{d}</div>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function HowtoTab() {
+  const rows = [
+    ["教師要寫授課大綱", "先看「課程決策表」與「課綱模板」，再查「重點大學」課綱來源。"],
+    ["系所要訂共通規範", "先看「政策分級」，再參照「台灣資料」與「國際機構」框架。"],
+    ["研究助理要繼續蒐集", "依本 SOP 補齊日期、URL、版本狀態與查核日期。"],
+    ["要做人文社會課程指引", "比較寫作、詮釋、創作、資料分析與田野研究的 AI 使用邊界。"],
+  ];
+  const disciplines = [
+    ["寫作/論證", "AI 容易取代核心學習歷程", "限制或禁止，要求草稿、引用與反思紀錄", "B / A"],
+    ["閱讀/摘要", "AI 摘要可能造成未讀原文與錯誤理解", "允許作為核對工具，不可取代指定閱讀", "C"],
+    ["量化分析", "AI 可提升效率但可能產生不可重現或錯誤程式", "要求程式碼、資料來源與人工驗證", "C"],
+    ["田野/訪談", "涉及隱私、同意與資料保護", "禁止上傳未匿名化資料，要求倫理審查意識", "A"],
+    ["創作/媒體", "AI 參與程度影響作者性與評分公平", "要求揭露 AI 參與比例與創作歷程", "C / D"],
+  ];
+  return (
+    <div>
+      <SectionHeader icon="🧭" title="如何使用本平台" />
+      <Card style={{ marginBottom:20 }}>
+        <h3 style={{ margin:"0 0 14px", fontSize:14, fontWeight:700, color:C.navy }}>依使用者身分找入口</h3>
+        <div style={{ display:"grid", gap:10 }}>
+          {rows.map(([r,d])=>(
+            <div key={r} style={{ display:"flex", gap:14, alignItems:"flex-start", padding:12, borderRadius:8, background:C.skyBg, border:`1px solid ${C.sky}20` }}>
+              <span style={{ fontWeight:700, color:C.sky, minWidth:140, fontSize:13 }}>{r}</span>
+              <span style={{ color:C.text, fontSize:13, lineHeight:1.6 }}>{d}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
+      <Card>
+        <h3 style={{ margin:"0 0 14px", fontSize:14, fontWeight:700, color:C.navy }}>人文社會領域 AI 使用邊界參考</h3>
+        <div style={{ overflowX:"auto" }}>
+          <table style={{ width:"100%", borderCollapse:"collapse", fontSize:13 }}>
+            <thead>
+              <tr style={{ background:C.navyMid }}>
+                {["任務類型","主要風險","建議做法","建議代碼"].map(h=>(
+                  <th key={h} style={{ padding:"10px 12px", color:"#e2e8f0", textAlign:"left", fontWeight:600 }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {disciplines.map((r,i)=>(
+                <tr key={i} style={{ background:i%2===0?C.surface:C.grayBg }}>
+                  {r.map((c,j)=>(
+                    <td key={j} style={{ padding:"9px 12px", color:C.text, borderBottom:`1px solid ${C.border}`, verticalAlign:"top" }}>
+                      {j===3 ? c.split("/").map(x=><Badge key={x} code={x.trim()} />) : c}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function DecisionTab() {
+  return (
+    <div>
+      <SectionHeader icon="⚖️" title="教師課綱 AI 使用政策決策表" sub="依課程類型快速選擇適合的政策強度與揭露要求。" />
+      {DECISION_TABLE.map((row,i)=>(
+        <Card key={i} style={{ marginBottom:14 }}>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:12 }}>
+            <h3 style={{ margin:0, fontSize:15, fontWeight:700, color:C.navy }}>{row.context}</h3>
+            <div style={{ display:"flex", gap:8, alignItems:"center", flexShrink:0 }}>
+              <span style={{ fontSize:13, color:C.muted }}>{row.policy}</span>
+              <Badge code={row.code} />
+            </div>
+          </div>
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12 }}>
+            {[["✅ 可允許使用",row.allowed,C.greenBg,C.green],["🚫 應禁止或限制",row.prohibited,C.redBg,C.red],["📋 學生揭露要求",row.disclosure,C.skyBg,C.sky]].map(([label,val,bg,col])=>(
+              <div key={label} style={{ background:bg, borderRadius:8, padding:12, border:`1px solid ${col}20` }}>
+                <div style={{ fontWeight:700, color:col, fontSize:12, marginBottom:6 }}>{label}</div>
+                <div style={{ color:C.text, fontSize:12, lineHeight:1.65 }}>{val}</div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+function TemplatesTab({ copyTemplate, copiedId }) {
+  const DISCLOSURE_FIELDS = [
+    ["使用工具","例如 ChatGPT、Claude、Gemini、Copilot、Perplexity 等"],
+    ["使用目的","發想、摘要、翻譯、潤飾、除錯、資料分析、圖像生成等"],
+    ["使用範圍","說明哪些段落、程式碼、圖表或研究步驟受到 AI 協助"],
+    ["主要提示詞摘要","不必逐字貼上全部對話，但需說明提問方向與關鍵要求"],
+    ["人工查證與修改","列出學生如何查證、修正錯誤、改寫或拒絕 AI 建議"],
+    ["責任聲明","學生確認最終提交內容由本人負責，並符合課程與學術誠信規範"],
+  ];
+  const CHECKLIST = [
+    ["學習目標是否清楚","學生是否知道本作業要練習的是知識、方法、判斷、寫作或工具使用？"],
+    ["AI 使用邊界是否明確","是否列出允許、限制、禁止的具體行為？"],
+    ["評量方式是否能看見過程","是否要求草稿、資料處理紀錄、口頭說明、反思或版本紀錄？"],
+    ["揭露要求是否可執行","學生是否知道如何填寫 AI 使用聲明？"],
+    ["風險是否被處理","是否考慮隱私、偏誤、著作權、錯誤資訊與不公平取得工具？"],
+    ["違規後果是否清楚","是否連結校內學術誠信規範或教師課程規則？"],
+  ];
+  const [checked, setChecked] = useState({});
+  const toggle = k => setChecked(p=>({...p,[k]:!p[k]}));
+
+  return (
+    <div>
+      <SectionHeader icon="📝" title="課綱模板與實用工具" sub="點擊複製按鈕即可直接貼入您的課程大綱。" />
+      <div style={{ display:"grid", gap:16, marginBottom:24 }}>
+        {SYLLABUS_TEMPLATES.map(t=>(
+          <Card key={t.id}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                <Badge code={t.code} />
+                <span style={{ fontWeight:700, color:C.navy, fontSize:15 }}>{t.title}</span>
+              </div>
+              <button
+                onClick={()=>copyTemplate(t.id, t.content)}
+                style={{ padding:"6px 14px", borderRadius:6, border:`1px solid ${C.sky}`, background:copiedId===t.id?C.sky:C.surface, color:copiedId===t.id?"white":C.sky, cursor:"pointer", fontSize:12, fontWeight:600, transition:"all .2s" }}>
+                {copiedId===t.id ? "✓ 已複製！" : "📋 複製條文"}
+              </button>
+            </div>
+            <div style={{ background:C.grayBg, borderRadius:8, padding:14, fontSize:13, lineHeight:1.75, color:C.text, borderLeft:`4px solid ${POLICY_CODE_MAP[t.code]?.color}` }}>
+              {t.content}
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      <Card style={{ marginBottom:20 }}>
+        <h3 style={{ margin:"0 0 14px", fontSize:15, fontWeight:700, color:C.navy }}>📋 學生 AI 使用揭露表欄位</h3>
+        <div style={{ display:"grid", gap:8 }}>
+          {DISCLOSURE_FIELDS.map(([f,d])=>(
+            <div key={f} style={{ display:"flex", gap:12, padding:10, borderRadius:8, background:C.skyBg, fontSize:13 }}>
+              <span style={{ fontWeight:700, color:C.sky, minWidth:120 }}>{f}</span>
+              <span style={{ color:C.text }}>{d}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <Card>
+        <h3 style={{ margin:"0 0 14px", fontSize:15, fontWeight:700, color:C.navy }}>✅ 作業設計檢核表</h3>
+        <div style={{ display:"grid", gap:8 }}>
+          {CHECKLIST.map(([item,q],i)=>(
+            <div key={i} onClick={()=>toggle(i)} style={{ display:"flex", gap:12, padding:10, borderRadius:8, background:checked[i]?C.greenBg:C.surface, border:`1px solid ${checked[i]?C.green:C.border}`, cursor:"pointer", transition:"all .2s" }}>
+              <span style={{ width:20, height:20, borderRadius:4, border:`2px solid ${checked[i]?C.green:C.border}`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, background:checked[i]?C.green:"transparent", color:"white", fontSize:12 }}>
+                {checked[i]?"✓":""}
+              </span>
+              <div>
+                <div style={{ fontWeight:600, color:C.navy, fontSize:13 }}>{item}</div>
+                <div style={{ color:C.muted, fontSize:12, marginTop:2 }}>{q}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop:12, textAlign:"right", fontSize:12, color:C.muted }}>
+          已完成 {Object.values(checked).filter(Boolean).length}/{CHECKLIST.length} 項
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function CodesTab() {
+  return (
+    <div>
+      <SectionHeader icon="🏷️" title="政策強度與使用情境編碼" sub="用 A-E 五個代碼快速標記每份指引的政策強度。" />
+      <div style={{ display:"grid", gap:12 }}>
+        {POLICY_CODES.map(pc=>{
+          const m = POLICY_CODE_MAP[pc.code];
+          return (
+            <Card key={pc.code}>
+              <div style={{ display:"flex", gap:16, alignItems:"flex-start" }}>
+                <div style={{ width:48, height:48, borderRadius:10, background:m.bg, border:`2px solid ${m.color}`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                  <span style={{ fontWeight:800, fontSize:20, color:m.color }}>{pc.code}</span>
+                </div>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontWeight:700, fontSize:16, color:m.color, marginBottom:4 }}>{pc.label}</div>
+                  <div style={{ color:C.text, fontSize:13, marginBottom:8 }}>{pc.def}</div>
+                  <div style={{ background:m.bg, borderRadius:6, padding:"6px 10px", fontSize:12, color:m.color }}>
+                    📌 適用情境：{pc.contexts}
+                  </div>
+                </div>
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function TaiwanTab() {
+  const levels = [...new Set(TAIWAN_DATA.map(r=>r.level))];
+  const [filter, setFilter] = useState("全部");
+  const filtered = filter==="全部" ? TAIWAN_DATA : TAIWAN_DATA.filter(r=>r.level===filter);
+  return (
+    <div>
+      <SectionHeader icon="🇹🇼" title="台灣 AI 教學與治理資料地圖" sub="26 筆台灣各層級機構 AI 教學指引，含國家法規、教育部政策、大學校級指引。" />
+      <div style={{ display:"flex", gap:8, marginBottom:16, flexWrap:"wrap" }}>
+        {["全部",...levels].map(l=>(
+          <button key={l} onClick={()=>setFilter(l)}
+            style={{ padding:"5px 12px", borderRadius:20, border:`1px solid ${filter===l?C.sky:C.border}`, background:filter===l?C.sky:C.surface, color:filter===l?"white":C.muted, cursor:"pointer", fontSize:12, fontWeight:600 }}>
+            {l}
+          </button>
+        ))}
+      </div>
+      <div style={{ display:"grid", gap:10 }}>
+        {filtered.map(r=>(
+          <Card key={r.id}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:12 }}>
+              <div style={{ flex:1 }}>
+                <div style={{ display:"flex", gap:8, alignItems:"center", marginBottom:6 }}>
+                  <span style={{ background:C.skyBg, color:C.sky, fontSize:11, fontWeight:700, padding:"2px 8px", borderRadius:4 }}>{r.level}</span>
+                  <span style={{ background:C.grayBg, color:C.muted, fontSize:11, padding:"2px 8px", borderRadius:4 }}>{r.type}</span>
+                  {r.date && <span style={{ color:C.muted, fontSize:11 }}>📅 {r.date}</span>}
+                </div>
+                <div style={{ fontWeight:700, color:C.navy, fontSize:14, marginBottom:3 }}>{r.inst}</div>
+                <div style={{ color:C.text, fontSize:13 }}>{r.name}</div>
+              </div>
+              <div style={{ display:"flex", flexDirection:"column", gap:6, alignItems:"flex-end", flexShrink:0 }}>
+                <span style={{ fontSize:11, color:C.orange, background:C.orangeBg, padding:"2px 8px", borderRadius:4 }}>{r.status}</span>
+                {r.url && <a href={r.url} target="_blank" rel="noopener noreferrer" style={{ fontSize:12, color:C.sky, textDecoration:"none" }}>🔗 前往</a>}
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function IntlTab() {
+  const orgs = [...new Set(INTL_ORGS.map(r=>r.org))];
+  const [filter, setFilter] = useState("全部");
+  const filtered = filter==="全部" ? INTL_ORGS : INTL_ORGS.filter(r=>r.org===filter);
+  return (
+    <div>
+      <SectionHeader icon="🌐" title="國際機構 AI 教育框架" sub="UNESCO、OECD、TeachAI、EDUCAUSE 等 10 筆國際指引。" />
+      <div style={{ display:"flex", gap:8, marginBottom:16 }}>
+        {["全部",...orgs].map(o=>(
+          <button key={o} onClick={()=>setFilter(o)}
+            style={{ padding:"5px 12px", borderRadius:20, border:`1px solid ${filter===o?C.teal:C.border}`, background:filter===o?C.teal:C.surface, color:filter===o?"white":C.muted, cursor:"pointer", fontSize:12, fontWeight:600 }}>
+            {o}
+          </button>
+        ))}
+      </div>
+      <div style={{ display:"grid", gap:12 }}>
+        {filtered.map(r=>(
+          <Card key={r.id}>
+            <div style={{ display:"flex", gap:12 }}>
+              <div style={{ width:52, flexShrink:0 }}>
+                <div style={{ background:C.teal, color:"white", fontWeight:800, fontSize:11, borderRadius:6, padding:"4px 6px", textAlign:"center" }}>{r.org}</div>
+                {r.date && <div style={{ fontSize:10, color:C.muted, textAlign:"center", marginTop:4 }}>{r.date}</div>}
+              </div>
+              <div style={{ flex:1 }}>
+                <div style={{ fontWeight:700, color:C.navy, fontSize:14, marginBottom:6 }}>{r.name}</div>
+                <div style={{ color:C.muted, fontSize:12, lineHeight:1.6, marginBottom:8 }}>{r.summary}</div>
+                <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+                  <span style={{ background:C.tealBg, color:C.teal, fontSize:11, padding:"2px 8px", borderRadius:4 }}>{r.type}</span>
+                  {r.url && <a href={r.url} target="_blank" rel="noopener noreferrer" style={{ fontSize:12, color:C.sky }}>🔗 原文連結</a>}
+                </div>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function KeyUnisTab() {
+  return (
+    <div>
+      <SectionHeader icon="🎓" title="國際重點大學 AI 教學指引" sub="8 所優先參考的重點大學，含課綱範本、學術誠信框架與教師工具。" />
+      <div style={{ display:"grid", gap:14 }}>
+        {KEY_UNIVERSITIES.map((u,i)=>(
+          <Card key={i}>
+            <div style={{ display:"flex", gap:14, alignItems:"flex-start" }}>
+              <div style={{ textAlign:"center", flexShrink:0, minWidth:48 }}>
+                <div style={{ fontSize:18 }}>{u.rank}</div>
+                <div style={{ fontSize:10, color:C.muted, marginTop:2 }}>優先度</div>
+              </div>
+              <div style={{ flex:1 }}>
+                <div style={{ display:"flex", gap:8, alignItems:"center", marginBottom:6, flexWrap:"wrap" }}>
+                  <span style={{ fontWeight:700, color:C.navy, fontSize:15 }}>{u.inst}</span>
+                  <span style={{ background:C.skyBg, color:C.sky, fontSize:11, padding:"2px 8px", borderRadius:4 }}>{u.type}</span>
+                </div>
+                <div style={{ color:C.text, fontSize:13, marginBottom:8, fontWeight:600 }}>{u.name}</div>
+                <div style={{ color:C.muted, fontSize:12, lineHeight:1.65, marginBottom:10 }}>{u.summary}</div>
+                <a href={u.url} target="_blank" rel="noopener noreferrer"
+                  style={{ display:"inline-flex", alignItems:"center", gap:4, padding:"6px 14px", background:C.sky, color:"white", borderRadius:6, fontSize:12, fontWeight:600, textDecoration:"none" }}>
+                  🔗 前往指引
+                </a>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function GlobalDBTab() {
+  const [search, setSearch] = useState("");
+  const [region, setRegion] = useState("all");
+  const [type, setType] = useState("all");
+  const [status, setStatus] = useState("all");
+  const [page, setPage] = useState(1);
+  const PER_PAGE = 20;
+
+  const regions = useMemo(()=>[...new Set(GLOBAL_DB.map(r=>r.region))], []);
+  const types = useMemo(()=>[...new Set(GLOBAL_DB.map(r=>r.type))], []);
+
+  const filtered = useMemo(()=>{
+    const q = search.toLowerCase();
+    return GLOBAL_DB.filter(r=>{
+      const ms = !q||r.uni.toLowerCase().includes(q)||r.name.toLowerCase().includes(q)||r.country.toLowerCase().includes(q);
+      const mr = region==="all"||r.region===region;
+      const mt = type==="all"||r.type===type;
+      const mst = status==="all"||r.status===status;
+      return ms&&mr&&mt&&mst;
+    });
+  }, [search,region,type,status]);
+
+  const pages = Math.ceil(filtered.length/PER_PAGE);
+  const pageData = filtered.slice((page-1)*PER_PAGE, page*PER_PAGE);
+
+  const exportCSV = () => {
+    const cols = ["id","region","country","uni","name","date","type","status","url"];
+    const rows = [cols.join(","), ...filtered.map(r=>cols.map(c=>`"${(r[c]||"").replace(/"/g,'""')}"`).join(","))];
+    const blob = new Blob(["\uFEFF"+rows.join("\n")], {type:"text/csv"});
+    const a = document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="AI_Teaching_Guidelines_DB.csv"; a.click();
+  };
+
+  return (
+    <div>
+      <SectionHeader icon="🗃️" title="全球大學 AI 教學指引資料庫" sub={`共 90 筆 · 篩選後顯示 ${filtered.length} 筆 · 第 ${page}/${pages} 頁`} />
+
+      {/* Filters */}
+      <Card style={{ marginBottom:16 }}>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr auto", gap:10, alignItems:"end" }}>
+          <div>
+            <label style={{ fontSize:12, color:C.muted, display:"block", marginBottom:4 }}>搜尋機構/文件名稱</label>
+            <input value={search} onChange={e=>{setSearch(e.target.value);setPage(1);}}
+              placeholder="輸入關鍵字…" style={{ width:"100%", padding:"8px 10px", border:`1px solid ${C.border}`, borderRadius:6, fontSize:13, boxSizing:"border-box" }} />
+          </div>
+          <div>
+            <label style={{ fontSize:12, color:C.muted, display:"block", marginBottom:4 }}>地區</label>
+            <select value={region} onChange={e=>{setRegion(e.target.value);setPage(1);}}
+              style={{ width:"100%", padding:"8px 10px", border:`1px solid ${C.border}`, borderRadius:6, fontSize:13 }}>
+              <option value="all">全部地區</option>
+              {regions.map(r=><option key={r} value={r}>{r}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={{ fontSize:12, color:C.muted, display:"block", marginBottom:4 }}>指引類型</label>
+            <select value={type} onChange={e=>{setType(e.target.value);setPage(1);}}
+              style={{ width:"100%", padding:"8px 10px", border:`1px solid ${C.border}`, borderRadius:6, fontSize:13 }}>
+              <option value="all">全部類型</option>
+              {types.map(t=><option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
+          <button onClick={exportCSV}
+            style={{ padding:"8px 16px", background:C.teal, color:"white", border:"none", borderRadius:6, cursor:"pointer", fontSize:12, fontWeight:600, whiteSpace:"nowrap" }}>
+            ⬇ 匯出 CSV
+          </button>
+        </div>
+      </Card>
+
+      {/* Table */}
+      <div style={{ overflowX:"auto", background:C.surface, borderRadius:10, border:`1px solid ${C.border}` }}>
+        <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
+          <thead>
+            <tr style={{ background:C.navyMid }}>
+              {["#","地區","機構名稱","文件名稱","日期","類型","查核狀態","連結"].map(h=>(
+                <th key={h} style={{ padding:"10px 12px", color:"#e2e8f0", textAlign:"left", fontWeight:600, whiteSpace:"nowrap" }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {pageData.map((r,i)=>(
+              <tr key={r.id} style={{ background:i%2===0?C.surface:C.grayBg, transition:"background .15s" }}>
+                <td style={{ padding:"9px 12px", color:C.subtle, borderBottom:`1px solid ${C.border}` }}>{r.id}</td>
+                <td style={{ padding:"9px 12px", color:C.muted, borderBottom:`1px solid ${C.border}`, whiteSpace:"nowrap" }}>{r.region.split(" ")[0]}</td>
+                <td style={{ padding:"9px 12px", borderBottom:`1px solid ${C.border}`, maxWidth:180 }}>
+                  <div style={{ fontWeight:600, color:C.navy }}>{r.uni}</div>
+                  <div style={{ color:C.muted, fontSize:11 }}>{r.country}</div>
+                </td>
+                <td style={{ padding:"9px 12px", color:C.text, borderBottom:`1px solid ${C.border}`, maxWidth:260 }}>{r.name}</td>
+                <td style={{ padding:"9px 12px", color:C.muted, borderBottom:`1px solid ${C.border}`, whiteSpace:"nowrap" }}>{r.date||<span style={{color:C.orange}}>待補</span>}</td>
+                <td style={{ padding:"9px 12px", borderBottom:`1px solid ${C.border}`, whiteSpace:"nowrap" }}>
+                  <span style={{ background:C.skyBg, color:C.sky, fontSize:10, padding:"2px 6px", borderRadius:4 }}>{r.type}</span>
+                </td>
+                <td style={{ padding:"9px 12px", borderBottom:`1px solid ${C.border}` }}>
+                  <StatusDot status={r.status} />
+                  <span style={{ fontSize:10, color:C.muted }}>{r.status}</span>
+                </td>
+                <td style={{ padding:"9px 12px", borderBottom:`1px solid ${C.border}` }}>
+                  {r.url ? <a href={r.url} target="_blank" rel="noopener noreferrer" style={{ color:C.sky, fontSize:12 }}>🔗</a> : <span style={{color:C.border}}>—</span>}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
+      {pages>1&&(
+        <div style={{ display:"flex", justifyContent:"center", gap:6, marginTop:14 }}>
+          <button onClick={()=>setPage(p=>Math.max(1,p-1))} disabled={page===1}
+            style={{ padding:"6px 12px", border:`1px solid ${C.border}`, borderRadius:6, background:C.surface, cursor:page===1?"not-allowed":"pointer", color:C.muted, fontSize:12 }}>←</button>
+          {Array.from({length:pages},(_,i)=>i+1).map(p=>(
+            <button key={p} onClick={()=>setPage(p)}
+              style={{ padding:"6px 12px", border:`1px solid ${p===page?C.sky:C.border}`, borderRadius:6, background:p===page?C.sky:C.surface, color:p===page?"white":C.muted, cursor:"pointer", fontSize:12 }}>
+              {p}
+            </button>
+          ))}
+          <button onClick={()=>setPage(p=>Math.min(pages,p+1))} disabled={page===pages}
+            style={{ padding:"6px 12px", border:`1px solid ${C.border}`, borderRadius:6, background:C.surface, cursor:page===pages?"not-allowed":"pointer", color:C.muted, fontSize:12 }}>→</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ToolsTab() {
+  const syllabus_resources = [
+    { inst:"Yale University (Poorvu Center)", name:"Sample AI Syllabus Statements", feature:"依課程類型分類（大型講課、STEM、人文寫作、創意寫作），最常被引用", url:"https://poorvucenter.yale.edu/teaching/teaching-resource-library/ai-guidance-for-teachers/ai-course-assignment-design/sample-ai" },
+    { inst:"Stanford University", name:"Creating Your Course Policy on AI", feature:"從學術誠信、學生成功、課業負擔三面向思考，有具體範例句子可直接套用", url:"https://teachingcommons.stanford.edu/teaching-guides/artificial-intelligence" },
+    { inst:"University of Texas at Austin", name:"Generative AI Syllabus Statements", feature:"針對不同情境提供極具體文字（如「可用於發想但不可生成可交作業文本」）", url:"https://provost.utexas.edu/policies-resources/faculty-resources/ai-guidance/generative-ai-syllabus-statements" },
+    { inst:"Tufts University", name:"Developing Syllabus Statements for AI", feature:"範本中融入「學習目標」論述，解釋為何訂定此政策", url:"https://provost.tufts.edu/celt/developing-syllabus-statements-for-ai/" },
+    { inst:"Lance Eaton（研究者）", name:"Syllabi Policies for AI Generative Tools", feature:"最大型的眾包政策資料庫，含數百位教師的實際 syllabus 條文", url:"https://docs.google.com/document/d/1RMVwzjc1o0Mi8Blw_-JUTcXv02b2WRH86vw7mi16W3U/edit" },
+    { inst:"MLA-CCCC Joint Task Force", name:"Building a Culture for Gen AI Literacy", feature:"專針對語言、文學、寫作課程，對人文學科最具參考價值", url:"https://mla.org/About-Us/Governance/Committees/MLA-CCCC-Task-Force-on-Writing-and-AI" },
+  ];
+  return (
+    <div>
+      <SectionHeader icon="🛠️" title="教師最實用資源精選" sub="附錄：原始重點資源彙整，可直接採用或改寫。" />
+      <div style={{ display:"grid", gap:12 }}>
+        {syllabus_resources.map((r,i)=>(
+          <Card key={i}>
+            <div style={{ display:"flex", justifyContent:"space-between", gap:12 }}>
+              <div>
+                <div style={{ fontWeight:700, color:C.navy, fontSize:14, marginBottom:4 }}>{r.name}</div>
+                <div style={{ color:C.sky, fontSize:12, marginBottom:6 }}>{r.inst}</div>
+                <div style={{ color:C.text, fontSize:12, lineHeight:1.6 }}>{r.feature}</div>
+              </div>
+              <a href={r.url} target="_blank" rel="noopener noreferrer"
+                style={{ flexShrink:0, padding:"6px 14px", background:C.sky, color:"white", borderRadius:6, fontSize:12, fontWeight:600, textDecoration:"none", height:"fit-content" }}>
+                前往
+              </a>
+            </div>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function UpdatesTab() {
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState("");
+  const [lastChecked, setLastChecked] = useState("");
+  const [scheduleInfo, setScheduleInfo] = useState(false);
+
+  const checkUpdates = async () => {
+    setLoading(true); setResult("");
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          model:"claude-sonnet-4-20250514",
+          max_tokens:1000,
+          messages:[{
+            role:"user",
+            content:`你是一位 AI 教學政策追蹤專家。請根據以下資料庫狀態進行分析：
+
+資料庫概況（截至 2026-05-22）：
+- 全球 90 筆大學 AI 教學指引，80 筆缺發布日期
+- 台灣 26 筆機構（教育部、國科會、數位發展部、26 所大學）
+- 國際機構：UNESCO、OECD、TeachAI、EDUCAUSE
+- 8 所重點大學：Yale、MIT、Stanford、Harvard、Oxford、Imperial、JISC、Melbourne
+
+請提供：
+1. **近期最可能有新版指引的 3-5 個機構**（說明原因）
+2. **2025-2026 年 AI 教學政策的主要趨勢**（3-4 條）
+3. **下次人工查核的重點項目**（2-3 條，具體可操作）
+
+請用繁體中文回答，格式清晰，每點簡短有力。`
+          }]
+        })
+      });
+      const data = await res.json();
+      const text = data.content?.find(b=>b.type==="text")?.text || "無法取得結果";
+      setResult(text);
+      setLastChecked(new Date().toLocaleString("zh-TW"));
+    } catch(e) {
+      setResult(`查核失敗：${e.message}`);
+    }
+    setLoading(false);
+  };
+
+  const scheduleOptions = [
+    { icon:"⚙️", title:"GitHub Actions（免費推薦）", desc:"每日定時觸發 workflow，爬取各大學指引頁面的最新內容，比對差異後自動發通知。", code:`# .github/workflows/ai-guidelines-check.yml
+name: Daily AI Guidelines Check
+on:
+  schedule:
+    - cron: '0 2 * * *'  # 每天 UTC 02:00（台灣 10:00）
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install requests beautifulsoup4
+      - run: python scripts/check_updates.py
+      - name: Send notification if changes found
+        if: steps.check.outputs.changed == 'true'
+        uses: dawidd6/action-send-mail@v3` },
+    { icon:"🔄", title:"n8n / Make 自動化（低代碼）", desc:"建立定時工作流程：每日爬取目標 URL → 比對快取 → 有更新則寄 Email 或發 Slack 通知。", code:`工作流程設計：
+1. 定時觸發（每日一次）
+2. HTTP Request 節點 → 依序抓取各大學 URL
+3. 比對上次快取內容
+4. 若發現差異 → Email/Slack 通知
+5. 更新快取資料` },
+    { icon:"🐍", title:"Python + 排程腳本", desc:"本地或雲端 VPS 執行，使用 cron + requests 定期抓取，並透過 Anthropic API 智慧分析變動。", code:`import schedule, time, requests
+from anthropic import Anthropic
+
+def check_url(url, cache):
+    r = requests.get(url, timeout=10)
+    if cache.get(url) != r.text[:500]:
+        cache[url] = r.text[:500]
+        return True  # 有變動
+    return False
+
+def daily_check():
+    URLS = [
+        "https://poorvucenter.yale.edu/...",
+        "https://www.nstc.gov.tw/...",
+        # 加入更多追蹤 URL
+    ]
+    changes = [u for u in URLS if check_url(u, cache)]
+    if changes:
+        # 用 Claude API 分析變動摘要
+        client = Anthropic()
+        client.messages.create(...)
+
+schedule.every().day.at("10:00").do(daily_check)
+while True:
+    schedule.run_pending()
+    time.sleep(60)` },
+  ];
+
+  return (
+    <div>
+      <SectionHeader icon="🔄" title="資料更新與排程設定" sub="AI 教學指引持續演進，建議定期查核。以下提供 AI 智能查核與自動排程設定方案。" />
+
+      {/* AI Check Panel */}
+      <Card style={{ marginBottom:20, background:`linear-gradient(135deg, ${C.navyMid}, ${C.navy})` }}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
+          <div>
+            <h3 style={{ margin:0, color:"white", fontSize:16, fontWeight:700 }}>🤖 AI 智能查核</h3>
+            <p style={{ color:C.subtle, fontSize:13, margin:"4px 0 0" }}>
+              點擊下方按鈕，由 AI 分析近期最可能更新的指引，並提供查核建議。
+            </p>
+            {lastChecked && <p style={{ color:C.sky, fontSize:12, margin:"6px 0 0" }}>上次查核：{lastChecked}</p>}
+          </div>
+          <button onClick={checkUpdates} disabled={loading}
+            style={{ padding:"10px 22px", borderRadius:8, border:"none", background:loading?"#475569":C.sky, color:"white", cursor:loading?"not-allowed":"pointer", fontSize:14, fontWeight:700, display:"flex", alignItems:"center", gap:8, flexShrink:0 }}>
+            {loading ? "🔄 分析中…" : "🔍 立即查核"}
+          </button>
+        </div>
+        {result && (
+          <div style={{ background:"rgba(255,255,255,0.08)", borderRadius:8, padding:16, color:"#e2e8f0", fontSize:13, lineHeight:1.75, whiteSpace:"pre-wrap", border:"1px solid rgba(255,255,255,0.1)", maxHeight:320, overflowY:"auto" }}>
+            {result}
+          </div>
+        )}
+      </Card>
+
+      {/* Schedule Options */}
+      <div style={{ marginBottom:14, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+        <h3 style={{ margin:0, fontSize:15, fontWeight:700, color:C.navy }}>⏰ 自動排程設定方案</h3>
+        <button onClick={()=>setScheduleInfo(!scheduleInfo)}
+          style={{ padding:"5px 12px", border:`1px solid ${C.border}`, borderRadius:6, background:C.surface, color:C.sky, cursor:"pointer", fontSize:12 }}>
+          {scheduleInfo ? "收起" : "展開說明"}
+        </button>
+      </div>
+      <div style={{ display:"grid", gap:14 }}>
+        {scheduleOptions.map((opt,i)=>(
+          <Card key={i}>
+            <div style={{ display:"flex", gap:12 }}>
+              <span style={{ fontSize:24 }}>{opt.icon}</span>
+              <div style={{ flex:1 }}>
+                <h4 style={{ margin:"0 0 6px", fontSize:14, fontWeight:700, color:C.navy }}>{opt.title}</h4>
+                <p style={{ margin:"0 0 10px", color:C.muted, fontSize:13 }}>{opt.desc}</p>
+                {scheduleInfo && (
+                  <pre style={{ background:C.navyMid, color:"#a5f3fc", padding:12, borderRadius:8, fontSize:11, overflowX:"auto", margin:0, lineHeight:1.7 }}>{opt.code}</pre>
+                )}
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      {/* Update SOP */}
+      <Card style={{ marginTop:20, background:C.tealBg }}>
+        <h3 style={{ margin:"0 0 12px", fontSize:15, fontWeight:700, color:C.teal }}>📋 人工查核 SOP</h3>
+        {[
+          "判斷新增資料用途：校級政策、教師教學、學生指引、學術誠信、研究倫理或 AI 素養",
+          "優先找官方來源：政府、學校教務處、教學中心、學術誠信辦公室、圖書館、正式 PDF",
+          "補齊基本欄位：發布日期、更新日期、適用對象、正式 URL、查核日期",
+          "用政策強度 A-E 編碼，再用使用情境標籤標示",
+          "人工校對中文摘要：保留原文標題，中文摘要只描述重點，不直接照機器翻譯",
+          "每學期更新一次；若台灣法規或校級政策更新，立即重新查核相關段落",
+        ].map((s,i)=>(
+          <div key={i} style={{ display:"flex", gap:10, padding:"8px 0", borderBottom:i<5?`1px solid ${C.border}`:"none", fontSize:13, color:C.text }}>
+            <span style={{ color:C.teal, fontWeight:700, minWidth:20 }}>{i+1}.</span> {s}
+          </div>
+        ))}
+      </Card>
+    </div>
+  );
+}
+
+// ─── MAIN APP ────────────────────────────────────────────────
+
+function App() {
+  const [activeTab, setActiveTab] = useState("summary");
+
+  useEffect(() => {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap";
+    document.head.appendChild(link);
+    document.body.style.margin = "0";
+  }, []);
+
+  const content = {
+    summary:   <SummaryTab />,
+    howto:     <HowtoTab />,
+    decision:  <DecisionTab />,
+    templates: <TemplatesTab copyTemplate={(id,c)=>{navigator.clipboard.writeText(c);}} copiedId={null} />,
+    codes:     <CodesTab />,
+    taiwan:    <TaiwanTab />,
+    intl:      <IntlTab />,
+    keyuni:    <KeyUnisTab />,
+    globaldb:  <GlobalDBTab />,
+    tools:     <ToolsTab />,
+    updates:   <UpdatesTab />,
+  };
+
+  // Special stateful template tab
+  function StatefulTemplateTab() {
+    const [copiedId, setCopiedId] = useState(null);
+    const copyTemplate = (id, c) => {
+      navigator.clipboard.writeText(c);
+      setCopiedId(id);
+      setTimeout(()=>setCopiedId(null), 2000);
+    };
+    return <TemplatesTab copyTemplate={copyTemplate} copiedId={copiedId} />;
+  }
+
+  return (
+    <div style={{ fontFamily:"'Noto Sans TC', sans-serif", display:"flex", height:"100vh", background:C.skyBg, overflow:"hidden" }}>
+      {/* Sidebar */}
+      <nav style={{ width:195, background:C.navy, display:"flex", flexDirection:"column", flexShrink:0, overflowY:"auto" }}>
+        <div style={{ padding:"18px 14px 14px", borderBottom:"1px solid rgba(255,255,255,0.08)" }}>
+          <div style={{ fontSize:15, fontWeight:800, color:C.skyLight, letterSpacing:"-0.3px" }}>AI 教學指引</div>
+          <div style={{ fontSize:11, color:C.subtle, marginTop:3 }}>全球政策資料庫平台</div>
+          <div style={{ marginTop:10, display:"flex", gap:6 }}>
+            <span style={{ background:"rgba(56,189,248,0.15)", color:C.skyLight, fontSize:10, padding:"2px 6px", borderRadius:4 }}>90 校</span>
+            <span style={{ background:"rgba(16,185,129,0.15)", color:"#34d399", fontSize:10, padding:"2px 6px", borderRadius:4 }}>更新 05-22</span>
+          </div>
+        </div>
+        <div style={{ flex:1, padding:"8px 0" }}>
+          {TABS.map(tab=>(
+            <button key={tab.id} onClick={()=>setActiveTab(tab.id)}
+              style={{
+                width:"100%", display:"flex", alignItems:"center", gap:9, padding:"9px 14px",
+                border:"none", cursor:"pointer", textAlign:"left",
+                background:activeTab===tab.id?"rgba(56,189,248,0.12)":"transparent",
+                color:activeTab===tab.id?C.skyLight:C.subtle,
+                borderLeft:activeTab===tab.id?`3px solid ${C.sky}`:"3px solid transparent",
+                fontSize:13, fontFamily:"inherit", fontWeight:activeTab===tab.id?700:400,
+                transition:"all .15s",
+              }}>
+              <span style={{ fontSize:15 }}>{tab.icon}</span>
+              <span>{tab.label}</span>
+            </button>
+          ))}
+        </div>
+        <div style={{ padding:"10px 14px", borderTop:"1px solid rgba(255,255,255,0.08)", fontSize:10, color:"#334155" }}>
+          最後文件更新：2026-05-22
+        </div>
+      </nav>
+
+      {/* Content */}
+      <main style={{ flex:1, overflowY:"auto", padding:"28px 28px 40px" }}>
+        {activeTab === "templates" ? <StatefulTemplateTab /> : content[activeTab]}
+      </main>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+
+</script>
+</body>
+</html>
