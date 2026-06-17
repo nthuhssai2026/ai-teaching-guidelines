@@ -1,4006 +1,348 @@
+import { useState, useEffect, useMemo } from "react";
 
-import { useMemo, useState } from "react";
-
-const DATA = {
-  "generatedAt": "2026-06-17",
-  "urlSummary": {
-    "total": 144,
-    "ok": 106,
-    "error": 38
-  },
-  "taiwan": [
-    {
-      "id": 1,
-      "org": "數位發展部",
-      "name": "人工智慧基本法",
-      "url": "https://moda.gov.tw/major-policies/ai/governance/19248.html",
-      "kind": "html",
-      "downloadStatus": "OK",
-      "pdfFile": "台灣各大學AI教學指引/01_數位發展部_人工智慧基本法.pdf",
-      "message": "",
-      "urlStatus": "未批次檢查",
-      "statusCode": "",
-      "finalUrl": "https://moda.gov.tw/major-policies/ai/governance/19248.html",
-      "error": ""
-    },
-    {
-      "id": 2,
-      "org": "國科會",
-      "name": "行政院及所屬機關構使用生成式AI參考指引",
-      "url": "https://www.nstc.gov.tw/folksonomy/list/c79bf57b-dc94-4aff-8d14-3262b5559cfc?l=ch",
-      "kind": "html",
-      "downloadStatus": "OK",
-      "pdfFile": "台灣各大學AI教學指引/02_國科會_行政院及所屬機關構使用生成式AI參考指引.pdf",
-      "message": "",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.nstc.gov.tw/folksonomy/list/c79bf57b-dc94-4aff-8d14-3262b5559cfc?l=ch",
-      "error": ""
-    },
-    {
-      "id": 3,
-      "org": "國科會",
-      "name": "生成式AI指引FAQ",
-      "url": "https://www.nstc.gov.tw/folksonomy/detail/d21566a0-3465-4b63-84b7-5d7cb2e1e5ff?l=ch",
-      "kind": "html",
-      "downloadStatus": "OK",
-      "pdfFile": "台灣各大學AI教學指引/03_國科會_生成式AI指引FAQ.pdf",
-      "message": "",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.nstc.gov.tw/folksonomy/detail/d21566a0-3465-4b63-84b7-5d7cb2e1e5ff?l=ch",
-      "error": ""
-    },
-    {
-      "id": 4,
-      "org": "教育部",
-      "name": "中小學數位教學指引3.0",
-      "url": "https://pads.moe.edu.tw",
-      "kind": "html",
-      "downloadStatus": "OK",
-      "pdfFile": "台灣各大學AI教學指引/04_教育部_中小學數位教學指引3.0.pdf",
-      "message": "",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://pads.moe.edu.tw",
-      "error": ""
-    },
-    {
-      "id": 5,
-      "org": "教育部",
-      "name": "中小學使用生成式人工智慧注意事項",
-      "url": "https://pads.moe.edu.tw/download.php",
-      "kind": "html",
-      "downloadStatus": "OK",
-      "pdfFile": "台灣各大學AI教學指引/05_教育部_中小學使用生成式人工智慧注意事項.pdf",
-      "message": "",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://pads.moe.edu.tw/download.php",
-      "error": ""
-    },
-    {
-      "id": 6,
-      "org": "臺灣學術倫理教育學會",
-      "name": "人工智慧技術對學術倫理的影響及因應建議",
-      "url": "https://www.taaee.org.tw/docs/20230223_conclusion_final.pdf",
-      "kind": "pdf",
-      "downloadStatus": "OK",
-      "pdfFile": "台灣各大學AI教學指引/06_臺灣學術倫理教育學會_人工智慧技術對學術倫理的影響及因應建議.pdf",
-      "message": "",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.taaee.org.tw/docs/20230223_conclusion_final.pdf",
-      "error": ""
-    },
-    {
-      "id": 7,
-      "org": "臺師大",
-      "name": "生成式AI之學習應用及參考指引",
-      "url": "https://ctld.ntnu.edu.tw/generative_ai",
-      "kind": "html",
-      "downloadStatus": "OK",
-      "pdfFile": "台灣各大學AI教學指引/07_臺師大_生成式AI之學習應用及參考指引.pdf",
-      "message": "",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://ctld.ntnu.edu.tw/generative_ai",
-      "error": ""
-    },
-    {
-      "id": 8,
-      "org": "政大",
-      "name": "生成式人工智慧運用簡要原則",
-      "url": "https://sites.google.com/g.nccu.edu.tw/nccubasicprincipleforai",
-      "kind": "html",
-      "downloadStatus": "OK",
-      "pdfFile": "台灣各大學AI教學指引/08_政大_生成式人工智慧運用簡要原則.pdf",
-      "message": "",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://sites.google.com/g.nccu.edu.tw/nccubasicprincipleforai",
-      "error": ""
-    },
-    {
-      "id": 9,
-      "org": "臺大",
-      "name": "針對生成式AI工具之教學因應措施",
-      "url": "https://www.dlc.ntu.edu.tw/ai-tools/",
-      "kind": "html",
-      "downloadStatus": "OK",
-      "pdfFile": "台灣各大學AI教學指引/09_臺大_針對生成式AI工具之教學因應措施.pdf",
-      "message": "",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.dlc.ntu.edu.tw/ai-tools/",
-      "error": ""
-    },
-    {
-      "id": 10,
-      "org": "亞洲大學",
-      "name": "針對生成式AI工具之教學因應措施",
-      "url": "https://ac.asia.edu.tw/xhr/announcements/file/664ac4588199fb6b7a9ceac3/%E4%BA%9E%E5%A4%A7%E9%87%9D%E5%B0%8D%E7%94%9F%E6%88%90%E5%BC%8FAI%E5%B7%A5%E5%85%B7%E4%B9%8B%E6%95%99%E5%AD%B8%E5%9B%A0%E6%87%89%E6%8E%AA%E6%96%BD_2024%E7%89%88.pdf",
-      "kind": "pdf",
-      "downloadStatus": "OK",
-      "pdfFile": "台灣各大學AI教學指引/10_亞洲大學_針對生成式AI工具之教學因應措施.pdf",
-      "message": "",
-      "urlStatus": "未批次檢查",
-      "statusCode": "",
-      "finalUrl": "https://ac.asia.edu.tw/xhr/announcements/file/664ac4588199fb6b7a9ceac3/%E4%BA%9E%E5%A4%A7%E9%87%9D%E5%B0%8D%E7%94%9F%E6%88%90%E5%BC%8FAI%E5%B7%A5%E5%85%B7%E4%B9%8B%E6%95%99%E5%AD%B8%E5%9B%A0%E6%87%89%E6%8E%AA%E6%96%BD_2024%E7%89%88.pdf",
-      "error": ""
-    },
-    {
-      "id": 11,
-      "org": "清華大學",
-      "name": "大學教育場域AI協作共學與素養培養指引",
-      "url": "https://ctld.site.nthu.edu.tw/p/450-1217-253458%2Cc0.php?Lang=zh-tw",
-      "kind": "pdf",
-      "downloadStatus": "OK",
-      "pdfFile": "台灣各大學AI教學指引/11_清華大學_大學教育場域AI協作共學與素養培養指引.pdf",
-      "message": "",
-      "urlStatus": "未批次檢查",
-      "statusCode": "",
-      "finalUrl": "https://ctld.site.nthu.edu.tw/p/450-1217-253458%2Cc0.php?Lang=zh-tw",
-      "error": ""
-    },
-    {
-      "id": 12,
-      "org": "成功大學",
-      "name": "AI及相關學習工具參考指南",
-      "url": "https://sites.google.com/gs.ncku.edu.tw/nckuaiguidance/%E9%A6%96%E9%A0%81",
-      "kind": "html",
-      "downloadStatus": "OK",
-      "pdfFile": "台灣各大學AI教學指引/12_成功大學_AI及相關學習工具參考指南.pdf",
-      "message": "",
-      "urlStatus": "未批次檢查",
-      "statusCode": "",
-      "finalUrl": "https://sites.google.com/gs.ncku.edu.tw/nckuaiguidance/%E9%A6%96%E9%A0%81",
-      "error": ""
-    },
-    {
-      "id": 13,
-      "org": "中山大學",
-      "name": "生成式AI工具使用參照指引",
-      "url": "https://oaa.nsysu.edu.tw/p/406-1003-313202,r1365.php?Lang=zh-tw",
-      "kind": "html",
-      "downloadStatus": "OK",
-      "pdfFile": "台灣各大學AI教學指引/13_中山大學_生成式AI工具使用參照指引.pdf",
-      "message": "",
-      "urlStatus": "未批次檢查",
-      "statusCode": "",
-      "finalUrl": "https://oaa.nsysu.edu.tw/p/406-1003-313202,r1365.php?Lang=zh-tw",
-      "error": ""
-    },
-    {
-      "id": 14,
-      "org": "高雄大學",
-      "name": "AI生成工具使用指引",
-      "url": "https://tech2021.mystrikingly.com/aitools?utm_source=email_deliver&utm_medium=email&utm_campaign=aitools",
-      "kind": "html",
-      "downloadStatus": "FAILED",
-      "pdfFile": "",
-      "message": "PDF appears to be an error page: 403 ERROR",
-      "urlStatus": "ERROR",
-      "statusCode": "",
-      "finalUrl": "https://tech2021.mystrikingly.com/aitools?utm_source=email_deliver&utm_medium=email&utm_campaign=aitools",
-      "error": "HTTP Error 403: Forbidden"
-    },
-    {
-      "id": 15,
-      "org": "高雄科大",
-      "name": "針對生成式AI工具之教學因應措施",
-      "url": "https://acad.nkust.edu.tw/p/412-1004-9405.php?Lang=zh-tw",
-      "kind": "html",
-      "downloadStatus": "OK",
-      "pdfFile": "台灣各大學AI教學指引/15_高雄科大_針對生成式AI工具之教學因應措施.pdf",
-      "message": "",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://acad.nkust.edu.tw/p/412-1004-9405.php?Lang=zh-tw",
-      "error": ""
-    },
-    {
-      "id": 16,
-      "org": "臺科大",
-      "name": "生成式AI簡介與教學策略調整建議方針",
-      "url": "https://ctld.ntust.edu.tw/p/406-1051-111193,r1430.php?Lang=zh-tw",
-      "kind": "html",
-      "downloadStatus": "OK",
-      "pdfFile": "台灣各大學AI教學指引/16_臺科大_生成式AI簡介與教學策略調整建議方針.pdf",
-      "message": "",
-      "urlStatus": "未批次檢查",
-      "statusCode": "",
-      "finalUrl": "https://ctld.ntust.edu.tw/p/406-1051-111193,r1430.php?Lang=zh-tw",
-      "error": ""
-    },
-    {
-      "id": 17,
-      "org": "雲科大",
-      "name": "生成式AI工具教學須知",
-      "url": "https://aax.yuntech.edu.tw/images/content/%E6%95%99%E5%8B%99%E7%AB%A0%E5%89%87/%E5%85%B6%E4%BB%96%E9%A1%9E/T13%E7%94%9F%E6%88%90%E5%BC%8FAI%E5%B7%A5%E5%85%B7%E6%95%99%E5%AD%B8%E9%A0%88%E7%9F%A5(112.9.12).pdf",
-      "kind": "pdf",
-      "downloadStatus": "OK",
-      "pdfFile": "台灣各大學AI教學指引/17_雲科大_生成式AI工具教學須知.pdf",
-      "message": "",
-      "urlStatus": "未批次檢查",
-      "statusCode": "",
-      "finalUrl": "https://aax.yuntech.edu.tw/images/content/%E6%95%99%E5%8B%99%E7%AB%A0%E5%89%87/%E5%85%B6%E4%BB%96%E9%A1%9E/T13%E7%94%9F%E6%88%90%E5%BC%8FAI%E5%B7%A5%E5%85%B7%E6%95%99%E5%AD%B8%E9%A0%88%E7%9F%A5(112.9.12).pdf",
-      "error": ""
-    },
-    {
-      "id": 18,
-      "org": "中國醫藥大學",
-      "name": "針對生成式AI工具之教學指引",
-      "url": "https://academic.cmu.edu.tw/?q=zh-hant/node/69",
-      "kind": "html",
-      "downloadStatus": "OK",
-      "pdfFile": "台灣各大學AI教學指引/18_中國醫藥大學_針對生成式AI工具之教學指引.pdf",
-      "message": "",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://academic.cmu.edu.tw/?q=zh-hant/node/69",
-      "error": ""
-    },
-    {
-      "id": 19,
-      "org": "陽明交通大學",
-      "name": "因應生成式AI之指引及教學建議",
-      "url": "https://oaeri.nycu.edu.tw/oaeri/ch/app/data/view?module=nycu0014&id=2074&serno=9fd4480f-1c5e-4b0d-b9de-fe3719d46b25",
-      "kind": "html",
-      "downloadStatus": "OK",
-      "pdfFile": "台灣各大學AI教學指引/19_陽明交通大學_因應生成式AI之指引及教學建議.pdf",
-      "message": "",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://oaeri.nycu.edu.tw/oaeri/ch/app/data/view?module=nycu0014&id=2074&serno=9fd4480f-1c5e-4b0d-b9de-fe3719d46b25",
-      "error": ""
-    },
-    {
-      "id": 20,
-      "org": "暨南大學",
-      "name": "針對生成式AI工具之教學因應措施",
-      "url": "https://ctld.ncnu.edu.tw/var/file/62/1062/img/578134211.pdf",
-      "kind": "pdf",
-      "downloadStatus": "OK",
-      "pdfFile": "台灣各大學AI教學指引/20_暨南大學_針對生成式AI工具之教學因應措施.pdf",
-      "message": "",
-      "urlStatus": "未批次檢查",
-      "statusCode": "",
-      "finalUrl": "https://ctld.ncnu.edu.tw/var/file/62/1062/img/578134211.pdf",
-      "error": ""
-    },
-    {
-      "id": 21,
-      "org": "臺中教育大學",
-      "name": "生成式AI工具之教學與學習因應措施",
-      "url": "https://oaacs.ntcu.edu.tw/app/pages.php?PageID=chat%20GPT",
-      "kind": "html",
-      "downloadStatus": "OK",
-      "pdfFile": "台灣各大學AI教學指引/21_臺中教育大學_生成式AI工具之教學與學習因應措施.pdf",
-      "message": "",
-      "urlStatus": "ERROR",
-      "statusCode": "500",
-      "finalUrl": "https://oaacs.ntcu.edu.tw/app/pages.php?PageID=chat%20GPT",
-      "error": "HTTP Error 500: Internal Server Error"
-    },
-    {
-      "id": 22,
-      "org": "中央大學",
-      "name": "學生使用ChatGPT基本原則",
-      "url": "https://pdc.adm.ncu.edu.tw/static/file/19/1019/img/615451190.pdf",
-      "kind": "pdf",
-      "downloadStatus": "OK",
-      "pdfFile": "台灣各大學AI教學指引/22_中央大學_學生使用ChatGPT基本原則.pdf",
-      "message": "",
-      "urlStatus": "未批次檢查",
-      "statusCode": "",
-      "finalUrl": "https://pdc.adm.ncu.edu.tw/static/file/19/1019/img/615451190.pdf",
-      "error": ""
-    },
-    {
-      "id": 23,
-      "org": "北科大",
-      "name": "因應生成式AI工具之教學參考指引",
-      "url": "https://oaa.ntut.edu.tw/p/406-1008-129455,r11.php?Lang=zh-tw",
-      "kind": "html",
-      "downloadStatus": "OK",
-      "pdfFile": "台灣各大學AI教學指引/23_北科大_因應生成式AI工具之教學參考指引.pdf",
-      "message": "",
-      "urlStatus": "未批次檢查",
-      "statusCode": "",
-      "finalUrl": "https://oaa.ntut.edu.tw/p/406-1008-129455,r11.php?Lang=zh-tw",
-      "error": ""
-    },
-    {
-      "id": 24,
-      "org": "長庚大學",
-      "name": "生成式AI的教研衝擊與因應",
-      "url": "https://www.cgu.edu.tw/cfir/Subject/Detail/59531?nodeId=16468",
-      "kind": "html",
-      "downloadStatus": "OK",
-      "pdfFile": "台灣各大學AI教學指引/24_長庚大學_生成式AI的教研衝擊與因應.pdf",
-      "message": "",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.cgu.edu.tw/cfir/Subject/Detail/59531?nodeId=16468",
-      "error": ""
-    },
-    {
-      "id": 25,
-      "org": "臺北醫學大學",
-      "name": "生成式AI工具之課程教學參考指引",
-      "url": "https://aca.tmu.edu.tw/front/CurriculumDivision/CurriculumDivision_1/news.php?ID=dG11X2FjYSZDdXJyaWN1bHVtRGl2aXNpb25fMQ==&Sn=2643",
-      "kind": "html",
-      "downloadStatus": "OK",
-      "pdfFile": "台灣各大學AI教學指引/25_臺北醫學大學_生成式AI工具之課程教學參考指引.pdf",
-      "message": "",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://aca.tmu.edu.tw/front/CurriculumDivision/CurriculumDivision_1/news.php?ID=dG11X2FjYSZDdXJyaWN1bHVtRGl2aXNpb25fMQ==&Sn=2643",
-      "error": ""
-    },
-    {
-      "id": 26,
-      "org": "逢甲大學",
-      "name": "針對生成式AI工具之教學因應措施",
-      "url": "https://reurl.cc/N2xOm9",
-      "kind": "html",
-      "downloadStatus": "OK",
-      "pdfFile": "台灣各大學AI教學指引/26_逢甲大學_針對生成式AI工具之教學因應措施.pdf",
-      "message": "",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://reurl.cc/N2xOm9",
-      "error": ""
-    },
-    {
-      "id": 27,
-      "org": "慈濟大學",
-      "name": "AI賦能大學教育指引",
-      "url": "https://info.tcu.edu.tw/?p=6835",
-      "kind": "html",
-      "downloadStatus": "OK",
-      "pdfFile": "台灣各大學AI教學指引/27_慈濟大學_AI賦能大學教育指引.pdf",
-      "message": "",
-      "urlStatus": "未批次檢查",
-      "statusCode": "",
-      "finalUrl": "https://info.tcu.edu.tw/?p=6835",
-      "error": ""
-    }
-  ],
-  "syllabus": [
-    {
-      "id": 1,
-      "institution": "Yale University",
-      "name": "Sample AI Syllabus Statements",
-      "url": "https://poorvucenter.yale.edu/teaching/teaching-resource-library/ai-guidance-for-teachers/ai-course-assignment-design/sample-ai",
-      "type": "課綱政策範本",
-      "summary": "依課程類型分類最完整：大型講課、STEM、人文寫作、創意寫作、研討課、Lab 等；可直接貼入課綱",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://poorvucenter.yale.edu/teaching/teaching-resource-library/ai-guidance-for-teachers/ai-course-assignment-design/sample-ai",
-      "error": ""
-    },
-    {
-      "id": 2,
-      "institution": "Lance Eaton (研究者)",
-      "name": "Syllabi Policies for AI Generative Tools",
-      "url": "https://docs.google.com/document/d/1RMVwzjc1o0Mi8Blw_-JUTcXv02b2WRH86vw7mi16W3U/edit?tab=t.0#heading=h.ir0lbtsflw64",
-      "type": "教師教學支援",
-      "summary": "This resource was created by Lance Eaton (contact him via email, Bluesky, Twitter, LinkedIn, or sign up for his AI+Edu=Simplified newsletter) for the purposes of sharing and helping other instructors see the range of policies available by other educators to help in the development of their own for navigating AI-Generative Tools (such as ChatGPT, MidJourney, Dall-E, etc).",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://docs.google.com/document/d/1RMVwzjc1o0Mi8Blw_-JUTcXv02b2WRH86vw7mi16W3U/edit?tab=t.0#heading=h.ir0lbtsflw64",
-      "error": ""
-    },
-    {
-      "id": 3,
-      "institution": "University of Maryland",
-      "name": "Sample Syllabus Language: AI Course Policies",
-      "url": "https://tltc.umd.edu/sample-syllabus-language-ai-course-policies",
-      "type": "課綱政策範本",
-      "summary": "提供禁止、限制、指定情境可使用、鼓勵 AI literacy 等多版本模板",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://tltc.umd.edu/sample-syllabus-language-ai-course-policies",
-      "error": ""
-    },
-    {
-      "id": 4,
-      "institution": "University of Missouri–Kansas City",
-      "name": "Generative AI Tools and Sample Syllabus Policy Statements",
-      "url": "https://www.umkc.edu/provost/academics/ai-tools-sample-syllabus-policy-statements.html",
-      "type": "課綱政策範本",
-      "summary": "Restrictive / Supervised / Permissive",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.umkc.edu/provost/academics/ai-tools-sample-syllabus-policy-statements.html",
-      "error": ""
-    },
-    {
-      "id": 5,
-      "institution": "Harvard University",
-      "name": "Teaching in the Age of AI",
-      "url": "https://bokcenter.harvard.edu/artificial-intelligence",
-      "type": "AI素養框架",
-      "summary": "Designing Courses and Assignments in the Age of AI helps you evaluate assignment formats, adapt them for AI resilience, and incorporate AI into the learning process where it adds value. Communicating to Students about Generative AI supports you in developing clear policies, encouraging responsible use, and addressing key ethical questions. Getting Started with Harvard AI Tools outlines the supported platforms where you can safely test and refine AI activities. Getting Started with Harvard AI Tools outlines the supported platforms where you can safely test and refine AI activities. The Examples and Ideas page showcases specific uses of AI to explore as you brainstorm for your own course.",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://bokcenter.harvard.edu/artificial-intelligence",
-      "error": ""
-    },
-    {
-      "id": 6,
-      "institution": "Northern Illinois University",
-      "name": "Class Policies for AI Tools",
-      "url": "https://citl.news.niu.edu/2023/07/24/class-policies-for-the-use-of-ai-tools/",
-      "type": "待編碼",
-      "summary": "classroom-ready templates、assignment-level 聲明",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://citl.news.niu.edu/2023/07/24/class-policies-for-the-use-of-ai-tools/",
-      "error": ""
-    },
-    {
-      "id": 7,
-      "institution": "University of British Columbia",
-      "name": "Developing Course Guidelines on the Use of GenAI",
-      "url": "https://academicintegrity.ubc.ca/generative-ai-syllabus/",
-      "type": "課綱政策範本",
-      "summary": "",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://academicintegrity.ubc.ca/generative-ai-syllabus/",
-      "error": ""
-    },
-    {
-      "id": 8,
-      "institution": "University of Sydney",
-      "name": "AI in assessment",
-      "url": "https://www.sydney.edu.au/news-opinion/news/2024/11/27/university-of-sydney-ai-assessment-policy.html",
-      "type": "評量與學術誠信",
-      "summary": "",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.sydney.edu.au/news-opinion/news/2024/11/27/university-of-sydney-ai-assessment-policy.html",
-      "error": ""
-    },
-    {
-      "id": 9,
-      "institution": "Columbia University",
-      "name": "Developing AI Syllabus Statements and Communicating with Students about AI",
-      "url": "",
-      "type": "課綱政策範本",
-      "summary": "強調與學生「溝通」的重要性。提供從「完全開放」到「有條件限制」的範本，並特別提醒教師：學生須對 AI 產出的有效性與準確性負最終責任",
-      "urlStatus": "MISSING",
-      "statusCode": "",
-      "finalUrl": "",
-      "error": "缺 URL"
-    },
-    {
-      "id": 10,
-      "institution": "University of Washington",
-      "name": "Sample syllabus statements regarding student use of artificial intelligence",
-      "url": "",
-      "type": "課綱政策範本",
-      "summary": "將政策聲明拆解成四個核心元素：Use (如何使用)、Why (為何訂定此政策)、Consequences (違反的後果) 以及 Questions (學生有疑問時該找誰)，邏輯非常清晰。",
-      "urlStatus": "MISSING",
-      "statusCode": "",
-      "finalUrl": "",
-      "error": "缺 URL"
-    },
-    {
-      "id": 11,
-      "institution": "University of Texas at Austin",
-      "name": "Generative AI in Teaching and Learning: Syllabus Statements",
-      "url": "",
-      "type": "課綱政策範本",
-      "summary": "將 AI 使用規範分成不同情境（如：允許用來發想但不允許生成可用文本、允許特定任務使用並需標註），並提供極為具體的文字敘述供教師直接套用",
-      "urlStatus": "MISSING",
-      "statusCode": "",
-      "finalUrl": "",
-      "error": "缺 URL"
-    },
-    {
-      "id": 12,
-      "institution": "Tufts University",
-      "name": "Developing Syllabus Statements for AI",
-      "url": "",
-      "type": "課綱政策範本",
-      "summary": "範本中融入了「學習目標」的論述。例如在禁止使用的聲明中，會詳細向學生解釋：因為本課程的目的是培養批判性思考與個人寫作聲音，所以不宜使用 AI。",
-      "urlStatus": "MISSING",
-      "statusCode": "",
-      "finalUrl": "",
-      "error": "缺 URL"
-    },
-    {
-      "id": 13,
-      "institution": "Ohio State University",
-      "name": "AI Teaching Strategies: Crafting Your GenAI Syllabus Statement",
-      "url": "https://teaching.resources.osu.edu/teaching-topics/ai-teaching-strategies-crafting",
-      "type": "課綱政策範本",
-      "summary": "著重於「AI 教學策略」。除了大綱範本，還建議教師在開學第一堂課與學生進行「AI 使用案例情境演練」，讓學生明確知道學術誠信的紅線在哪裡。",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://teaching.resources.osu.edu/teaching-topics/ai-teaching-strategies-developing",
-      "error": ""
-    },
-    {
-      "id": 14,
-      "institution": "University of Kansas",
-      "name": "Building AI policies into your syllabus",
-      "url": "https://cte.ku.edu/building-ai-policies-your-syllabus",
-      "type": "課綱政策範本",
-      "summary": "提供了非常接地氣的「基本規範 (Ground rules)」寫法。例如要求學生若使用 AI，必須在作業後附上一段說明：用了什麼、AI 哪裡給了錯誤資訊、以及學到了什麼。",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://cte.ku.edu/building-ai-policies-your-syllabus",
-      "error": ""
-    },
-    {
-      "id": 15,
-      "institution": "Kent State University",
-      "name": "AI Syllabus Statements & Course Policy Examples",
-      "url": "https://www.kent.edu/ctl/ai-syllabus-statements-course-policy-examples",
-      "type": "課綱政策範本",
-      "summary": "提供了不同層次的 AI 揭露範本：包含「簡短版」、「學習焦點版」、「批判視角版」以及「作者焦點版」，讓教師能根據課程特性選擇最適合的學生自評方式。",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.kent.edu/ctl/ai-syllabus-statements-course-policy-examples",
-      "error": ""
-    }
-  ],
-  "intl": [
-    {
-      "id": 1,
-      "org": "UNESCO",
-      "name": "Guidance for Generative AI in Education and Research (2023)",
-      "url": "https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research",
-      "type": "治理與政策框架",
-      "summary": "全球首份生成式AI教育指引，涵蓋立即行動、長期政策規劃及人本願景(by Claude)",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research",
-      "error": ""
-    },
-    {
-      "id": 2,
-      "org": "UNESCO",
-      "name": "AI Competency Framework for Teachers (2024)",
-      "url": "https://www.unesco.org/en/digital-education/ai-future-learning/teachers-framework",
-      "type": "AI素養框架",
-      "summary": "協助各國教師系統建立AI能力框架，納入課程設計與教學實踐(by Claude)",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.unesco.org/en/digital-education/ai-future-learning/teachers-framework",
-      "error": ""
-    },
-    {
-      "id": 3,
-      "org": "UNESCO",
-      "name": "AI Competency Framework for Students (2024)",
-      "url": "https://www.unesco.org/en/digital-education/ai-future-learning/students-framework",
-      "type": "課綱政策範本",
-      "summary": "建立學生AI素養路徑，已支持58個國家課綱設計與師資培訓(by Claude)",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.unesco.org/en/digital-education/ai-future-learning/students-framework",
-      "error": ""
-    },
-    {
-      "id": 4,
-      "org": "UNESCO",
-      "name": "AI and Education: Guidance for Policy-Makers (2021)",
-      "url": "https://www.unesco.org/en/articles/ai-and-education-guidance-policy-makers",
-      "type": "治理與政策框架",
-      "summary": "針對政策制定者的AI教育指引，提供機會分析、風險管理及政策建議(by Claude)",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.unesco.org/en/articles/ai-and-education-guidance-policy-makers",
-      "error": ""
-    },
-    {
-      "id": 5,
-      "org": "OECD",
-      "name": "Digital Education Outlook 2023：生成式AI治理篇",
-      "url": "https://www.oecd.org/en/publications/oecd-digital-education-outlook-2023_c74f03de-en/full-report/emerging-governance-of-generative-ai-in-education_3cbd6269.html",
-      "type": "治理與政策框架",
-      "summary": "18國比較分析，檢視各國對生成式AI的教育監管與指引現況，截至2024年初(by Claude)",
-      "urlStatus": "ERROR",
-      "statusCode": "",
-      "finalUrl": "https://www.oecd.org/en/publications/oecd-digital-education-outlook-2023_c74f03de-en/full-report/emerging-governance-of-generative-ai-in-education_3cbd6269.html",
-      "error": "HTTP Error 403: Forbidden"
-    },
-    {
-      "id": 6,
-      "org": "OECD",
-      "name": "Digital Education Outlook 2026（最新版）",
-      "url": "https://www.oecd.org/en/publications/oecd-digital-education-outlook-2026_062a7394-en.html",
-      "type": "治理與政策框架",
-      "summary": "探討生成式AI在教與學各情境的應用研究、機會、挑戰與政策建議(by Claude)",
-      "urlStatus": "ERROR",
-      "statusCode": "",
-      "finalUrl": "https://www.oecd.org/en/publications/oecd-digital-education-outlook-2026_062a7394-en.html",
-      "error": "HTTP Error 403: Forbidden"
-    },
-    {
-      "id": 7,
-      "org": "TeachAI（WEF/Code.org/ISTE/Khan Academy）",
-      "name": "AI Guidance for Schools Toolkit",
-      "url": "https://www.teachai.org/toolkit",
-      "type": "治理與政策框架",
-      "summary": "協助各國政府及教育機構制定AI指引的實用工具包，含政策原則、組織學習與轉型三階段 (by Claude)",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.teachai.org/toolkit",
-      "error": ""
-    },
-    {
-      "id": 8,
-      "org": "TeachAI",
-      "name": "Global AI Education Policy Tracker",
-      "url": "https://www.teachai.org/policy-tracker",
-      "type": "治理與政策框架",
-      "summary": "即時追蹤全球各國及美國各州AI教育政策現況的互動地圖(by Claude)",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.teachai.org/policy-tracker",
-      "error": ""
-    },
-    {
-      "id": 9,
-      "org": "TeachAI",
-      "name": "Guidance for AI in Education: A Landscape Analysis",
-      "url": "https://www.teachai.org/guidance-landscape-analysis",
-      "type": "待編碼",
-      "summary": "整合美國各州及9個國際脈絡AI教育指引的主題分析，供指引制定者參考(by Claude)",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.teachai.org/guidance-landscape-analysis",
-      "error": ""
-    },
-    {
-      "id": 10,
-      "org": "EDUCAUSE美國高教協會",
-      "name": "2024 AI Policies and Guidelines Action Plan",
-      "url": "https://www.educause.edu/research/2024/2024-educause-action-plan-ai-policies-and-guidelines",
-      "type": "治理與政策框架",
-      "summary": "基於900+高教技術人員調查，提供高等教育AI政策差距分析與行動方案(by Claude)",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.educause.edu/research/2024/2024-educause-action-plan-ai-policies-and-guidelines",
-      "error": ""
-    }
-  ],
-  "keyuni": [
-    {
-      "id": 1,
-      "institution": "Yale University",
-      "name": "AI Course & Assignment Design — Sample AI Policies（Poorvu Center）",
-      "url": "https://poorvucenter.yale.edu/teaching/teaching-resource-library/ai-guidance-for-teachers/ai-course-assignment-design/sample-ai",
-      "type": "課綱政策範本",
-      "summary": "依照不同課程類型提供教師在授課大綱上應敘明的AI使用政策範本，下方附AI作業與寫作任務設計tips，實用性極高(by Claude) ★偵蓉老師推薦",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://poorvucenter.yale.edu/teaching/teaching-resource-library/ai-guidance-for-teachers/ai-course-assignment-design/sample-ai",
-      "error": ""
-    },
-    {
-      "id": 2,
-      "institution": "MIT",
-      "name": "Using AI Tools — Academic Integrity Handbook",
-      "url": "https://integrity.mit.edu/handbook/academic-writing/using-ai-tools",
-      "type": "評量與學術誠信",
-      "summary": "明確規範學術誠信框架下的AI使用原則與邊界，適用各學科(by Claude)",
-      "urlStatus": "ERROR",
-      "statusCode": "404",
-      "finalUrl": "https://integrity.mit.edu/handbook/academic-writing/using-ai-tools",
-      "error": "HTTP Error 404: Not Found"
-    },
-    {
-      "id": 3,
-      "institution": "Stanford University",
-      "name": "Artificial Intelligence in Teaching — CTL Guidelines",
-      "url": "https://teachingcommons.stanford.edu/teaching-guides/artificial-intelligence",
-      "type": "課綱政策範本",
-      "summary": "教學中心提供教師課綱融入AI政策的實用指引，含課程設計建議與案例(by Claude)",
-      "urlStatus": "ERROR",
-      "statusCode": "404",
-      "finalUrl": "https://teachingcommons.stanford.edu/teaching-guides/artificial-intelligence",
-      "error": "HTTP Error 404: Not Found"
-    },
-    {
-      "id": 4,
-      "institution": "Harvard University",
-      "name": "AI Guidance for Teaching — Bok Center",
-      "url": "https://bokcenter.harvard.edu/ai",
-      "type": "評量與學術誠信",
-      "summary": "哈佛教學中心AI使用方針，含學術誠信框架與多元作業設計建議(by Claude)",
-      "urlStatus": "ERROR",
-      "statusCode": "404",
-      "finalUrl": "https://bokcenter.harvard.edu/ai",
-      "error": "HTTP Error 404: Not Found"
-    },
-    {
-      "id": 5,
-      "institution": "University of Oxford",
-      "name": "Generative AI — Student and Staff Guidance",
-      "url": "https://www.ox.ac.uk/students/academic/good-practice/ai",
-      "type": "評量與學術誠信",
-      "summary": "牛津大學對生成式AI的教學研究倫理與學術誠信規範(by Claude)",
-      "urlStatus": "ERROR",
-      "statusCode": "404",
-      "finalUrl": "https://www.ox.ac.uk/students/academic/good-practice/ai",
-      "error": "HTTP Error 404: Not Found"
-    },
-    {
-      "id": 6,
-      "institution": "Imperial College London",
-      "name": "AI in Education Hub",
-      "url": "https://www.imperial.ac.uk/staff/tools-and-reference/education-technology/artificial-intelligence/",
-      "type": "治理與政策框架",
-      "summary": "含AI介紹、Teaching Toolkit、個案研究、Training & Events、倫理政策與FAQ的完整資源中心(by Claude)",
-      "urlStatus": "ERROR",
-      "statusCode": "404",
-      "finalUrl": "https://www.imperial.ac.uk/staff/tools-and-reference/education-technology/artificial-intelligence/",
-      "error": "HTTP Error 404: Not Found"
-    },
-    {
-      "id": 7,
-      "institution": "JISC英國高教資訊中心",
-      "name": "Navigating Generative AI in Higher Education — Policy Collection",
-      "url": "https://nationalcentreforai.jiscinvolve.org/wp/2024/07/31/navigating-the-future-higher-education-policies-and-guidance-on-generative-ai/",
-      "type": "治理與政策框架",
-      "summary": "彙整英國各大學生成式AI政策，持續更新（最後更新2025年4月），含各校政策摘要(by Claude)",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://nationalcentreforai.jiscinvolve.org/wp/2024/07/31/navigating-the-future-higher-education-policies-and-guidance-on-generative-ai/",
-      "error": ""
-    },
-    {
-      "id": 8,
-      "institution": "University of Melbourne 澳洲",
-      "name": "Artificial Intelligence and Academic Integrity",
-      "url": "https://melbourne-cshe.unimelb.edu.au/ai-aai",
-      "type": "評量與學術誠信",
-      "summary": "澳洲領先大學的AI評量整合指引，含學術誠信框架與多元評量設計方法(by Claude)",
-      "urlStatus": "ERROR",
-      "statusCode": "",
-      "finalUrl": "https://melbourne-cshe.unimelb.edu.au/ai-aai",
-      "error": "HTTP Error 403: Forbidden"
-    }
-  ],
-  "globaldb": [
-    {
-      "id": 1,
-      "region": "Africa 非洲",
-      "country": "South Africa 南非",
-      "institution": "University of Cape Town",
-      "name": "Artificial Intelligence for Teaching & Learning 人工智慧於教學與學習",
-      "date": "",
-      "url": "https://cilt.uct.ac.za/teaching-resources/artificial-intelligence-teaching-learning",
-      "type": "教師教學支援",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://cilt.uct.ac.za/teaching-resources/artificial-intelligence-teaching-learning",
-      "error": ""
-    },
-    {
-      "id": 2,
-      "region": "Africa 非洲",
-      "country": "Egypt 埃及",
-      "institution": "Cairo University 開羅大學",
-      "name": "FCAI Policy and Guidelines for use of Generative AI in Postgraduate Studies and Research FCAI 關於在研究所學習與研究中使用生成式人工智慧的政策與指南",
-      "date": "2023.9.4",
-      "url": "https://fcai.cu.edu.eg/PG/wp-content/uploads/2023/09/FCAI-GAI-Use-Guidelines-v1.1-fnl.pdf",
-      "type": "治理與政策框架",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://fcai.cu.edu.eg/cgi-sys/suspendedpage.cgi",
-      "error": ""
-    },
-    {
-      "id": 3,
-      "region": "Africa 非洲",
-      "country": "South Africa 南非",
-      "institution": "University of Witwatersrand 維特沃特斯蘭德大學",
-      "name": "Approach to the use of AI in teaching and learning at Wits 在 Wits 教學與學習中採用人工智慧的方式",
-      "date": "2023.1",
-      "url": "https://www.wits.ac.za/media/wits-university/learning-and-teaching/cltd/documents/AI-in-teaching-and-learning-at-Wits.pdf",
-      "type": "教師教學支援",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.wits.ac.za/media/wits-university/learning-and-teaching/cltd/documents/AI-in-teaching-and-learning-at-Wits.pdf",
-      "error": ""
-    },
-    {
-      "id": 4,
-      "region": "Africa 非洲",
-      "country": "South Africa 南非",
-      "institution": "University of Pretoria 比勒陀利亞大學",
-      "name": "Student's Guide: Leveraging Generative Artificial Intelligence for Teaching and Learning Enhancement at the University of Pretoria 學生指南：在比勒陀利亞大學運用生成式人工智慧以提升教學與學習",
-      "date": "2023",
-      "url": "https://www.up.ac.za/media/shared/391/pdfs/up-student-guide_-leveraging-generative-artificial-intelligence-for-learning.zp242396.pdf",
-      "type": "學生使用指引",
-      "urlStatus": "ERROR",
-      "statusCode": "404",
-      "finalUrl": "https://www.up.ac.za/media/shared/391/pdfs/up-student-guide_-leveraging-generative-artificial-intelligence-for-learning.zp242396.pdf",
-      "error": "HTTP Error 404: Not Found"
-    },
-    {
-      "id": 5,
-      "region": "Africa 非洲",
-      "country": "South Africa 南非",
-      "institution": "University of Johannesburg 約翰內斯堡大學",
-      "name": "UJ PRACTICE Notes: Generative AI in Teaching, Learning and Research UJ 實務說明：生成式 AI 在教學、學習與研究中的應用",
-      "date": "",
-      "url": "https://www.uj.ac.za/wp-content/uploads/2023/08/uj-ai-practice-guide-2023.pdf",
-      "type": "教師教學支援",
-      "urlStatus": "ERROR",
-      "statusCode": "",
-      "finalUrl": "https://www.uj.ac.za/wp-content/uploads/2023/08/uj-ai-practice-guide-2023.pdf",
-      "error": "HTTP Error 403: Forbidden"
-    },
-    {
-      "id": 6,
-      "region": "Africa 非洲",
-      "country": "South Africa 南非",
-      "institution": "Stellenbosch University 斯泰倫博斯大學",
-      "name": "Generative AI in TLA at SU TLA 的生成式 AI 在 SU",
-      "date": "",
-      "url": "https://www.sun.ac.za/english/learning-teaching/ctl/t-l-resources/ai-in-tla-at-su",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.su.ac.za/en",
-      "error": ""
-    },
-    {
-      "id": 7,
-      "region": "Africa 非洲",
-      "country": "South Africa 南非",
-      "institution": "Stellenbosch University",
-      "name": "Cool Things Academics Do: AI Literacy in Higher Education 學術界的酷事：高等教育中的 AI 素養",
-      "date": "",
-      "url": "https://www.sun.ac.za/english/learning-teaching/ctl/Documents/Cool%20Things%20AI%20Case%20Studies%20Booklet%20(25.03.2025).pdf",
-      "type": "AI素養框架",
-      "urlStatus": "未批次檢查",
-      "statusCode": "",
-      "finalUrl": "https://www.sun.ac.za/english/learning-teaching/ctl/Documents/Cool%20Things%20AI%20Case%20Studies%20Booklet%20(25.03.2025).pdf",
-      "error": ""
-    },
-    {
-      "id": 8,
-      "region": "Africa 非洲",
-      "country": "South Africa 南非",
-      "institution": "Stellenbosch University 斯泰倫博斯大學",
-      "name": "Draft interim SU guidelines on allowable AI use and academic integrity in assessment 關於在評量中可允許的人工智慧使用與學術誠信之自由州大學臨時指引草案",
-      "date": "",
-      "url": "https://www.sun.ac.za/english/learning-teaching/ctl/Documents/Interim%20SU%20guidelines%20on%20allowable%20AI%20use%20and%20academic%20integrity.pdf",
-      "type": "評量與學術誠信",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.su.ac.za/en",
-      "error": ""
-    },
-    {
-      "id": 9,
-      "region": "Africa 非洲",
-      "country": "South Africa 南非",
-      "institution": "University of the Free State 自由州大學",
-      "name": "Stepping up with ChatGPT - AI-assisted Technology in Education 運用 ChatGPT — 教育中的 AI 輔助技術",
-      "date": "",
-      "url": "https://ufs.libguides.com/AI/SteppingupwithChatGPT",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://ufs.libguides.com/AI/SteppingupwithChatGPT",
-      "error": ""
-    },
-    {
-      "id": 10,
-      "region": "Africa 非洲",
-      "country": "Egypt 埃及",
-      "institution": "The American University in Cairo 開羅美國大學",
-      "name": "AUC’s Statement on the Use of Artificial Intelligence Tools AUC 關於使用人工智慧工具的聲明",
-      "date": "",
-      "url": "https://www.aucegypt.edu/about/leadership/provost/use-of-artificial-intelligence-tools",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.aucegypt.edu/about/leadership/provost/use-of-artificial-intelligence-tools",
-      "error": ""
-    },
-    {
-      "id": 11,
-      "region": "Africa 非洲",
-      "country": "South Africa 南非",
-      "institution": "North-West University",
-      "name": "Guidelines for the Utilization of AI in Teaching and Learning at NWU 西北大學（NWU）教學與學習中使用人工智慧的指南",
-      "date": "",
-      "url": "https://news.nwu.ac.za/sites/news.nwu.ac.za/files/files/Robert.Balfour/Utilization-AI-TL.pdf",
-      "type": "教師教學支援",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://news.nwu.ac.za/sites/news.nwu.ac.za/files/files/Robert.Balfour/Utilization-AI-TL.pdf",
-      "error": ""
-    },
-    {
-      "id": 12,
-      "region": "North America 北美",
-      "country": "USA",
-      "institution": "Harvard 哈佛大學",
-      "name": "Guidelines for Using ChatGPT and other Generative AI tools at Harvard 哈佛大學使用 ChatGPT 及其他生成式人工智慧工具的指南",
-      "date": "",
-      "url": "https://provost.harvard.edu/guidelines-using-chatgpt-and-other-generative-ai-tools-harvard",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://provost.harvard.edu/guidelines-using-chatgpt-and-other-generative-ai-tools-harvard",
-      "error": ""
-    },
-    {
-      "id": 13,
-      "region": "North America 北美",
-      "country": "USA",
-      "institution": "Stanford 史丹佛大學",
-      "name": "Generative AI Policy Guidance 生成式人工智慧政策指引",
-      "date": "February 16, 2023 2023 年 2 月 16 日",
-      "url": "https://communitystandards.stanford.edu/generative-ai-policy-guidance",
-      "type": "治理與政策框架",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://communitystandards.stanford.edu/policies-guidance%23policies-guidance-links/bca-guidance-recommendations#generative-ai-policy-guidance",
-      "error": ""
-    },
-    {
-      "id": 14,
-      "region": "North America 北美洲",
-      "country": "USA",
-      "institution": "MIT",
-      "name": "Getting Started with AI-Enhanced Teaching: A Practical Guide for Instructors 以人工智慧增強教學入門：給教師的實用指南",
-      "date": "",
-      "url": "https://mitsloanedtech.mit.edu/ai/teach/getting-started/",
-      "type": "教師教學支援",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://mitsloanedtech.mit.edu/ai/teach/getting-started/",
-      "error": ""
-    },
-    {
-      "id": 15,
-      "region": "North America 北美洲",
-      "country": "USA",
-      "institution": "Princeton 普林斯頓",
-      "name": "Generative AI Guidance 生成式 AI 指南",
-      "date": "",
-      "url": "https://mcgraw.princeton.edu/generative-ai",
-      "type": "待編碼",
-      "urlStatus": "ERROR",
-      "statusCode": "",
-      "finalUrl": "https://mcgraw.princeton.edu/generative-ai",
-      "error": "HTTP Error 403: Forbidden"
-    },
-    {
-      "id": 16,
-      "region": "North America 北美",
-      "country": "USA",
-      "institution": "University of Chicago 芝加哥大學",
-      "name": "Guidance for Syllabus Statements on the Use of AI Tools 課綱中關於使用 AI 工具之說明指引",
-      "date": "",
-      "url": "https://teaching.uchicago.edu/sites/default/files/2023-09/CCTL_AI%20Syllabus%20Statements.pdf",
-      "type": "課綱政策範本",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://teaching.uchicago.edu/sites/default/files/2023-09/CCTL_AI%20Syllabus%20Statements.pdf",
-      "error": ""
-    },
-    {
-      "id": 17,
-      "region": "North America 北美",
-      "country": "USA",
-      "institution": "Columbia 哥倫比亞",
-      "name": "Considerations for AI Tools in the Classroom 課堂中使用人工智慧工具的考量",
-      "date": "",
-      "url": "https://ctl.columbia.edu/resources-and-technology/resources/ai-tools/",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://ctl.columbia.edu/faculty/sapp/ai-tools/",
-      "error": ""
-    },
-    {
-      "id": 18,
-      "region": "North America 北美",
-      "country": "USA",
-      "institution": "California Institute of Technology 加州理工學院",
-      "name": "Guidance on the Use of Generative AI and Large Language Model Tools 生成式人工智慧與大型語言模型工具使用指南",
-      "date": "",
-      "url": "https://www.imss.caltech.edu/services/ai",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.imss.caltech.edu/services/ai",
-      "error": ""
-    },
-    {
-      "id": 19,
-      "region": "North America 北美",
-      "country": "USA",
-      "institution": "University of California, Berkeley 加州大學柏克萊分校",
-      "name": "Appropriate Use of Generative AI Tools 生成式人工智慧工具的適當使用",
-      "date": "",
-      "url": "https://oercs.berkeley.edu/appropriate-use-generative-ai-tools",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://oercs.berkeley.edu/appropriate-use-generative-ai-tools",
-      "error": ""
-    },
-    {
-      "id": 20,
-      "region": "North America 北美",
-      "country": "USA",
-      "institution": "Yale 耶魯",
-      "name": "Guidelines for the Use of Generative AI Tools 生成式人工智慧工具使用指南",
-      "date": "",
-      "url": "https://provost.yale.edu/news/guidelines-use-generative-ai-tools",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://provost.yale.edu/news/guidelines-use-generative-ai-tools",
-      "error": ""
-    },
-    {
-      "id": 21,
-      "region": "North America 北美",
-      "country": "USA",
-      "institution": "University of Pennsylvania 賓夕法尼亞大學",
-      "name": "Statement on Guidance for the University of Pennsylvania Community on Use of Generative Artificial Intelligence 關於賓夕法尼亞大學社群使用生成式人工智慧的指引聲明",
-      "date": "",
-      "url": "https://isc.upenn.edu/security/AI-guidance#:~:text=In%20the%20absence%20of%20other,AI%20to%20complete%20the%20task.",
-      "type": "待編碼",
-      "urlStatus": "未批次檢查",
-      "statusCode": "",
-      "finalUrl": "https://isc.upenn.edu/security/AI-guidance#:~:text=In%20the%20absence%20of%20other,AI%20to%20complete%20the%20task.",
-      "error": ""
-    },
-    {
-      "id": 22,
-      "region": "North America 北美",
-      "country": "USA",
-      "institution": "University of California, Los Angeles 加州大學洛杉磯分校",
-      "name": "Generative AI for Teaching and Learning at UCLA 加州大學洛杉磯分校的教學與學習生成式人工智慧",
-      "date": "",
-      "url": "https://docs.google.com/document/d/1V9OpwizUiHgLVMeEx-7g3AV1QrTAkBo0D-dsFv0DlwM/edit?tab=t.0#heading=h.c6al1vj9d3gd",
-      "type": "教師教學支援",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://docs.google.com/document/d/1V9OpwizUiHgLVMeEx-7g3AV1QrTAkBo0D-dsFv0DlwM/edit?tab=t.0#heading=h.c6al1vj9d3gd",
-      "error": ""
-    },
-    {
-      "id": 23,
-      "region": "North America 北美",
-      "country": "USA",
-      "institution": "Cornell University 康乃爾大學",
-      "name": "Guidelines for Artificial Intelligence 人工智慧指南",
-      "date": "",
-      "url": "https://it.cornell.edu/ai/ai-guidelines",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://it.cornell.edu/ai-strategy/ai-guidelines",
-      "error": ""
-    },
-    {
-      "id": 24,
-      "region": "North America 北美",
-      "country": "Canada 加拿大",
-      "institution": "University of Toronto",
-      "name": "Generative Artificial Intelligence in the Classroom: FAQ’s 課堂中的生成式人工智慧：常見問答",
-      "date": "",
-      "url": "https://www.viceprovostundergrad.utoronto.ca/16072-2/teaching-initiatives/generative-artificial-intelligence/",
-      "type": "待編碼",
-      "urlStatus": "ERROR",
-      "statusCode": "404",
-      "finalUrl": "https://www.viceprovostundergrad.utoronto.ca/16072-2/teaching-initiatives/generative-artificial-intelligence/",
-      "error": "HTTP Error 404: Not Found"
-    },
-    {
-      "id": 25,
-      "region": "North America 北美",
-      "country": "Canada 加拿大",
-      "institution": "University of British Columbia 英屬哥倫比亞大學",
-      "name": "UBC Guidance UBC 指引",
-      "date": "",
-      "url": "https://security.utoronto.ca/governance/guidelines/use-ai-intelligently/",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://security.utoronto.ca/governance/guidelines/use-ai-intelligently/",
-      "error": ""
-    },
-    {
-      "id": 26,
-      "region": "North America 北美",
-      "country": "Canada 加拿大",
-      "institution": "McGill University",
-      "name": "Principles on Generative AI in Teaching and Learning at McGill 麥吉爾大學教學與學習中生成式 AI 的原則",
-      "date": "",
-      "url": "https://www.mcgill.ca/provost/files/provost/principles_on_generative_ai_in_teaching_and_learning_at_mcgill.pdf",
-      "type": "教師教學支援",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.mcgill.ca/provost/files/provost/principles_on_generative_ai_in_teaching_and_learning_at_mcgill.pdf",
-      "error": ""
-    },
-    {
-      "id": 27,
-      "region": "North America 北美",
-      "country": "Canada 加拿大",
-      "institution": "University of Alberta 亞伯塔大學",
-      "name": "Academic Integrity and AI Use 學術誠信與人工智慧使用",
-      "date": "",
-      "url": "https://www.ualberta.ca/en/centre-for-teaching-and-learning/resources/generative-ai/academic-integrity-ai-use/index.html#:~:text=Let%20students%20know%20that%20although,proper%20attribution%2C%20instructors%20can%20consider",
-      "type": "評量與學術誠信",
-      "urlStatus": "未批次檢查",
-      "statusCode": "",
-      "finalUrl": "https://www.ualberta.ca/en/centre-for-teaching-and-learning/resources/generative-ai/academic-integrity-ai-use/index.html#:~:text=Let%20students%20know%20that%20although,proper%20attribution%2C%20instructors%20can%20consider",
-      "error": ""
-    },
-    {
-      "id": 28,
-      "region": "North America 北美",
-      "country": "Canada 加拿大",
-      "institution": "University of Waterloo 滑鐵盧大學",
-      "name": "Artificial intelligence and ChatGPT 人工智慧與 ChatGPT",
-      "date": "",
-      "url": "https://uwaterloo.ca/academic-integrity/artificial-intelligence-and-chatgpt",
-      "type": "待編碼",
-      "urlStatus": "ERROR",
-      "statusCode": "",
-      "finalUrl": "https://uwaterloo.ca/academic-integrity/artificial-intelligence-and-chatgpt",
-      "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
-    },
-    {
-      "id": 29,
-      "region": "North America 北美",
-      "country": "Canada 加拿大",
-      "institution": "University of Montreal 蒙特婁大學",
-      "name": "About the Montréal Declaration on Responsible AI 關於《蒙特婁負責任人工智慧宣言》",
-      "date": "",
-      "url": "https://montrealdeclaration-responsibleai.com/about/#:~:text=The%20Montreal%20Declaration%20for%20a,%2C%20knowledge%2C%20democracy%20and%20responsibility.",
-      "type": "待編碼",
-      "urlStatus": "未批次檢查",
-      "statusCode": "",
-      "finalUrl": "https://montrealdeclaration-responsibleai.com/about/#:~:text=The%20Montreal%20Declaration%20for%20a,%2C%20knowledge%2C%20democracy%20and%20responsibility.",
-      "error": ""
-    },
-    {
-      "id": 30,
-      "region": "North America 北美",
-      "country": "Canada 加拿大",
-      "institution": "McMaster University 麥馬斯特大學",
-      "name": "Provisional Guidelines: The Use of Generative Artificial Intelligence (AI) in Teaching and Learning at McMaster 臨時指南：在麥馬斯特（McMaster）教學與學習中使用生成人工智慧（AI） University 大學",
-      "date": "2024.9",
-      "url": "https://www.humanities.mcmaster.ca/wp-content/uploads/2024/11/Provisional-Guidelines-on-the-Use-of-Generative-AI-in-Research_For-Feedback.pdf",
-      "type": "教師教學支援",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.humanities.mcmaster.ca/wp-content/uploads/2024/11/Provisional-Guidelines-on-the-Use-of-Generative-AI-in-Research_For-Feedback.pdf",
-      "error": ""
-    },
-    {
-      "id": 31,
-      "region": "South America 南美洲",
-      "country": "Colombia 哥倫比亞",
-      "institution": "Universidad del Rosario 羅薩里奧大學",
-      "name": "Guidelines for the Use of Artificial Intelligence in University Courses 大學課程中人工智慧使用指南",
-      "date": "Version 4.3 (21/02/2023). 版本 4.3（2023/02/21）。",
-      "url": "https://forogpp.com/wp-content/uploads/2023/02/guidelines-for-the-use-of-artificial-intelligence-in-university-courses-v4.3.pdf",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://forogpp.com/wp-content/uploads/2023/02/guidelines-for-the-use-of-artificial-intelligence-in-university-courses-v4.3.pdf",
-      "error": ""
-    },
-    {
-      "id": 32,
-      "region": "South America 南美洲",
-      "country": "Argentina 阿根廷",
-      "institution": "University of Buenos Aires 布宜諾斯艾利斯大學",
-      "name": "Guidelines for the use of ChatGPT and text generative AI in Justice 在司法系統使用 ChatGPT 與文本生成式人工智慧的指南",
-      "date": "",
-      "url": "https://ialab.com.ar/webia/wp-content/uploads/2024/02/Guia-uso-IAG-.pdf",
-      "type": "待編碼",
-      "urlStatus": "ERROR",
-      "statusCode": "404",
-      "finalUrl": "https://www.ialab.com.ar/webia/wp-content/uploads/2024/02/Guia-uso-IAG-.pdf",
-      "error": "HTTP Error 404: Not Found"
-    },
-    {
-      "id": 33,
-      "region": "South America 南美洲",
-      "country": "Colombia 哥倫比亞",
-      "institution": "Universidad de Los Andes 洛杉磯安第斯大學",
-      "name": "Guidelines for the use of artificial intelligence in university contexts 大學情境中人工智慧使用指南",
-      "date": "Version 5.0 (15/08/2023) 版本 5.0（2023/08/15）",
-      "url": "https://juangutierrez.co/wp-content/uploads/2023/08/guidelines-for-the-use-of-artificial-intelligence-in-university-contexts-v5.0.pdf",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://juangutierrez.co/wp-content/uploads/2023/08/guidelines-for-the-use-of-artificial-intelligence-in-university-contexts-v5.0.pdf",
-      "error": ""
-    },
-    {
-      "id": 34,
-      "region": "South America 南美洲",
-      "country": "Colombia 哥倫比亞",
-      "institution": "Pontifical Javeriana University 宗座哈維里亞納大學",
-      "name": "Editorial Policy, Publication Ethics and Malpractice Statement 出版方針、出版倫理與不當行為聲明",
-      "date": "",
-      "url": "https://revistas.javeriana.edu.co/files-articulos/CRC-EPUJ/manuales/ETHICS/",
-      "type": "治理與政策框架",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://revistas.javeriana.edu.co/files-articulos/CRC-EPUJ/manuales/ETHICS/",
-      "error": ""
-    },
-    {
-      "id": 35,
-      "region": "South America 南美洲",
-      "country": "Argentina 阿根廷",
-      "institution": "Universidad de san andres",
-      "name": "Readiness of the judicial sector for artificial intelligence in Latin America 拉丁美洲司法部門對人工智慧的準備情況",
-      "date": "",
-      "url": "https://www.researchgate.net/publication/360849668_Readiness_of_the_judicial_sector_for_artificial_intelligence_in_Latin_America",
-      "type": "待編碼",
-      "urlStatus": "ERROR",
-      "statusCode": "",
-      "finalUrl": "https://www.researchgate.net/publication/360849668_Readiness_of_the_judicial_sector_for_artificial_intelligence_in_Latin_America",
-      "error": "HTTP Error 403: Forbidden"
-    },
-    {
-      "id": 36,
-      "region": "South America 南美洲",
-      "country": "Chile 智利",
-      "institution": "Pontificia universidad católica 天主教聖哲明大學 de chile 智利",
-      "name": "ChatGPT: ¿Cómo usarlo en clases? ChatGPT：如何在課堂上使用？",
-      "date": "",
-      "url": "https://www.uc.cl/noticias/chatgpt-como-usarlo-en-clases/",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.uc.cl/noticias/chatgpt-como-usarlo-en-clases/",
-      "error": ""
-    },
-    {
-      "id": 37,
-      "region": "Asia 亞洲",
-      "country": "China 中國",
-      "institution": "Tsinghua University",
-      "name": "International AI Cooperation and Governance Forum 2022 2022 年國際人工智慧合作與治理論壇",
-      "date": "",
-      "url": "https://aiig.tsinghua.edu.cn/en/International_Forum/2022/About_the_Forum.htm",
-      "type": "治理與政策框架",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://aiig.tsinghua.edu.cn/en/International_Forum/2022/About_the_Forum.htm",
-      "error": ""
-    },
-    {
-      "id": 38,
-      "region": "Asia 亞洲",
-      "country": "Singapore 新加坡",
-      "institution": "National University of Singapore 新加坡國立大學",
-      "name": "Responsible Use of AI–Guidance from a Singapore Regulatory Perspective 人工智慧負責任使用——來自新加坡監管角度的指引",
-      "date": "",
-      "url": "https://law.nus.edu.sg/trail/responsible-use-of-ai/",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://law.nus.edu.sg/trail/responsible-use-of-ai/",
-      "error": ""
-    },
-    {
-      "id": 39,
-      "region": "Asia 亞洲",
-      "country": "Japan 日本",
-      "institution": "Nagoya University 名古屋大學",
-      "name": "Regarding the Use of Generative AI 關於生成式人工智慧的使用",
-      "date": "",
-      "url": "https://en.nagoya-u.ac.jp/academics/ai/index.html#:~:text=Even%20if%20the%20provided%20information,be%20imposed%20in%20such%20cases.",
-      "type": "待編碼",
-      "urlStatus": "未批次檢查",
-      "statusCode": "",
-      "finalUrl": "https://en.nagoya-u.ac.jp/academics/ai/index.html#:~:text=Even%20if%20the%20provided%20information,be%20imposed%20in%20such%20cases.",
-      "error": ""
-    },
-    {
-      "id": 40,
-      "region": "Asia 亞洲",
-      "country": "Japan 日本",
-      "institution": "University of Toky 東京大學",
-      "name": "Guidelines for Instructors Regarding AI in University Education at Tokyo University of Foreign Studies 東京外國語大學教職員有關大學教育中人工智慧使用的指引",
-      "date": "March 22, 2023 2023 年 3 月 22 日",
-      "url": "https://www.tufs.ac.jp/documents/education/guideline/ai_guideline_en.pdf",
-      "type": "教師教學支援",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.tufs.ac.jp/documents/education/guideline/ai_guideline_en.pdf",
-      "error": ""
-    },
-    {
-      "id": 41,
-      "region": "Asia 亞洲",
-      "country": "Hong Kong 香港",
-      "institution": "University of Hong Kong 香港大學",
-      "name": "Use of Artificial Intelligence Tools in Teaching, Learning and Assessments A Guide for Students 教學、學習與評量中人工智慧工具的使用 學生指南",
-      "date": "",
-      "url": "https://www.aqs.cuhk.edu.hk/documents/A-guide-for-students_use-of-AI-tools.pdf",
-      "type": "評量與學術誠信",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.aqs.cuhk.edu.hk/documents/A-guide-for-students_use-of-AI-tools.pdf",
-      "error": ""
-    },
-    {
-      "id": 42,
-      "region": "Asia 亞洲",
-      "country": "South Korea 南韓",
-      "institution": "Seoul National University 首爾大學",
-      "name": "Seoul National University AI Policy Initiative 首爾大學人工智慧政策倡議",
-      "date": "",
-      "url": "https://sapi.co.kr/wp-content/uploads/2021/04/SAPI-%ED%99%9C%EB%8F%99%EB%B3%B4%EA%B3%A0%EC%84%9C_ENG.pdf",
-      "type": "治理與政策框架",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://sapi.co.kr/wp-content/uploads/2021/04/SAPI-%ED%99%9C%EB%8F%99%EB%B3%B4%EA%B3%A0%EC%84%9C_ENG.pdf",
-      "error": ""
-    },
-    {
-      "id": 43,
-      "region": "Asia 亞洲",
-      "country": "Japan 日本",
-      "institution": "Kyushu University 九州大學",
-      "name": "Note on the Use of Generative AI in Education at Kyushu University - For Teachers 關於在九州大學教育中使用生成式人工智慧的說明 — 給教師",
-      "date": "",
-      "url": "https://catalog.lib.kyushu-u.ac.jp/opac_download_md/7343643/60_p019.pdf",
-      "type": "教師教學支援",
-      "urlStatus": "ERROR",
-      "statusCode": "404",
-      "finalUrl": "https://catalog.lib.kyushu-u.ac.jp/opac_download_md/7343643/60_p019.pdf",
-      "error": "HTTP Error 404: Not Found"
-    },
-    {
-      "id": 44,
-      "region": "Asia 亞洲",
-      "country": "Japan 日本",
-      "institution": "Weseda University 韋塞達大學",
-      "name": "About the Use of Generative Artificial Intelligence (ChatGPT, etc.) 關於生成式人工智慧（ChatGPT 等）的使用",
-      "date": "April 21, 2023 2023 年 4 月 21 日",
-      "url": "https://www.waseda.jp/top/en/news/77786",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.waseda.jp/top/en/news/77786",
-      "error": ""
-    },
-    {
-      "id": 45,
-      "region": "Asia 亞洲",
-      "country": "South Korea 南韓",
-      "institution": "Ulsan National Institute of Science and Technology 蔚山科學技術院（UNIST）",
-      "name": "A Guide to the Use of Generative Al 生成式人工智慧使用指南",
-      "date": "2023",
-      "url": "https://heyzine.com/flip-book/3a9d4cb37e.html#page/1",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://heyzine.com/flip-book/3a9d4cb37e.html#page/1",
-      "error": ""
-    },
-    {
-      "id": 46,
-      "region": "Asia 亞洲",
-      "country": "Singapore 新加坡",
-      "institution": "Signapore Management University 新加坡管理大學",
-      "name": "SMU Framework for The Use of Generative AI Tools 新加坡管理大學生成式 AI 工具使用框架",
-      "date": "",
-      "url": "https://cte.smu.edu.sg/resources/smu-framework-generative-ai",
-      "type": "學生使用指引",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://cte.smu.edu.sg/ai",
-      "error": ""
-    },
-    {
-      "id": 47,
-      "region": "Asia 亞洲",
-      "country": "Singapore 新加坡",
-      "institution": "Nayang Technological University 南洋理工大學",
-      "name": "NTU Position on the Use of Generative Artificial Intelligence in Research 南洋理工大學對於在研究中使用生成式人工智慧的立場",
-      "date": "",
-      "url": "https://www.ntu.edu.sg/research/resources/use-of-gai-in-research",
-      "type": "研究倫理與研究使用",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.ntu.edu.sg/research/resources/use-of-gai-in-research",
-      "error": ""
-    },
-    {
-      "id": 48,
-      "region": "Asia 亞洲",
-      "country": "Taiwan 臺灣",
-      "institution": "National Tsing Hua University 國立清華大學",
-      "name": "Guidelines for Collaboration, Co-learning, and Cultivation of AI Competencies AI 能力之協作、共同學習與培育準則",
-      "date": "",
-      "url": "https://ctld.site.nthu.edu.tw/var/file/217/1217/img/555612445.pdf",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://ctld.site.nthu.edu.tw/var/file/217/1217/img/555612445.pdf",
-      "error": ""
-    },
-    {
-      "id": 49,
-      "region": "Asia 亞洲",
-      "country": "Taiwan 台灣",
-      "institution": "National Taiwan University 國立臺灣大學",
-      "name": "Guidance for Use of Generative AI Tools for Teaching and Learning 生成式 AI 工具教學與學習使用指引",
-      "date": "",
-      "url": "https://www.dlc.ntu.edu.tw/en/ai-tools-en/",
-      "type": "教師教學支援",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.dlc.ntu.edu.tw/en/ai-tools-en/",
-      "error": ""
-    },
-    {
-      "id": 50,
-      "region": "Asia 亞洲",
-      "country": "Hong Kong 香港",
-      "institution": "The Chinese University of Hong Kong 香港中文大學",
-      "name": "Use of AI Tools in Teaching, Learning and Assessments 教學、學習與評量中人工智慧工具的使用",
-      "date": "",
-      "url": "https://www.aqs.cuhk.edu.hk/documents/A-guide-for-students_use-of-AI-tools.pdf",
-      "type": "評量與學術誠信",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.aqs.cuhk.edu.hk/documents/A-guide-for-students_use-of-AI-tools.pdf",
-      "error": ""
-    },
-    {
-      "id": 51,
-      "region": "Asia 亞洲",
-      "country": "Thailand 泰國",
-      "institution": "Chulalongkorn University 朱拉隆功大學",
-      "name": "Principles and Guidelines for using AI Tools 使用 AI 工具的原則與指引",
-      "date": "",
-      "url": "https://www.chula.ac.th/en/news/125190/",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.chula.ac.th/en/news/125190/",
-      "error": ""
-    },
-    {
-      "id": 52,
-      "region": "Asia 亞洲",
-      "country": "Malaysia 馬來西亞",
-      "institution": "Universiti Malaya 馬來亞大學",
-      "name": "Guideline (English Version) 指引（英文版）",
-      "date": "",
-      "url": "https://umresearch.um.edu.my/wp-content/uploads/2023/07/Guideline-English-Version.docx",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://umresearch.um.edu.my/wp-content/uploads/2023/07/Guideline-English-Version.docx",
-      "error": ""
-    },
-    {
-      "id": 53,
-      "region": "Asia 亞洲",
-      "country": "Malaysia 馬來西亞",
-      "institution": "Universiti Putra Malaysia 馬來亞博特拉大學",
-      "name": "Guide for ChatGPT usage in Teaching and Learning ChatGPT 在教學與學習中的使用指南",
-      "date": "",
-      "url": "https://cadelead.upm.edu.my/upload/dokumen/20230202105701Guide_for_ChatGPT_Usage_in_Teaching_and_Learning.pdf",
-      "type": "教師教學支援",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://cadelead.upm.edu.my/upload/dokumen/20230202105701Guide_for_ChatGPT_Usage_in_Teaching_and_Learning.pdf",
-      "error": ""
-    },
-    {
-      "id": 54,
-      "region": "Oceania 大洋洲",
-      "country": "Australia 澳洲",
-      "institution": "The University of Melbourne 墨爾本大學",
-      "name": "AI governance 人工智慧治理",
-      "date": "",
-      "url": "https://www.unimelb.edu.au/ai/home/governance-and-ai-principles",
-      "type": "治理與政策框架",
-      "urlStatus": "ERROR",
-      "statusCode": "",
-      "finalUrl": "https://www.unimelb.edu.au/ai/home/governance-and-ai-principles",
-      "error": "HTTP Error 403: Forbidden"
-    },
-    {
-      "id": 55,
-      "region": "Oceania 大洋洲",
-      "country": "Australia 澳洲",
-      "institution": "The University of Sydney 悉尼大學",
-      "name": "AI in Education, University of Sydney guidelines 悉尼大學「教育中的人工智慧」指引",
-      "date": "",
-      "url": "https://www.sydney.edu.au/news-opinion/news/2024/11/15/how-to-use-ai-to-learn-without-cheating-students-develop-new-guide.html",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.sydney.edu.au/news-opinion/news/2024/11/15/how-to-use-ai-to-learn-without-cheating-students-develop-new-guide.html",
-      "error": ""
-    },
-    {
-      "id": 56,
-      "region": "Oceania 大洋洲",
-      "country": "Australia 澳洲",
-      "institution": "University of New South Wales 新南威爾斯大學",
-      "name": "UNSW's AI Guidelines and Framework 新南威爾斯大學的人工智慧準則與架構",
-      "date": "",
-      "url": "https://www.teaching.unsw.edu.au/ai/guidelines",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.teaching.unsw.edu.au/ai/guidelines",
-      "error": ""
-    },
-    {
-      "id": 57,
-      "region": "Oceania 大洋洲",
-      "country": "Australia 澳洲",
-      "institution": "The Australian National University 澳洲國立大學",
-      "name": "Guide for students: best practice when using Generative AI 學生指南：使用生成式 AI 的最佳實務",
-      "date": "",
-      "url": "https://www.anu.edu.au/students/academic-skills/academic-integrity/best-practice-principles/guide-for-students-best",
-      "type": "學生使用指引",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.anu.edu.au/students/academic-skills/referencing-and-academic-integrity/academic-integrity-best-practice/guide",
-      "error": ""
-    },
-    {
-      "id": 58,
-      "region": "Oceania 大洋洲",
-      "country": "Australia 澳洲",
-      "institution": "University of Technology Sydney 雪梨科技大學",
-      "name": "The Use of AI in Research Guidelines 研究中使用人工智慧指引",
-      "date": "",
-      "url": "https://www.uts.edu.au/about/leadership-governance/policies/a-z/use-of-ai-in-research-guidelines",
-      "type": "研究倫理與研究使用",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.uts.edu.au/about/leadership-governance/policies/a-z/use-of-ai-in-research-guidelines",
-      "error": ""
-    },
-    {
-      "id": 59,
-      "region": "Oceania 大洋洲",
-      "country": "Australia 澳洲",
-      "institution": "The University of Adelaide 阿德雷得大學",
-      "name": "Working with Artificial Intelligence 使用人工智慧工作",
-      "date": "",
-      "url": "https://www.adelaide.edu.au/student/academic-skills/academic-integrity-for-students/working-with-artificial-intelligence",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://adelaide.edu.au/about/policies/academic-integrity-policy/",
-      "error": ""
-    },
-    {
-      "id": 60,
-      "region": "Oceania 大洋洲",
-      "country": "Australia 澳洲",
-      "institution": "The University of Western Australia 西澳大學",
-      "name": "Using AI Tools at UWA: A Guide for Students 在西澳大學使用人工智慧工具：學生指南",
-      "date": "",
-      "url": "https://www.uwa.edu.au/students/-/media/project/uwa/uwa/students/docs/studysmarter/using-ai-tools-at-uwa.pdf",
-      "type": "學生使用指引",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.uwa.edu.au/404",
-      "error": ""
-    },
-    {
-      "id": 61,
-      "region": "Oceania 大洋洲",
-      "country": "Australia 澳洲",
-      "institution": "The University of Queensland 昆士蘭大學",
-      "name": "UQ’s rules for using AI UQ 使用人工智慧的規範",
-      "date": "",
-      "url": "https://web.library.uq.edu.au/study-and-learning-support/ai-student-hub/uqs-rules-using-ai",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://guides.library.uq.edu.au/tools-and-techniques/ai-student-hub/ai-for-assessment",
-      "error": ""
-    },
-    {
-      "id": 62,
-      "region": "Oceania 大洋洲",
-      "country": "Australia 澳洲",
-      "institution": "Monash University 莫納什大學",
-      "name": "AI policies and guidelines 人工智慧政策與指引",
-      "date": "",
-      "url": "https://www.monash.edu/ai/tools-training-and-resources/ai-policies-and-guidelines",
-      "type": "治理與政策框架",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.monash.edu/ai/tools-training-and-resources/ai-policies-and-guidelines",
-      "error": ""
-    },
-    {
-      "id": 63,
-      "region": "Oceania 大洋洲",
-      "country": "New Zealand 紐西蘭",
-      "institution": "University of Auckland 奧克蘭大學",
-      "name": "Advice for students on using generative AI in coursework 關於學生在課程作業中使用生成式人工智慧的建議",
-      "date": "",
-      "url": "https://www.auckland.ac.nz/en/students/forms-policies-and-guidelines/student-policies-and-guidelines/academic-integrity-copyright/advice-for-student-on-using-generative-ai.html",
-      "type": "學生使用指引",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.auckland.ac.nz/en/students/forms-policies-and-guidelines/student-policies-and-guidelines/academic-integrity-copyright/advice-for-student-on-using-ai.html",
-      "error": ""
-    },
-    {
-      "id": 64,
-      "region": "Oceania 大洋洲",
-      "country": "New Zealand 紐西蘭",
-      "institution": "University of Otago 奧塔哥大學",
-      "name": "Use of Generative-Artificial Intelligences and Autonomous Content Generation in Learning and Teaching Policy 學習與教學中生成式人工智慧與自主內容產生之使用政策",
-      "date": "",
-      "url": "https://www.otago.ac.nz/administration/policies/policy-collection/use-of-generative-artificial-intelligences-and-autonomous-content-generation-in-learning-and-teaching-policy",
-      "type": "治理與政策框架",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.otago.ac.nz/administration/policies/policy-collection/use-of-generative-artificial-intelligences-and-autonomous-content-generation-in-learning-and-teaching-policy",
-      "error": ""
-    },
-    {
-      "id": 65,
-      "region": "Oceania 大洋洲",
-      "country": "New Zealand 紐西蘭",
-      "institution": "University of Canterbury 坎特伯雷大學",
-      "name": "Responsible use of Gen-AI tools 負責任地使用生成式人工智慧工具",
-      "date": "",
-      "url": "https://www.canterbury.ac.nz/study/study-support-info/gen-ai-at-uc/responsible-use-gen-ai-tools",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.canterbury.ac.nz/study/study-support-info/gen-ai-at-uc/responsible-use-gen-ai-tools",
-      "error": ""
-    },
-    {
-      "id": 66,
-      "region": "Oceania 大洋洲",
-      "country": "New Zealand 紐西蘭",
-      "institution": "Victoria University of Wellington 威靈頓維多利亞大學",
-      "name": "Student use of artificial intelligence 學生使用人工智慧",
-      "date": "",
-      "url": "https://www.wgtn.ac.nz/students/study/exams/academic-integrity/student-use-of-artificial-intelligence",
-      "type": "學生使用指引",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.wgtn.ac.nz/students/study/exams/academic-integrity/student-use-of-artificial-intelligence",
-      "error": ""
-    },
-    {
-      "id": 67,
-      "region": "Oceania 大洋洲",
-      "country": "New Zealand 紐西蘭",
-      "institution": "Massey University 梅西大學",
-      "name": "Artificial Intelligence (AI) usage and detection 人工智慧（AI）使用與偵測",
-      "date": "",
-      "url": "https://www.massey.ac.nz/study/study-and-assignment-support-and-guides/academic-integrity-student-guide/artificial-intelligence-ai-usage-and-detection/",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.massey.ac.nz/study/study-and-assignment-support-and-guides/academic-integrity-student-guide/artificial-intelligence-ai-usage-and-detection/",
-      "error": ""
-    },
-    {
-      "id": 68,
-      "region": "Oceania 大洋洲",
-      "country": "New Zealand 紐西蘭",
-      "institution": "University of Waikato 懷卡托大學",
-      "name": "University of Waikato Guidelines for Student Use of Generative AI Tools 懷卡托大學學生使用生成式 AI 工具指南",
-      "date": "",
-      "url": "https://www.waikato.ac.nz/assets/Uploads/Student-life/Student-assessment-Handbook/Guidelines-for-student-use-of-generative-AI-tools-FINAL.pdf",
-      "type": "學生使用指引",
-      "urlStatus": "ERROR",
-      "statusCode": "404",
-      "finalUrl": "https://www.waikato.ac.nz/assets/Uploads/Student-life/Student-assessment-Handbook/Guidelines-for-student-use-of-generative-AI-tools-FINAL.pdf",
-      "error": "HTTP Error 404: Not Found"
-    },
-    {
-      "id": 69,
-      "region": "Oceania 大洋洲",
-      "country": "New Zealand 紐西蘭",
-      "institution": "Auckland University of Technology 奧克蘭理工大學",
-      "name": "Generative AI and assessment at AUT 奧克蘭理工大學的生成式人工智慧與評量",
-      "date": "",
-      "url": "https://www.aut.ac.nz/about/teaching-learning-and-assessment/generative-ai-and-assessment-at-aut",
-      "type": "評量與學術誠信",
-      "urlStatus": "ERROR",
-      "statusCode": "",
-      "finalUrl": "https://www.aut.ac.nz/about/teaching-learning-and-assessment/generative-ai-and-assessment-at-aut",
-      "error": "HTTP Error 403: Forbidden"
-    },
-    {
-      "id": 70,
-      "region": "Oceania 大洋洲",
-      "country": "New Zealand 紐西蘭",
-      "institution": "Lincoln University 林肯大學",
-      "name": "AI guidelines AI 準則",
-      "date": "",
-      "url": "https://learning.lincoln.ac.uk/academic-skills/ai-guidelines/",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://learning.lincoln.ac.uk/your-academic-journey/gen-ai/",
-      "error": ""
-    },
-    {
-      "id": 71,
-      "region": "Europe 歐洲",
-      "country": "UK",
-      "institution": "University of Oxford 牛津大學",
-      "name": "Use of generative AI tools to support learning 使用生成式人工智慧工具以支援學習",
-      "date": "",
-      "url": "",
-      "type": "待編碼",
-      "urlStatus": "MISSING",
-      "statusCode": "",
-      "finalUrl": "",
-      "error": "缺 URL"
-    },
-    {
-      "id": 72,
-      "region": "Europe 歐洲",
-      "country": "UK",
-      "institution": "University of Cambridge 劍橋大學",
-      "name": "Artificial intelligence and teaching, learning, and assessment 人工智慧與教學、學習及評量",
-      "date": "",
-      "url": "",
-      "type": "評量與學術誠信",
-      "urlStatus": "MISSING",
-      "statusCode": "",
-      "finalUrl": "",
-      "error": "缺 URL"
-    },
-    {
-      "id": 73,
-      "region": "Europe 歐洲",
-      "country": "UK",
-      "institution": "Imperial College London 倫敦帝國學院",
-      "name": "Generative AI Guidance 生成式人工智慧指引",
-      "date": "",
-      "url": "https://www.imperial.ac.uk/admin-services/library/learning-support/generative-ai-guidance/",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.imperial.ac.uk/admin-services/library/learning-support/generative-ai-guidance/",
-      "error": ""
-    },
-    {
-      "id": 74,
-      "region": "Europe 歐洲",
-      "country": "UK",
-      "institution": "London School of Economics 倫敦政治經濟學院",
-      "name": "Statement on Generative AI and Education 關於生成式人工智慧與教育的聲明",
-      "date": "",
-      "url": "",
-      "type": "待編碼",
-      "urlStatus": "MISSING",
-      "statusCode": "",
-      "finalUrl": "",
-      "error": "缺 URL"
-    },
-    {
-      "id": 75,
-      "region": "Europe 歐洲",
-      "country": "UK",
-      "institution": "University College London 倫敦大學學院",
-      "name": "Three categories of GenAI use in assessment 評估中生成式人工智慧使用的三類別",
-      "date": "",
-      "url": "",
-      "type": "評量與學術誠信",
-      "urlStatus": "MISSING",
-      "statusCode": "",
-      "finalUrl": "",
-      "error": "缺 URL"
-    },
-    {
-      "id": 76,
-      "region": "Europe 歐洲",
-      "country": "UK",
-      "institution": "University of Edinburgh 愛丁堡大學",
-      "name": "Guidance for working with Generative AI (“GenAI”) in your studies 在學習中使用生成式人工智慧（「GenAI」）的指引",
-      "date": "",
-      "url": "https://information-services.ed.ac.uk/computing/comms-and-collab/elm/guidance-for-working-with-generative-ai",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://information-services.ed.ac.uk/computing/comms-and-collab/elm/generative-ai-guidance-for-students/using-generative",
-      "error": ""
-    },
-    {
-      "id": 77,
-      "region": "Europe 歐洲",
-      "country": "Netherlands 荷蘭",
-      "institution": "Erasmus University Rotterdam 鹿特丹伊拉斯姆斯大學",
-      "name": "Generative AI Usage Guidelines 生成式 AI 使用指導原則",
-      "date": "",
-      "url": "https://www.eur.nl/en/about-university/policy-and-regulations/regulations-and-guidelines/ai-usage-guidelines",
-      "type": "待編碼",
-      "urlStatus": "ERROR",
-      "statusCode": "",
-      "finalUrl": "https://www.eur.nl/en/about-university/policy-and-regulations/regulations-and-guidelines/ai-usage-guidelines",
-      "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
-    },
-    {
-      "id": 78,
-      "region": "Europe 歐洲",
-      "country": "Belgium 比利時",
-      "institution": "KU Leuven",
-      "name": "Responsible use of Generative AI 生成式 AI 的負責任使用",
-      "date": "",
-      "url": "https://www.kuleuven.be/english/genai",
-      "type": "待編碼",
-      "urlStatus": "ERROR",
-      "statusCode": "",
-      "finalUrl": "https://www.kuleuven.be/english/genai",
-      "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
-    },
-    {
-      "id": 79,
-      "region": "Europe 歐洲",
-      "country": "Switzerland 瑞士",
-      "institution": "ETH Zurich 蘇黎世聯邦理工學院 (ETH Zurich)",
-      "name": "Generative AI in Teaching & Learning 教學與學習中的生成式人工智慧",
-      "date": "",
-      "url": "https://ethz.ch/content/dam/ethz/main/eth-zurich/education/ai_in_education/Generative%20AI%20in%20Teaching%20and%20Learning%20-%20Guidelines%20ETH.pdf",
-      "type": "教師教學支援",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://ethz.ch/content/dam/ethz/main/eth-zurich/education/ai_in_education/Generative%20AI%20in%20Teaching%20and%20Learning%20-%20Guidelines%20ETH.pdf",
-      "error": ""
-    },
-    {
-      "id": 80,
-      "region": "Europe 歐洲",
-      "country": "Netherlands 荷蘭",
-      "institution": "University of Amsterdam 阿姆斯特丹大學",
-      "name": "AI tools and your studies 人工智慧工具與你的學業",
-      "date": "",
-      "url": "https://student.uva.nl/en/topics/ai-tools-and-your-studies",
-      "type": "待編碼",
-      "urlStatus": "ERROR",
-      "statusCode": "",
-      "finalUrl": "https://student.uva.nl/en/topics/ai-tools-and-your-studies",
-      "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
-    },
-    {
-      "id": 81,
-      "region": "Europe 歐洲",
-      "country": "Norway 挪威",
-      "institution": "University of Oslo 奧斯陸大學",
-      "name": "Guidelines for use of AI at UiO 奧斯陸大學使用人工智慧指引",
-      "date": "",
-      "url": "https://www.uio.no/english/services/ai/",
-      "type": "待編碼",
-      "urlStatus": "ERROR",
-      "statusCode": "",
-      "finalUrl": "https://www.uio.no/english/services/ai/",
-      "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
-    },
-    {
-      "id": 82,
-      "region": "Europe 歐洲",
-      "country": "Finland 芬蘭",
-      "institution": "University of Helsinki 赫爾辛基大學",
-      "name": "Using AI to support learning 使用人工智慧支援學習",
-      "date": "",
-      "url": "https://studies.helsinki.fi/instructions/article/using-ai-support-learning",
-      "type": "待編碼",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://studies.helsinki.fi/instructions/article/using-ai-support-learning",
-      "error": ""
-    },
-    {
-      "id": 83,
-      "region": "Europe 歐洲",
-      "country": "Italy 義大利",
-      "institution": "University of Padua 帕多瓦大學",
-      "name": "Artificial Intelligence and Thesis Writing 人工智慧與論文寫作",
-      "date": "",
-      "url": "https://biologia-molecolare.biologia.unipd.it/en/masters-degrees/artificial-intelligence-and-thesis-writing/",
-      "type": "待編碼",
-      "urlStatus": "ERROR",
-      "statusCode": "502",
-      "finalUrl": "https://biologia-molecolare.biologia.unipd.it/en/masters-degrees/artificial-intelligence-and-thesis-writing/",
-      "error": "HTTP Error 502: Bad Gateway"
-    },
-    {
-      "id": 84,
-      "region": "Europe 歐洲",
-      "country": "Sweden 瑞典",
-      "institution": "Stockholm University 斯德哥爾摩大學",
-      "name": "Guidelines on using AI-powered chatbots in education and research 關於在教育與研究中使用人工智慧驅動聊天機器人的指引",
-      "date": "",
-      "url": "https://medarbetare.su.se/en/our-su/communicate-su/communication-support/guidelines-on-using-ai-powered-chatbots-in-education-and-research",
-      "type": "研究倫理與研究使用",
-      "urlStatus": "ERROR",
-      "statusCode": "",
-      "finalUrl": "https://medarbetare.su.se/en/our-su/communicate-su/communication-support/guidelines-on-using-ai-powered-chatbots-in-education-and-research",
-      "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)>"
-    },
-    {
-      "id": 85,
-      "region": "Europe 歐洲",
-      "country": "Sweden 瑞典",
-      "institution": "Stockholm University 斯德哥爾摩大學",
-      "name": "DSV’s AI policy 數位社會科學系（DSV）的人工智慧政策",
-      "date": "",
-      "url": "https://www.su.se/department-of-computer-and-systems-sciences/education/during-your-studies/dsv-s-ai-policy-1.705912",
-      "type": "治理與政策框架",
-      "urlStatus": "ERROR",
-      "statusCode": "",
-      "finalUrl": "https://www.su.se/department-of-computer-and-systems-sciences/education/during-your-studies/dsv-s-ai-policy-1.705912",
-      "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)>"
-    },
-    {
-      "id": 86,
-      "region": "Europe 歐洲",
-      "country": "Denmark 丹麥",
-      "institution": "Technical University of Denmark 丹麥技術大學",
-      "name": "DTU opens up for the use of artificial intelligence in teaching 丹麥技術大學開放在教學中使用人工智慧",
-      "date": "",
-      "url": "",
-      "type": "教師教學支援",
-      "urlStatus": "MISSING",
-      "statusCode": "",
-      "finalUrl": "",
-      "error": "缺 URL"
-    },
-    {
-      "id": 87,
-      "region": "Europe 歐洲",
-      "country": "Netherlands 荷蘭",
-      "institution": "Delft University of Technology 代爾夫特理工大學",
-      "name": "AI chatbots in unsupervised assessment 用於非監督評估的 AI 聊天機器人",
-      "date": "",
-      "url": "https://www.tudelft.nl/teaching-support/educational-advice/assess/guidelines/ai-chatbots-in-unsupervised-assessment",
-      "type": "評量與學術誠信",
-      "urlStatus": "OK",
-      "statusCode": "200",
-      "finalUrl": "https://www.tudelft.nl/teaching-support/educational-advice/assess/guidelines/ai-chatbots-in-unsupervised-assessment",
-      "error": ""
-    },
-    {
-      "id": 88,
-      "region": "Europe 歐洲",
-      "country": "Portugal 葡萄牙",
-      "institution": "Universidade de Lisboa 里斯本大學",
-      "name": "Artificial Intelligence in education – Técnico presents resolution on the use of tools such as ChatGPT 教育中的人工智慧——理工學院就使用 ChatGPT 等工具提出決議",
-      "date": "",
-      "url": "https://tecnico.ulisboa.pt/en/news/campus-community/artificial-intelligence-in-education-tecnico-presents-resolution-on-the-use-of-tools-such-as-chatgpt/",
-      "type": "待編碼",
-      "urlStatus": "ERROR",
-      "statusCode": "",
-      "finalUrl": "https://tecnico.ulisboa.pt/en/news/campus-community/artificial-intelligence-in-education-tecnico-presents-resolution-on-the-use-of-tools-such-as-chatgpt/",
-      "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>"
-    },
-    {
-      "id": 89,
-      "region": "Europe 歐洲",
-      "country": "Netherlands 荷蘭",
-      "institution": "University of Utrecht 烏得勒支大學",
-      "name": "Guidelines for the use of generative AI 生成式人工智慧使用指南",
-      "date": "",
-      "url": "",
-      "type": "待編碼",
-      "urlStatus": "MISSING",
-      "statusCode": "",
-      "finalUrl": "",
-      "error": "缺 URL"
-    },
-    {
-      "id": 90,
-      "region": "Europe 歐洲",
-      "country": "Switzerland 瑞士",
-      "institution": "University of Zurich 蘇黎世大學",
-      "name": "Guidelines for the Use of AI Tools 人工智慧工具使用指南",
-      "date": "",
-      "url": "",
-      "type": "待編碼",
-      "urlStatus": "MISSING",
-      "statusCode": "",
-      "finalUrl": "",
-      "error": "缺 URL"
-    }
-  ],
-  "urlChecks": [
-    {
-      "table": "1",
-      "row": "2",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://poorvucenter.yale.edu/teaching/teaching-resource-library/ai-guidance-for-teachers/ai-course-assignment-design/sample-ai",
-      "final_url": "https://poorvucenter.yale.edu/teaching/teaching-resource-library/ai-guidance-for-teachers/ai-course-assignment-design/sample-ai",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.48",
-      "context": " | Yale University | Sample AI Syllabus Statements https://poorvucenter.yale.edu/teaching/teaching-resource-library/ai-guidance-for-teachers/ai-course-assignment-design/sample-ai | 依課程類型分類最完整：大型講課、STEM、人文寫作、創意寫作、研討課、Lab 等；可直接貼入課綱"
-    },
-    {
-      "table": "1",
-      "row": "3",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://docs.google.com/document/d/1RMVwzjc1o0Mi8Blw_-JUTcXv02b2WRH86vw7mi16W3U/edit?tab=t.0#heading=h.ir0lbtsflw64",
-      "final_url": "https://docs.google.com/document/d/1RMVwzjc1o0Mi8Blw_-JUTcXv02b2WRH86vw7mi16W3U/edit?tab=t.0#heading=h.ir0lbtsflw64",
-      "content_type": "text/html; charset=utf-8",
-      "error": "",
-      "elapsed_sec": "0.55",
-      "context": " | Lance Eaton (研究者) | Syllabi Policies for AI Generative Tools https://docs.google.com/document/d/1RMVwzjc1o0Mi8Blw_-JUTcXv02b2WRH86vw7mi16W3U/edit?tab=t.0#heading=h.ir0lbtsflw64 | This resource was created by Lance Eaton (contact him via email, Bluesky, Twitter, LinkedIn, or sign up for his AI+Edu=Simplified newsletter) for the purposes of sharing and helping other instructors see the range of policies available by other educators to help in the development of their own for navigating AI-Generative Tools (such as ChatGPT, MidJourney, Dall-E, etc)."
-    },
-    {
-      "table": "1",
-      "row": "4",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://tltc.umd.edu/sample-syllabus-language-ai-course-policies",
-      "final_url": "https://tltc.umd.edu/sample-syllabus-language-ai-course-policies",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.47",
-      "context": " | University of Maryland | Sample Syllabus Language: AI Course Policies https://tltc.umd.edu/sample-syllabus-language-ai-course-policies | 提供禁止、限制、指定情境可使用、鼓勵 AI literacy 等多版本模板"
-    },
-    {
-      "table": "1",
-      "row": "5",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.umkc.edu/provost/academics/ai-tools-sample-syllabus-policy-statements.html",
-      "final_url": "https://www.umkc.edu/provost/academics/ai-tools-sample-syllabus-policy-statements.html",
-      "content_type": "text/html",
-      "error": "",
-      "elapsed_sec": "1.1",
-      "context": " | University of Missouri–Kansas City | Generative AI Tools and Sample Syllabus Policy Statements https://www.umkc.edu/provost/academics/ai-tools-sample-syllabus-policy-statements.html | Restrictive / Supervised / Permissive"
-    },
-    {
-      "table": "1",
-      "row": "6",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://bokcenter.harvard.edu/ai-literacy-and-ethics",
-      "final_url": "https://bokcenter.harvard.edu/ai-literacy-and-ethics",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.71",
-      "context": " | Harvard University | Teaching in the Age of AI https://bokcenter.harvard.edu/artificial-intelligence Designing Courses & Assignments in the Age of AI https://bokcenter.harvard.edu/courses-and-assignments-in-age-of-ai AI Literacy & Ethics https://bokcenter.harvard.edu/ai-literacy-and-ethics Getting Started with HUIT-Supported AI Tools https://bokcenter.harvard.edu/getting-started-huit-supported-ai-tools Examples & Ideas for Using AI for Your Teaching https://bokcenter.harvard.edu/examples-and-ideas-for-using-AI-for-your-teaching | Designing Courses and Assignments in the Age of AI helps you "
-    },
-    {
-      "table": "1",
-      "row": "6",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://bokcenter.harvard.edu/artificial-intelligence",
-      "final_url": "https://bokcenter.harvard.edu/artificial-intelligence",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.66",
-      "context": " | Harvard University | Teaching in the Age of AI https://bokcenter.harvard.edu/artificial-intelligence Designing Courses & Assignments in the Age of AI https://bokcenter.harvard.edu/courses-and-assignments-in-age-of-ai AI Literacy & Ethics https://bokcenter.harvard.edu/ai-literacy-and-ethics Getting Started with HUIT-Supported AI Tools https://bokcenter.harvard.edu/getting-started-huit-supported-ai-tools Examples & Ideas for Using AI for Your Teaching https://bokcenter.harvard.edu/examples-and-ideas-for-using-AI-for-your-teaching | Designing Courses and Assignments in the Age of AI helps you "
-    },
-    {
-      "table": "1",
-      "row": "6",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://bokcenter.harvard.edu/courses-and-assignments-in-age-of-ai",
-      "final_url": "https://bokcenter.harvard.edu/courses-and-assignments-in-age-of-ai",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.69",
-      "context": " | Harvard University | Teaching in the Age of AI https://bokcenter.harvard.edu/artificial-intelligence Designing Courses & Assignments in the Age of AI https://bokcenter.harvard.edu/courses-and-assignments-in-age-of-ai AI Literacy & Ethics https://bokcenter.harvard.edu/ai-literacy-and-ethics Getting Started with HUIT-Supported AI Tools https://bokcenter.harvard.edu/getting-started-huit-supported-ai-tools Examples & Ideas for Using AI for Your Teaching https://bokcenter.harvard.edu/examples-and-ideas-for-using-AI-for-your-teaching | Designing Courses and Assignments in the Age of AI helps you "
-    },
-    {
-      "table": "1",
-      "row": "6",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://bokcenter.harvard.edu/examples-and-ideas-for-using-AI-for-your-teaching",
-      "final_url": "https://bokcenter.harvard.edu/examples-and-ideas-for-using-AI-for-your-teaching",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.62",
-      "context": " | Harvard University | Teaching in the Age of AI https://bokcenter.harvard.edu/artificial-intelligence Designing Courses & Assignments in the Age of AI https://bokcenter.harvard.edu/courses-and-assignments-in-age-of-ai AI Literacy & Ethics https://bokcenter.harvard.edu/ai-literacy-and-ethics Getting Started with HUIT-Supported AI Tools https://bokcenter.harvard.edu/getting-started-huit-supported-ai-tools Examples & Ideas for Using AI for Your Teaching https://bokcenter.harvard.edu/examples-and-ideas-for-using-AI-for-your-teaching | Designing Courses and Assignments in the Age of AI helps you "
-    },
-    {
-      "table": "1",
-      "row": "6",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://bokcenter.harvard.edu/getting-started-huit-supported-ai-tools",
-      "final_url": "https://bokcenter.harvard.edu/getting-started-huit-supported-ai-tools",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.63",
-      "context": " | Harvard University | Teaching in the Age of AI https://bokcenter.harvard.edu/artificial-intelligence Designing Courses & Assignments in the Age of AI https://bokcenter.harvard.edu/courses-and-assignments-in-age-of-ai AI Literacy & Ethics https://bokcenter.harvard.edu/ai-literacy-and-ethics Getting Started with HUIT-Supported AI Tools https://bokcenter.harvard.edu/getting-started-huit-supported-ai-tools Examples & Ideas for Using AI for Your Teaching https://bokcenter.harvard.edu/examples-and-ideas-for-using-AI-for-your-teaching | Designing Courses and Assignments in the Age of AI helps you "
-    },
-    {
-      "table": "1",
-      "row": "7",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://citl.news.niu.edu/2023/07/24/class-policies-for-the-use-of-ai-tools/",
-      "final_url": "https://citl.news.niu.edu/2023/07/24/class-policies-for-the-use-of-ai-tools/",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "1.24",
-      "context": " | Northern Illinois University | Class Policies for AI Tools https://citl.news.niu.edu/2023/07/24/class-policies-for-the-use-of-ai-tools/ | classroom-ready templates、assignment-level 聲明"
-    },
-    {
-      "table": "1",
-      "row": "8",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://academicintegrity.ubc.ca/generative-ai-syllabus/",
-      "final_url": "https://academicintegrity.ubc.ca/generative-ai-syllabus/",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.8",
-      "context": " | University of British Columbia | Developing Course Guidelines on the Use of GenAI https://academicintegrity.ubc.ca/generative-ai-syllabus/ | "
-    },
-    {
-      "table": "1",
-      "row": "9",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.sydney.edu.au/news-opinion/news/2024/11/27/university-of-sydney-ai-assessment-policy.html",
-      "final_url": "https://www.sydney.edu.au/news-opinion/news/2024/11/27/university-of-sydney-ai-assessment-policy.html",
-      "content_type": "text/html;charset=utf-8",
-      "error": "",
-      "elapsed_sec": "0.99",
-      "context": " | University of Sydney | AI in assessment https://www.sydney.edu.au/news-opinion/news/2024/11/27/university-of-sydney-ai-assessment-policy.html Cogniti, | "
-    },
-    {
-      "table": "1",
-      "row": "14",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://teaching.resources.osu.edu/teaching-topics/ai-teaching-strategies-crafting",
-      "final_url": "https://teaching.resources.osu.edu/teaching-topics/ai-teaching-strategies-developing",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.6",
-      "context": " | Ohio State University | AI Teaching Strategies: Crafting Your GenAI Syllabus Statement https://teaching.resources.osu.edu/teaching-topics/ai-teaching-strategies-crafting | 著重於「AI 教學策略」。除了大綱範本，還建議教師在開學第一堂課與學生進行「AI 使用案例情境演練」，讓學生明確知道學術誠信的紅線在哪裡。"
-    },
-    {
-      "table": "1",
-      "row": "15",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://cte.ku.edu/building-ai-policies-your-syllabus",
-      "final_url": "https://cte.ku.edu/building-ai-policies-your-syllabus",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.86",
-      "context": " | University of Kansas | Building AI policies into your syllabus https://cte.ku.edu/building-ai-policies-your-syllabus | 提供了非常接地氣的「基本規範 (Ground rules)」寫法。例如要求學生若使用 AI，必須在作業後附上一段說明：用了什麼、AI 哪裡給了錯誤資訊、以及學到了什麼。"
-    },
-    {
-      "table": "1",
-      "row": "16",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.kent.edu/ctl/ai-syllabus-statements-course-policy-examples",
-      "final_url": "https://www.kent.edu/ctl/ai-syllabus-statements-course-policy-examples",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.67",
-      "context": " | Kent State University | AI Syllabus Statements & Course Policy Examples https://www.kent.edu/ctl/ai-syllabus-statements-course-policy-examples | 提供了不同層次的 AI 揭露範本：包含「簡短版」、「學習焦點版」、「批判視角版」以及「作者焦點版」，讓教師能根據課程特性選擇最適合的學生自評方式。"
-    },
-    {
-      "table": "2",
-      "row": "2",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://moda.gov.tw/major-policies/ai/governance/19248",
-      "final_url": "https://moda.gov.tw/major-policies/ai/governance/19248",
-      "content_type": "text/html; charset=utf-8",
-      "error": "",
-      "elapsed_sec": "0.17",
-      "context": " | 數位發展部 | 人工智慧基本法 https://moda.gov.tw/major-policies/ai/governance/19248 | 公布日期：民國115 年 01月14日"
-    },
-    {
-      "table": "2",
-      "row": "3",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://join.gov.tw/policies/detail/4c714d85-ab9f-4b17-8335-f13b31148dc4",
-      "final_url": "https://join.gov.tw/policies/detail/4c714d85-ab9f-4b17-8335-f13b31148dc4",
-      "content_type": "text/html;charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.85",
-      "context": " | 國科會 | 行政院及所屬機關（構）使用生成式AI參考指引 規範政府機關使用生成式AI之原則，涵蓋資料保護、封閉式地端定義及TAIDE應用範疇 https://www.nstc.gov.tw/folksonomy/list/c79bf57b-dc94-4aff-8d14-3262b5559cfc?l=ch 生成式AI指引FAQ（常見問答） 含TAIDE定義、封閉式地端規範，以及行政院各機關AI應用原則詳細說明 https://www.nstc.gov.tw/folksonomy/detail/d21566a0-3465-4b63-84b7-5d7cb2e1e5ff?l=ch 人工智慧基本法（草案） 2024年7月預告制定，建立台灣AI治理法律基礎，開放公眾參與討論 https://join.gov.tw/policies/detail/4c714d85-ab9f-4b17-8335-f13b31148dc4 | 國科會雖無單獨「AI教學指引」，但在AI推動策略、研究計畫中強調倫理與人才培育，常與教育部合作支援AI教育研究（如AI素養、教學應用）(by Grok)"
-    },
-    {
-      "table": "2",
-      "row": "3",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.nstc.gov.tw/folksonomy/detail/d21566a0-3465-4b63-84b7-5d7cb2e1e5ff?l=ch",
-      "final_url": "https://www.nstc.gov.tw/folksonomy/detail/d21566a0-3465-4b63-84b7-5d7cb2e1e5ff?l=ch",
-      "content_type": "text/html;charset=utf-8",
-      "error": "",
-      "elapsed_sec": "0.36",
-      "context": " | 國科會 | 行政院及所屬機關（構）使用生成式AI參考指引 規範政府機關使用生成式AI之原則，涵蓋資料保護、封閉式地端定義及TAIDE應用範疇 https://www.nstc.gov.tw/folksonomy/list/c79bf57b-dc94-4aff-8d14-3262b5559cfc?l=ch 生成式AI指引FAQ（常見問答） 含TAIDE定義、封閉式地端規範，以及行政院各機關AI應用原則詳細說明 https://www.nstc.gov.tw/folksonomy/detail/d21566a0-3465-4b63-84b7-5d7cb2e1e5ff?l=ch 人工智慧基本法（草案） 2024年7月預告制定，建立台灣AI治理法律基礎，開放公眾參與討論 https://join.gov.tw/policies/detail/4c714d85-ab9f-4b17-8335-f13b31148dc4 | 國科會雖無單獨「AI教學指引」，但在AI推動策略、研究計畫中強調倫理與人才培育，常與教育部合作支援AI教育研究（如AI素養、教學應用）(by Grok)"
-    },
-    {
-      "table": "2",
-      "row": "3",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.nstc.gov.tw/folksonomy/list/c79bf57b-dc94-4aff-8d14-3262b5559cfc?l=ch",
-      "final_url": "https://www.nstc.gov.tw/folksonomy/list/c79bf57b-dc94-4aff-8d14-3262b5559cfc?l=ch",
-      "content_type": "text/html;charset=utf-8",
-      "error": "",
-      "elapsed_sec": "0.36",
-      "context": " | 國科會 | 行政院及所屬機關（構）使用生成式AI參考指引 規範政府機關使用生成式AI之原則，涵蓋資料保護、封閉式地端定義及TAIDE應用範疇 https://www.nstc.gov.tw/folksonomy/list/c79bf57b-dc94-4aff-8d14-3262b5559cfc?l=ch 生成式AI指引FAQ（常見問答） 含TAIDE定義、封閉式地端規範，以及行政院各機關AI應用原則詳細說明 https://www.nstc.gov.tw/folksonomy/detail/d21566a0-3465-4b63-84b7-5d7cb2e1e5ff?l=ch 人工智慧基本法（草案） 2024年7月預告制定，建立台灣AI治理法律基礎，開放公眾參與討論 https://join.gov.tw/policies/detail/4c714d85-ab9f-4b17-8335-f13b31148dc4 | 國科會雖無單獨「AI教學指引」，但在AI推動策略、研究計畫中強調倫理與人才培育，常與教育部合作支援AI教育研究（如AI素養、教學應用）(by Grok)"
-    },
-    {
-      "table": "2",
-      "row": "4",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://pads.moe.edu.tw",
-      "final_url": "https://pads.moe.edu.tw",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.15",
-      "context": " | 教育部 | 教育部中小學數位教學指引3.0版（2024） https://pads.moe.edu.tw | 納入生成式AI在備課、教學、評量階段的應用示例、各領域群科數位教學策略、AI學習夥伴（因材網）、數位素養內涵、AI危害與風險注意事項。適合教師規劃AI輔助教學，也提供家長與校長指引。(by Grok)"
-    },
-    {
-      "table": "2",
-      "row": "5",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://pads.moe.edu.tw/download.php",
-      "final_url": "https://pads.moe.edu.tw/download.php",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "3.9",
-      "context": " | 教育部 | 教育部中小學使用生成式人工智慧注意事項（教師/行政/家長版，2024） https://pads.moe.edu.tw/download.php | 強調理解AI偏誤、訊息多樣性限制、辨識工具限制等，六大要點作為使用參考。(by Grok)"
-    },
-    {
-      "table": "2",
-      "row": "6",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.taaee.org.tw/docs/20230223_conclusion_final.pdf",
-      "final_url": "https://www.taaee.org.tw/docs/20230223_conclusion_final.pdf",
-      "content_type": "application/pdf",
-      "error": "",
-      "elapsed_sec": "0.04",
-      "context": " | 臺灣學術倫理教育學會 | 人工智慧技術對學術倫理的影響及因應建議臺灣學術倫理教育學會共識會議會議結論 https://www.taaee.org.tw/docs/20230223_conclusion_final.pdf | "
-    },
-    {
-      "table": "2",
-      "row": "7",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://ctld.ntnu.edu.tw/generative_ai",
-      "final_url": "https://ctld.ntnu.edu.tw/generative_ai",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.11",
-      "context": " | 師大 | 國立臺灣師範大學生成式AI之學習應用及參考 指引 https://ctld.ntnu.edu.tw/generative_ai | 各大學教學指引來自： 1.教育部學術倫理電子報第13期：大學校園因應生成式AI之指引及教學建議（2023）：彙整多所大學AI政策，提供師生注意事項、教學調整建議。 https://ethics.moe.edu.tw/resource/epaper/html/21/ 2. 柯俊如(2025)，〈臺灣頂尖大學的 AI 指引政策分析與政大圖書館的教學探索〉圖資與檔案學刊 16:2=105 ((Dec.24) 188-221。https://jila.lib.nccu.edu.tw/wp-content/uploads/2025/03/105-05柯俊如.pdf"
-    },
-    {
-      "table": "2",
-      "row": "7",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://ethics.moe.edu.tw/resource/epaper/html/21/",
-      "final_url": "https://ethics.moe.edu.tw/resource/epaper/html/21/",
-      "content_type": "text/html; charset=utf-8",
-      "error": "",
-      "elapsed_sec": "0.11",
-      "context": " | 師大 | 國立臺灣師範大學生成式AI之學習應用及參考 指引 https://ctld.ntnu.edu.tw/generative_ai | 各大學教學指引來自： 1.教育部學術倫理電子報第13期：大學校園因應生成式AI之指引及教學建議（2023）：彙整多所大學AI政策，提供師生注意事項、教學調整建議。 https://ethics.moe.edu.tw/resource/epaper/html/21/ 2. 柯俊如(2025)，〈臺灣頂尖大學的 AI 指引政策分析與政大圖書館的教學探索〉圖資與檔案學刊 16:2=105 ((Dec.24) 188-221。https://jila.lib.nccu.edu.tw/wp-content/uploads/2025/03/105-05柯俊如.pdf"
-    },
-    {
-      "table": "2",
-      "row": "7",
-      "status": "ERROR",
-      "status_code": "",
-      "url": "https://jila.lib.nccu.edu.tw/wp-content/uploads/2025/03/105-05柯俊如.pdf",
-      "final_url": "",
-      "content_type": "",
-      "error": "'ascii' codec can't encode characters in position 39-41: ordinal not in range(128)",
-      "elapsed_sec": "0.01",
-      "context": " | 師大 | 國立臺灣師範大學生成式AI之學習應用及參考 指引 https://ctld.ntnu.edu.tw/generative_ai | 各大學教學指引來自： 1.教育部學術倫理電子報第13期：大學校園因應生成式AI之指引及教學建議（2023）：彙整多所大學AI政策，提供師生注意事項、教學調整建議。 https://ethics.moe.edu.tw/resource/epaper/html/21/ 2. 柯俊如(2025)，〈臺灣頂尖大學的 AI 指引政策分析與政大圖書館的教學探索〉圖資與檔案學刊 16:2=105 ((Dec.24) 188-221。https://jila.lib.nccu.edu.tw/wp-content/uploads/2025/03/105-05柯俊如.pdf"
-    },
-    {
-      "table": "2",
-      "row": "8",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://sites.google.com/g.nccu.edu.tw/nccubasicprincipleforai",
-      "final_url": "https://sites.google.com/g.nccu.edu.tw/nccubasicprincipleforai",
-      "content_type": "text/html; charset=utf-8",
-      "error": "",
-      "elapsed_sec": "0.32",
-      "context": " | 政大 | 國立政治大學生成式人工智慧運用簡要原則 https://sites.google.com/g.nccu.edu.tw/nccubasicprincipleforai | "
-    },
-    {
-      "table": "2",
-      "row": "9",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.dlc.ntu.edu.tw/ai-tools/",
-      "final_url": "https://www.dlc.ntu.edu.tw/ai-tools/",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "1.79",
-      "context": " | 臺大 | 臺大針對生成式 AI 工具之教學因應措施 https://www.dlc.ntu.edu.tw/ai-tools/ | "
-    },
-    {
-      "table": "2",
-      "row": "10",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://reurl.cc/3kMybL",
-      "final_url": "https://reurl.cc/3kMybL",
-      "content_type": "text/html; charset=utf-8",
-      "error": "",
-      "elapsed_sec": "0.07",
-      "context": " | 亞洲大 | 亞洲大學針對生成式 AI 工具之教學因應措施 https://reurl.cc/3kMybL | "
-    },
-    {
-      "table": "2",
-      "row": "11",
-      "status": "ERROR",
-      "status_code": "",
-      "url": "https://ctld.site.nthu.edu.tw/p/450-1217-253458",
-      "final_url": "",
-      "content_type": "",
-      "error": "[WinError 10054] 遠端主機已強制關閉一個現存的連線。",
-      "elapsed_sec": "0.14",
-      "context": " | 清大 | 國立清華大學大學教育場域AI 協作、共學與素養培養指引 https://ctld.site.nthu.edu.tw/p/450-1217-253458,c0.php?Lang=zh-tw | "
-    },
-    {
-      "table": "2",
-      "row": "12",
-      "status": "ERROR",
-      "status_code": "",
-      "url": "https://sites.google",
-      "final_url": "",
-      "content_type": "",
-      "error": "<urlopen error [Errno 11001] getaddrinfo failed>",
-      "elapsed_sec": "0.02",
-      "context": " | 成大 | 國立成功大學 AI 及相關學習工具參考指南 https://sites.google. com/gs.ncku.edu.tw/nckuaiguidance/%E9%A6%96%E9%A0%81 | "
-    },
-    {
-      "table": "2",
-      "row": "13",
-      "status": "ERROR",
-      "status_code": "",
-      "url": "https://oaa.nsysu.edu.tw/p/406-1003-313202",
-      "final_url": "",
-      "content_type": "",
-      "error": "HTTP Error 404: Not Found",
-      "elapsed_sec": "0.19",
-      "context": " | 中山 | 國立中山大學生成式AI工具使用參照指引 https://oaa.nsysu.edu.tw/p/406-1003-313202,r1365.php?Lang=zh-tw | "
-    },
-    {
-      "table": "2",
-      "row": "14",
-      "status": "ERROR",
-      "status_code": "",
-      "url": "https://tech2021.mystrikingly.com/aitools?utm_source=email_deliver&utm_medium=email&utm_campaign=aitools",
-      "final_url": "",
-      "content_type": "",
-      "error": "HTTP Error 403: Forbidden",
-      "elapsed_sec": "0.31",
-      "context": " | 高雄大學 | AI生成工具使用指引https://tech2021.mystrikingly.com/aitools?utm_source=email_deliver&utm_medium=email&utm_campaign=aitools | "
-    },
-    {
-      "table": "2",
-      "row": "15",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://acad.nkust.edu.tw/p/412-1004-9405.php?Lang=zh-tw",
-      "final_url": "https://acad.nkust.edu.tw/p/412-1004-9405.php?Lang=zh-tw",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.22",
-      "context": " | 高雄科大 | 國立高雄科技大學針對生成式 AI 工具之教學因應措施 https://acad.nkust.edu.tw/p/412-1004-9405.php?Lang=zh-tw | "
-    },
-    {
-      "table": "2",
-      "row": "16",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://ctld.ntust.edu.tw/p/406-1051-111193",
-      "final_url": "https://ctld.ntust.edu.tw/",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.26",
-      "context": " | 臺科大 | 生成式AI（Generative AI）簡介與教學策略調 整建議方針 https://ctld.ntust.edu.tw/p/406-1051-111193,r1430.php?Lang=zh-tw | "
-    },
-    {
-      "table": "2",
-      "row": "17",
-      "status": "ERROR",
-      "status_code": "404",
-      "url": "https://aax.yuntech.edu.tw/images/content/%E6%95%99%E5%8B%99%E7%AB%A0%E5%89%87/%E5%85%B6%E4%BB%96%E9%A1%9E/T13%E7%94%9F%E6%88%90%E5%BC%8FAI%E5%B7%A5%E5%85%B7%E6%95%99%E5%AD%B8%E9%A0%88%E7%9F%A5(112.9.12",
-      "final_url": "https://aax.yuntech.edu.tw/images/content/%E6%95%99%E5%8B%99%E7%AB%A0%E5%89%87/%E5%85%B6%E4%BB%96%E9%A1%9E/T13%E7%94%9F%E6%88%90%E5%BC%8FAI%E5%B7%A5%E5%85%B7%E6%95%99%E5%AD%B8%E9%A0%88%E7%9F%A5(112.9.12",
-      "content_type": "",
-      "error": "HTTP Error 404: Not Found",
-      "elapsed_sec": "0.07",
-      "context": " | 雲科大 | 國立雲林科技大學生成式 AI 工具教學須知 https://aax.yuntech.edu.tw/images/content/%E6%95%99%E5%8B%99%E7%AB%A0%E5%89%87/%E5%85%B6%E4%BB%96%E9%A1%9E/T13%E7%94%9F%E6%88%90%E5%BC%8FAI%E5%B7%A5%E5%85%B7%E6%95%99%E5%AD%B8%E9%A0%88%E7%9F%A5(112.9.12).pdf | "
-    },
-    {
-      "table": "2",
-      "row": "18",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://academic.cmu.edu.tw/?q=zh-hant/node/69",
-      "final_url": "https://academic.cmu.edu.tw/?q=zh-hant/node/69",
-      "content_type": "text/html; charset=utf-8",
-      "error": "",
-      "elapsed_sec": "0.62",
-      "context": " | 中國醫 | 中國醫藥大學針對生成式 AI 工具之教學指引 https://academic.cmu.edu.tw/?q=zh-hant/node/69 | "
-    },
-    {
-      "table": "2",
-      "row": "19",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://oaeri.nycu.edu.tw/oaeri/ch/app/data/view?module=nycu0014&id=2074&serno=9fd4480f-1c5e-4b0d-b9de-fe3719d46b25",
-      "final_url": "https://oaeri.nycu.edu.tw/oaeri/ch/app/data/view?module=nycu0014&id=2074&serno=9fd4480f-1c5e-4b0d-b9de-fe3719d46b25",
-      "content_type": "text/html;charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.86",
-      "context": " | 陽明交大 | 國立陽明交通大學因應生成式AI之指引及教學建議 https://oaeri.nycu.edu.tw/oaeri/ch/app/data/view?module=nycu0014&id=2074&serno=9fd4480f-1c5e-4b0d-b9de-fe3719d46b25 | "
-    },
-    {
-      "table": "2",
-      "row": "20",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://aca.ncnu.edu.tw/p/405-1008-10789",
-      "final_url": "https://aca.ncnu.edu.tw/p/405-1008-10789",
-      "content_type": "text/html; charset=utf-8",
-      "error": "",
-      "elapsed_sec": "0.1",
-      "context": " | 暨南大學 | 針對生成式AI工具之教學因應措施-chatGPT為例 https://aca.ncnu.edu.tw/p/405-1008-10789,c100.php?Lang=zh-tw | "
-    },
-    {
-      "table": "2",
-      "row": "21",
-      "status": "ERROR",
-      "status_code": "500",
-      "url": "https://oaacs.ntcu.edu.tw/app/pages.php?PageID=chat%20GPT",
-      "final_url": "https://oaacs.ntcu.edu.tw/app/pages.php?PageID=chat%20GPT",
-      "content_type": "",
-      "error": "HTTP Error 500: Internal Server Error",
-      "elapsed_sec": "0.29",
-      "context": " | 臺中教育大學 | 國立臺中教育大學針對生成式AI工具之教學與學習因應措施 https://oaacs.ntcu.edu.tw/app/pages.php?PageID=chat%20GPT | "
-    },
-    {
-      "table": "2",
-      "row": "22",
-      "status": "ERROR",
-      "status_code": "",
-      "url": "https://pdc.adm.ncu.edu.tw/ai-tools.asp#",
-      "final_url": "",
-      "content_type": "",
-      "error": "HTTP Error 404: Not Found",
-      "elapsed_sec": "0.15",
-      "context": " | 中央 | 中央大學對於師生使用 Chat GPT 基本原則 https://pdc.adm.ncu.edu.tw/ai-tools.asp# | "
-    },
-    {
-      "table": "2",
-      "row": "23",
-      "status": "ERROR",
-      "status_code": "",
-      "url": "https://oaa.ntut.edu.tw/p/406-1008-129455",
-      "final_url": "",
-      "content_type": "",
-      "error": "HTTP Error 404: Not Found",
-      "elapsed_sec": "0.17",
-      "context": " | 北科大 | 因應生成式AI工具之教學參考指引 https://oaa.ntut.edu.tw/p/406-1008-129455,r11.php?Lang=zh-tw | "
-    },
-    {
-      "table": "2",
-      "row": "24",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.cgu.edu.tw/cfir/Subject/Detail/59531?nodeId=16468",
-      "final_url": "https://www.cgu.edu.tw/cfir/Subject/Detail/59531?nodeId=16468",
-      "content_type": "text/html; charset=utf-8",
-      "error": "",
-      "elapsed_sec": "3.13",
-      "context": " | 長庚 | 生成式AI的教研衝擊與因應 https://www.cgu.edu.tw/cfir/Subject/Detail/59531?nodeId=16468 | "
-    },
-    {
-      "table": "2",
-      "row": "25",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://aca.tmu.edu.tw/front/CurriculumDivision/CurriculumDivision_1/news.php?ID=dG11X2FjYSZDdXJyaWN1bHVtRGl2aXNpb25fMQ==&Sn=2643",
-      "final_url": "https://aca.tmu.edu.tw/front/CurriculumDivision/CurriculumDivision_1/news.php?ID=dG11X2FjYSZDdXJyaWN1bHVtRGl2aXNpb25fMQ==&Sn=2643",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.93",
-      "context": " | 北醫 | 生成式AI工具之課程教學參考指引【第一版】 https://aca.tmu.edu.tw/front/CurriculumDivision/CurriculumDivision_1/news.php?ID=dG11X2FjYSZDdXJyaWN1bHVtRGl2aXNpb25fMQ==&Sn=2643 | "
-    },
-    {
-      "table": "2",
-      "row": "26",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://reurl.cc/N2xOm9",
-      "final_url": "https://reurl.cc/N2xOm9",
-      "content_type": "text/html; charset=utf-8",
-      "error": "",
-      "elapsed_sec": "0.05",
-      "context": " | 逢甲 | 逢甲針對生成式AI工具之教學因應措施 https://reurl.cc/N2xOm9 | "
-    },
-    {
-      "table": "2",
-      "row": "27",
-      "status": "ERROR",
-      "status_code": "404",
-      "url": "https://info.tcu.edu.tw/hot_news/attch/1120602001/AI.pdf",
-      "final_url": "https://info.tcu.edu.tw/hot_news/attch/1120602001/AI.pdf",
-      "content_type": "",
-      "error": "HTTP Error 404: Not Found",
-      "elapsed_sec": "0.06",
-      "context": " | 慈濟 | 慈濟大學AI賦能大學教育指引 https://info.tcu.edu.tw/hot_news/attch/1120602001/AI.pdf | "
-    },
-    {
-      "table": "3",
-      "row": "2",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research",
-      "final_url": "https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research",
-      "content_type": "text/html",
-      "error": "",
-      "elapsed_sec": "3.36",
-      "context": "1 | UNESCO | Guidance for Generative AI in Education and Research (2023) https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research | 全球首份生成式AI教育指引，涵蓋立即行動、長期政策規劃及人本願景(by Claude)"
-    },
-    {
-      "table": "3",
-      "row": "3",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.unesco.org/en/digital-education/ai-future-learning/teachers-framework",
-      "final_url": "https://www.unesco.org/en/digital-education/ai-future-learning/teachers-framework",
-      "content_type": "text/html",
-      "error": "",
-      "elapsed_sec": "1.08",
-      "context": " | UNESCO | AI Competency Framework for Teachers (2024) https://www.unesco.org/en/digital-education/ai-future-learning/teachers-framework | 協助各國教師系統建立AI能力框架，納入課程設計與教學實踐(by Claude)"
-    },
-    {
-      "table": "3",
-      "row": "4",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.unesco.org/en/digital-education/ai-future-learning/students-framework",
-      "final_url": "https://www.unesco.org/en/digital-education/ai-future-learning/students-framework",
-      "content_type": "text/html",
-      "error": "",
-      "elapsed_sec": "1.43",
-      "context": " | UNESCO | AI Competency Framework for Students (2024) https://www.unesco.org/en/digital-education/ai-future-learning/students-framework | 建立學生AI素養路徑，已支持58個國家課綱設計與師資培訓(by Claude)"
-    },
-    {
-      "table": "3",
-      "row": "5",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.unesco.org/en/articles/ai-and-education-guidance-policy-makers",
-      "final_url": "https://www.unesco.org/en/articles/ai-and-education-guidance-policy-makers",
-      "content_type": "text/html",
-      "error": "",
-      "elapsed_sec": "1.44",
-      "context": " | UNESCO | AI and Education: Guidance for Policy-Makers (2021) https://www.unesco.org/en/articles/ai-and-education-guidance-policy-makers | 針對政策制定者的AI教育指引，提供機會分析、風險管理及政策建議(by Claude)"
-    },
-    {
-      "table": "3",
-      "row": "6",
-      "status": "ERROR",
-      "status_code": "",
-      "url": "https://www.oecd.org/en/publications/oecd-digital-education-outlook-2023_c74f03de-en/full-report/emerging-governance-of-generative-ai-in-education_3cbd6269.html",
-      "final_url": "",
-      "content_type": "",
-      "error": "HTTP Error 403: Forbidden",
-      "elapsed_sec": "0.22",
-      "context": " | OECD | Digital Education Outlook 2023：生成式AI治理篇 https://www.oecd.org/en/publications/oecd-digital-education-outlook-2023_c74f03de-en/full-report/emerging-governance-of-generative-ai-in-education_3cbd6269.html | 18國比較分析，檢視各國對生成式AI的教育監管與指引現況，截至2024年初(by Claude)"
-    },
-    {
-      "table": "3",
-      "row": "7",
-      "status": "ERROR",
-      "status_code": "",
-      "url": "https://www.oecd.org/en/publications/oecd-digital-education-outlook-2026_062a7394-en.html",
-      "final_url": "",
-      "content_type": "",
-      "error": "HTTP Error 403: Forbidden",
-      "elapsed_sec": "0.13",
-      "context": " | OECD | Digital Education Outlook 2026（最新版） https://www.oecd.org/en/publications/oecd-digital-education-outlook-2026_062a7394-en.html | 探討生成式AI在教與學各情境的應用研究、機會、挑戰與政策建議(by Claude)"
-    },
-    {
-      "table": "3",
-      "row": "8",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.teachai.org/toolkit",
-      "final_url": "https://www.teachai.org/toolkit",
-      "content_type": "text/html; charset=utf-8",
-      "error": "",
-      "elapsed_sec": "0.2",
-      "context": " | TeachAI（WEF/Code.org/ISTE/Khan Academy） | AI Guidance for Schools Toolkit https://www.teachai.org/toolkit | 協助各國政府及教育機構制定AI指引的實用工具包，含政策原則、組織學習與轉型三階段 (by Claude)"
-    },
-    {
-      "table": "3",
-      "row": "9",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.teachai.org/policy-tracker",
-      "final_url": "https://www.teachai.org/policy-tracker",
-      "content_type": "text/html; charset=utf-8",
-      "error": "",
-      "elapsed_sec": "0.21",
-      "context": " | TeachAI | Global AI Education Policy Tracker https://www.teachai.org/policy-tracker | 即時追蹤全球各國及美國各州AI教育政策現況的互動地圖(by Claude)"
-    },
-    {
-      "table": "3",
-      "row": "10",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.teachai.org/guidance-landscape-analysis",
-      "final_url": "https://www.teachai.org/guidance-landscape-analysis",
-      "content_type": "text/html; charset=utf-8",
-      "error": "",
-      "elapsed_sec": "0.1",
-      "context": " | TeachAI | Guidance for AI in Education: A Landscape Analysis https://www.teachai.org/guidance-landscape-analysis | 整合美國各州及9個國際脈絡AI教育指引的主題分析，供指引制定者參考(by Claude)"
-    },
-    {
-      "table": "3",
-      "row": "11",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.educause.edu/research/2024/2024-educause-action-plan-ai-policies-and-guidelines",
-      "final_url": "https://www.educause.edu/research/2024/2024-educause-action-plan-ai-policies-and-guidelines",
-      "content_type": "text/html; charset=utf-8",
-      "error": "",
-      "elapsed_sec": "1.18",
-      "context": " | EDUCAUSE美國高教協會 | 2024 AI Policies and Guidelines Action Plan https://www.educause.edu/research/2024/2024-educause-action-plan-ai-policies-and-guidelines | 基於900+高教技術人員調查，提供高等教育AI政策差距分析與行動方案(by Claude)"
-    },
-    {
-      "table": "4",
-      "row": "3",
-      "status": "ERROR",
-      "status_code": "404",
-      "url": "https://integrity.mit.edu/handbook/academic-writing/using-ai-tools",
-      "final_url": "https://integrity.mit.edu/handbook/academic-writing/using-ai-tools",
-      "content_type": "",
-      "error": "HTTP Error 404: Not Found",
-      "elapsed_sec": "1.09",
-      "context": " | MIT | Using AI Tools — Academic Integrity Handbook https://integrity.mit.edu/handbook/academic-writing/using-ai-tools | 明確規範學術誠信框架下的AI使用原則與邊界，適用各學科(by Claude)"
-    },
-    {
-      "table": "4",
-      "row": "4",
-      "status": "ERROR",
-      "status_code": "404",
-      "url": "https://teachingcommons.stanford.edu/teaching-guides/artificial-intelligence",
-      "final_url": "https://teachingcommons.stanford.edu/teaching-guides/artificial-intelligence",
-      "content_type": "",
-      "error": "HTTP Error 404: Not Found",
-      "elapsed_sec": "0.9",
-      "context": " | Stanford University | Artificial Intelligence in Teaching — CTL Guidelines https://teachingcommons.stanford.edu/teaching-guides/artificial-intelligence | 教學中心提供教師課綱融入AI政策的實用指引，含課程設計建議與案例(by Claude)"
-    },
-    {
-      "table": "4",
-      "row": "5",
-      "status": "ERROR",
-      "status_code": "404",
-      "url": "https://bokcenter.harvard.edu/ai",
-      "final_url": "https://bokcenter.harvard.edu/ai",
-      "content_type": "",
-      "error": "HTTP Error 404: Not Found",
-      "elapsed_sec": "0.41",
-      "context": " | Harvard University | AI Guidance for Teaching — Bok Center https://bokcenter.harvard.edu/ai | 哈佛教學中心AI使用方針，含學術誠信框架與多元作業設計建議(by Claude)"
-    },
-    {
-      "table": "4",
-      "row": "6",
-      "status": "ERROR",
-      "status_code": "404",
-      "url": "https://www.ox.ac.uk/students/academic/good-practice/ai",
-      "final_url": "https://www.ox.ac.uk/students/academic/good-practice/ai",
-      "content_type": "",
-      "error": "HTTP Error 404: Not Found",
-      "elapsed_sec": "1.1",
-      "context": " | University of Oxford | Generative AI — Student and Staff Guidance https://www.ox.ac.uk/students/academic/good-practice/ai | 牛津大學對生成式AI的教學研究倫理與學術誠信規範(by Claude)"
-    },
-    {
-      "table": "4",
-      "row": "7",
-      "status": "ERROR",
-      "status_code": "404",
-      "url": "https://www.imperial.ac.uk/staff/tools-and-reference/education-technology/artificial-intelligence/",
-      "final_url": "https://www.imperial.ac.uk/staff/tools-and-reference/education-technology/artificial-intelligence/",
-      "content_type": "",
-      "error": "HTTP Error 404: Not Found",
-      "elapsed_sec": "2.67",
-      "context": " | Imperial College London | AI in Education Hub https://www.imperial.ac.uk/staff/tools-and-reference/education-technology/artificial-intelligence/ | 含AI介紹、Teaching Toolkit、個案研究、Training & Events、倫理政策與FAQ的完整資源中心(by Claude)"
-    },
-    {
-      "table": "4",
-      "row": "8",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://nationalcentreforai.jiscinvolve.org/wp/2024/07/31/navigating-the-future-higher-education-policies-and-guidance-on-generative-ai/",
-      "final_url": "https://nationalcentreforai.jiscinvolve.org/wp/2024/07/31/navigating-the-future-higher-education-policies-and-guidance-on-generative-ai/",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "1.28",
-      "context": " | JISC英國高教資訊中心 | Navigating Generative AI in Higher Education — Policy Collection https://nationalcentreforai.jiscinvolve.org/wp/2024/07/31/navigating-the-future-higher-education-policies-and-guidance-on-generative-ai/ | 彙整英國各大學生成式AI政策，持續更新（最後更新2025年4月），含各校政策摘要(by Claude)"
-    },
-    {
-      "table": "4",
-      "row": "9",
-      "status": "ERROR",
-      "status_code": "",
-      "url": "https://melbourne-cshe.unimelb.edu.au/ai-aai",
-      "final_url": "",
-      "content_type": "",
-      "error": "HTTP Error 403: Forbidden",
-      "elapsed_sec": "0.29",
-      "context": " | University of Melbourne 澳洲 | Artificial Intelligence and Academic Integrity https://melbourne-cshe.unimelb.edu.au/ai-aai | 澳洲領先大學的AI評量整合指引，含學術誠信框架與多元評量設計方法(by Claude)"
-    },
-    {
-      "table": "5",
-      "row": "2",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://cilt.uct.ac.za/teaching-resources/artificial-intelligence-teaching-learning",
-      "final_url": "https://cilt.uct.ac.za/teaching-resources/artificial-intelligence-teaching-learning",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "4.31",
-      "context": "Africa 非洲 | South Africa 南非 | University of Cape Town | Artificial Intelligence for Teaching & Learning 人工智慧於教學與學習 |  | https://cilt.uct.ac.za/teaching-resources/artificial-intelligence-teaching-learning"
-    },
-    {
-      "table": "5",
-      "row": "3",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://fcai.cu.edu.eg/PG/wp-content/uploads/2023/09/FCAI-GAI-Use-Guidelines-v1.1-fnl.pdf",
-      "final_url": "https://fcai.cu.edu.eg/cgi-sys/suspendedpage.cgi",
-      "content_type": "text/html",
-      "error": "",
-      "elapsed_sec": "2.1",
-      "context": "Africa 非洲 | Egypt 埃及 | Cairo University 開羅大學 | FCAI Policy and Guidelines for use of Generative AI in Postgraduate Studies and Research FCAI 關於在研究所學習與研究中使用生成式人工智慧的政策與指南 | 2023.9.4 | https://fcai.cu.edu.eg/PG/wp-content/uploads/2023/09/FCAI-GAI-Use-Guidelines-v1.1-fnl.pdf"
-    },
-    {
-      "table": "5",
-      "row": "4",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.wits.ac.za/media/wits-university/learning-and-teaching/cltd/documents/AI-in-teaching-and-learning-at-Wits.pdf",
-      "final_url": "https://www.wits.ac.za/media/wits-university/learning-and-teaching/cltd/documents/AI-in-teaching-and-learning-at-Wits.pdf",
-      "content_type": "application/pdf",
-      "error": "",
-      "elapsed_sec": "1.74",
-      "context": "Africa 非洲 | South Africa 南非 | University of Witwatersrand 維特沃特斯蘭德大學 | Approach to the use of AI in teaching and learning at Wits 在 Wits 教學與學習中採用人工智慧的方式 | 2023.1 | https://www.wits.ac.za/media/wits-university/learning-and-teaching/cltd/documents/AI-in-teaching-and-learning-at-Wits.pdf"
-    },
-    {
-      "table": "5",
-      "row": "5",
-      "status": "ERROR",
-      "status_code": "404",
-      "url": "https://www.up.ac.za/media/shared/391/pdfs/up-student-guide_-leveraging-generative-artificial-intelligence-for-learning.zp242396.pdf",
-      "final_url": "https://www.up.ac.za/media/shared/391/pdfs/up-student-guide_-leveraging-generative-artificial-intelligence-for-learning.zp242396.pdf",
-      "content_type": "",
-      "error": "HTTP Error 404: Not Found",
-      "elapsed_sec": "0.66",
-      "context": "Africa 非洲 | South Africa 南非 | University of Pretoria 比勒陀利亞大學 | Student's Guide: Leveraging Generative Artificial Intelligence for Teaching and Learning Enhancement at the University of Pretoria 學生指南：在比勒陀利亞大學運用生成式人工智慧以提升教學與學習 | 2023 | https://www.up.ac.za/media/shared/391/pdfs/up-student-guide_-leveraging-generative-artificial-intelligence-for-learning.zp242396.pdf"
-    },
-    {
-      "table": "5",
-      "row": "6",
-      "status": "ERROR",
-      "status_code": "",
-      "url": "https://www.uj.ac.za/wp-content/uploads/2023/08/uj-ai-practice-guide-2023.pdf",
-      "final_url": "",
-      "content_type": "",
-      "error": "HTTP Error 403: Forbidden",
-      "elapsed_sec": "0.77",
-      "context": "Africa 非洲 | South Africa 南非 | University of Johannesburg 約翰內斯堡大學 | UJ PRACTICE Notes: Generative AI in Teaching, Learning and Research UJ 實務說明：生成式 AI 在教學、學習與研究中的應用 |  | https://www.uj.ac.za/wp-content/uploads/2023/08/uj-ai-practice-guide-2023.pdf"
-    },
-    {
-      "table": "5",
-      "row": "7",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.sun.ac.za/english/learning-teaching/ctl/t-l-resources/ai-in-tla-at-su",
-      "final_url": "https://www.su.ac.za/en",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "2.3",
-      "context": "Africa 非洲 | South Africa 南非 | Stellenbosch University 斯泰倫博斯大學 | Generative AI in TLA at SU TLA 的生成式 AI 在 SU |  | https://www.sun.ac.za/english/learning-teaching/ctl/t-l-resources/ai-in-tla-at-su"
-    },
-    {
-      "table": "5",
-      "row": "8",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.sun.ac.za/english/learning-teaching/ctl/Documents/Cool%20Things%20AI%20Case%20Studies%20Booklet%20(25.03.2025",
-      "final_url": "https://www.su.ac.za/en",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "1.99",
-      "context": "Africa 非洲 | South Africa 南非 | Stellenbosch University | Cool Things Academics Do: AI Literacy in Higher Education 學術界的酷事：高等教育中的 AI 素養 |  | https://www.sun.ac.za/english/learning-teaching/ctl/Documents/Cool%20Things%20AI%20Case%20Studies%20Booklet%20(25.03.2025).pdf"
-    },
-    {
-      "table": "5",
-      "row": "9",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.sun.ac.za/english/learning-teaching/ctl/Documents/Interim%20SU%20guidelines%20on%20allowable%20AI%20use%20and%20academic%20integrity.pdf",
-      "final_url": "https://www.su.ac.za/en",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "1.81",
-      "context": "Africa 非洲 | South Africa 南非 | Stellenbosch University 斯泰倫博斯大學 | Draft interim SU guidelines on allowable AI use and academic integrity in assessment 關於在評量中可允許的人工智慧使用與學術誠信之自由州大學臨時指引草案 |  | https://www.sun.ac.za/english/learning-teaching/ctl/Documents/Interim%20SU%20guidelines%20on%20allowable%20AI%20use%20and%20academic%20integrity.pdf"
-    },
-    {
-      "table": "5",
-      "row": "10",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://ufs.libguides.com/AI/SteppingupwithChatGPT",
-      "final_url": "https://ufs.libguides.com/AI/SteppingupwithChatGPT",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.75",
-      "context": "Africa 非洲 | South Africa 南非 | University of the Free State 自由州大學 | Stepping up with ChatGPT - AI-assisted Technology in Education 運用 ChatGPT — 教育中的 AI 輔助技術 |  | https://ufs.libguides.com/AI/SteppingupwithChatGPT"
-    },
-    {
-      "table": "5",
-      "row": "11",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.aucegypt.edu/about/leadership/provost/use-of-artificial-intelligence-tools",
-      "final_url": "https://www.aucegypt.edu/about/leadership/provost/use-of-artificial-intelligence-tools",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "1.69",
-      "context": "Africa 非洲 | Egypt 埃及 | The American University in Cairo 開羅美國大學 | AUC’s Statement on the Use of Artificial Intelligence Tools AUC 關於使用人工智慧工具的聲明 |  | https://www.aucegypt.edu/about/leadership/provost/use-of-artificial-intelligence-tools"
-    },
-    {
-      "table": "5",
-      "row": "12",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://news.nwu.ac.za/sites/news.nwu.ac.za/files/files/Robert.Balfour/Utilization-AI-TL.pdf",
-      "final_url": "https://news.nwu.ac.za/sites/news.nwu.ac.za/files/files/Robert.Balfour/Utilization-AI-TL.pdf",
-      "content_type": "application/pdf",
-      "error": "",
-      "elapsed_sec": "1.32",
-      "context": "Africa 非洲 | South Africa 南非 | North-West University | Guidelines for the Utilization of AI in Teaching and Learning at NWU 西北大學（NWU）教學與學習中使用人工智慧的指南 |  | https://news.nwu.ac.za/sites/news.nwu.ac.za/files/files/Robert.Balfour/Utilization-AI-TL.pdf"
-    },
-    {
-      "table": "5",
-      "row": "13",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://provost.harvard.edu/guidelines-using-chatgpt-and-other-generative-ai-tools-harvard",
-      "final_url": "https://provost.harvard.edu/guidelines-using-chatgpt-and-other-generative-ai-tools-harvard",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.79",
-      "context": "North America 北美 | USA | Harvard 哈佛大學 | Guidelines for Using ChatGPT and other Generative AI tools at Harvard 哈佛大學使用 ChatGPT 及其他生成式人工智慧工具的指南 |  | https://provost.harvard.edu/guidelines-using-chatgpt-and-other-generative-ai-tools-harvard"
-    },
-    {
-      "table": "5",
-      "row": "14",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://communitystandards.stanford.edu/generative-ai-policy-guidance",
-      "final_url": "https://communitystandards.stanford.edu/policies-guidance%23policies-guidance-links/bca-guidance-recommendations#generative-ai-policy-guidance",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.85",
-      "context": "North America 北美 | USA | Stanford 史丹佛大學 | Generative AI Policy Guidance 生成式人工智慧政策指引 | February 16, 2023 2023 年 2 月 16 日 | https://communitystandards.stanford.edu/generative-ai-policy-guidance"
-    },
-    {
-      "table": "5",
-      "row": "15",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://mitsloanedtech.mit.edu/ai/teach/getting-started/",
-      "final_url": "https://mitsloanedtech.mit.edu/ai/teach/getting-started/",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.18",
-      "context": "North America 北美洲 | USA | MIT | Getting Started with AI-Enhanced Teaching: A Practical Guide for Instructors 以人工智慧增強教學入門：給教師的實用指南 |  | https://mitsloanedtech.mit.edu/ai/teach/getting-started/"
-    },
-    {
-      "table": "5",
-      "row": "16",
-      "status": "ERROR",
-      "status_code": "",
-      "url": "https://mcgraw.princeton.edu/generative-ai",
-      "final_url": "",
-      "content_type": "",
-      "error": "HTTP Error 403: Forbidden",
-      "elapsed_sec": "0.37",
-      "context": "North America 北美洲 | USA | Princeton 普林斯頓 | Generative AI Guidance 生成式 AI 指南 |  | https://mcgraw.princeton.edu/generative-ai"
-    },
-    {
-      "table": "5",
-      "row": "17",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://teaching.uchicago.edu/sites/default/files/2023-09/CCTL_AI%20Syllabus%20Statements.pdf",
-      "final_url": "https://teaching.uchicago.edu/sites/default/files/2023-09/CCTL_AI%20Syllabus%20Statements.pdf",
-      "content_type": "application/pdf",
-      "error": "",
-      "elapsed_sec": "0.43",
-      "context": "North America 北美 | USA | University of Chicago 芝加哥大學 | Guidance for Syllabus Statements on the Use of AI Tools 課綱中關於使用 AI 工具之說明指引 |  | https://teaching.uchicago.edu/sites/default/files/2023-09/CCTL_AI%20Syllabus%20Statements.pdf"
-    },
-    {
-      "table": "5",
-      "row": "18",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://ctl.columbia.edu/resources-and-technology/resources/ai-tools/",
-      "final_url": "https://ctl.columbia.edu/faculty/sapp/ai-tools/",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "3.09",
-      "context": "North America 北美 | USA | Columbia 哥倫比亞 | Considerations for AI Tools in the Classroom 課堂中使用人工智慧工具的考量 |  | https://ctl.columbia.edu/resources-and-technology/resources/ai-tools/"
-    },
-    {
-      "table": "5",
-      "row": "19",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.imss.caltech.edu/services/ai",
-      "final_url": "https://www.imss.caltech.edu/services/ai",
-      "content_type": "text/html; charset=utf-8",
-      "error": "",
-      "elapsed_sec": "2.05",
-      "context": "North America 北美 | USA | California Institute of Technology 加州理工學院 | Guidance on the Use of Generative AI and Large Language Model Tools 生成式人工智慧與大型語言模型工具使用指南 |  | https://www.imss.caltech.edu/services/ai"
-    },
-    {
-      "table": "5",
-      "row": "20",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://oercs.berkeley.edu/appropriate-use-generative-ai-tools",
-      "final_url": "https://oercs.berkeley.edu/appropriate-use-generative-ai-tools",
-      "content_type": "text/html; charset=utf-8",
-      "error": "",
-      "elapsed_sec": "0.28",
-      "context": "North America 北美 | USA | University of California, Berkeley 加州大學柏克萊分校 | Appropriate Use of Generative AI Tools 生成式人工智慧工具的適當使用 |  | https://oercs.berkeley.edu/appropriate-use-generative-ai-tools"
-    },
-    {
-      "table": "5",
-      "row": "21",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://provost.yale.edu/news/guidelines-use-generative-ai-tools",
-      "final_url": "https://provost.yale.edu/news/guidelines-use-generative-ai-tools",
-      "content_type": "text/html; charset=utf-8",
-      "error": "",
-      "elapsed_sec": "0.16",
-      "context": "North America 北美 | USA | Yale 耶魯 | Guidelines for the Use of Generative AI Tools 生成式人工智慧工具使用指南 |  | https://provost.yale.edu/news/guidelines-use-generative-ai-tools"
-    },
-    {
-      "table": "5",
-      "row": "22",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://isc.upenn.edu/security/AI-guidance#:~:text=In%20the%20absence%20of%20other",
-      "final_url": "https://isc.upenn.edu/security/AI-guidance#:~:text=In%20the%20absence%20of%20other",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.35",
-      "context": "North America 北美 | USA | University of Pennsylvania 賓夕法尼亞大學 | Statement on Guidance for the University of Pennsylvania Community on Use of Generative Artificial Intelligence 關於賓夕法尼亞大學社群使用生成式人工智慧的指引聲明 |  | https://isc.upenn.edu/security/AI-guidance#:~:text=In%20the%20absence%20of%20other,AI%20to%20complete%20the%20task."
-    },
-    {
-      "table": "5",
-      "row": "23",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://docs.google.com/document/d/1V9OpwizUiHgLVMeEx-7g3AV1QrTAkBo0D-dsFv0DlwM/edit?tab=t.0#heading=h.c6al1vj9d3gd",
-      "final_url": "https://docs.google.com/document/d/1V9OpwizUiHgLVMeEx-7g3AV1QrTAkBo0D-dsFv0DlwM/edit?tab=t.0#heading=h.c6al1vj9d3gd",
-      "content_type": "text/html; charset=utf-8",
-      "error": "",
-      "elapsed_sec": "0.63",
-      "context": "North America 北美 | USA | University of California, Los Angeles 加州大學洛杉磯分校 | Generative AI for Teaching and Learning at UCLA 加州大學洛杉磯分校的教學與學習生成式人工智慧 |  | https://docs.google.com/document/d/1V9OpwizUiHgLVMeEx-7g3AV1QrTAkBo0D-dsFv0DlwM/edit?tab=t.0#heading=h.c6al1vj9d3gd"
-    },
-    {
-      "table": "5",
-      "row": "24",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://it.cornell.edu/ai/ai-guidelines",
-      "final_url": "https://it.cornell.edu/ai-strategy/ai-guidelines",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "1.05",
-      "context": "North America 北美 | USA | Cornell University 康乃爾大學 | Guidelines for Artificial Intelligence 人工智慧指南 |  | https://it.cornell.edu/ai/ai-guidelines"
-    },
-    {
-      "table": "5",
-      "row": "25",
-      "status": "ERROR",
-      "status_code": "404",
-      "url": "https://www.viceprovostundergrad.utoronto.ca/16072-2/teaching-initiatives/generative-artificial-intelligence/",
-      "final_url": "https://www.viceprovostundergrad.utoronto.ca/16072-2/teaching-initiatives/generative-artificial-intelligence/",
-      "content_type": "",
-      "error": "HTTP Error 404: Not Found",
-      "elapsed_sec": "0.19",
-      "context": "North America 北美 | Canada 加拿大 | University of Toronto | Generative Artificial Intelligence in the Classroom: FAQ’s 課堂中的生成式人工智慧：常見問答 |  | https://www.viceprovostundergrad.utoronto.ca/16072-2/teaching-initiatives/generative-artificial-intelligence/"
-    },
-    {
-      "table": "5",
-      "row": "26",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://security.utoronto.ca/governance/guidelines/use-ai-intelligently/",
-      "final_url": "https://security.utoronto.ca/governance/guidelines/use-ai-intelligently/",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "2.34",
-      "context": "North America 北美 | Canada 加拿大 | University of British Columbia 英屬哥倫比亞大學 | UBC Guidance UBC 指引 |  | https://security.utoronto.ca/governance/guidelines/use-ai-intelligently/"
-    },
-    {
-      "table": "5",
-      "row": "27",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.mcgill.ca/provost/files/provost/principles_on_generative_ai_in_teaching_and_learning_at_mcgill.pdf",
-      "final_url": "https://www.mcgill.ca/provost/files/provost/principles_on_generative_ai_in_teaching_and_learning_at_mcgill.pdf",
-      "content_type": "application/pdf",
-      "error": "",
-      "elapsed_sec": "1.09",
-      "context": "North America 北美 | Canada 加拿大 | McGill University | Principles on Generative AI in Teaching and Learning at McGill 麥吉爾大學教學與學習中生成式 AI 的原則 |  | https://www.mcgill.ca/provost/files/provost/principles_on_generative_ai_in_teaching_and_learning_at_mcgill.pdf"
-    },
-    {
-      "table": "5",
-      "row": "28",
-      "status": "ERROR",
-      "status_code": "",
-      "url": "https://www.ualberta.ca/en/centre-for-teaching-and-learning/resources/generative-ai/academic-integrity-ai-use/index.html#:~:text=Let%20students%20know%20that%20although",
-      "final_url": "",
-      "content_type": "",
-      "error": "HTTP Error 403: Forbidden",
-      "elapsed_sec": "0.67",
-      "context": "North America 北美 | Canada 加拿大 | University of Alberta 亞伯塔大學 | Academic Integrity and AI Use 學術誠信與人工智慧使用 |  | https://www.ualberta.ca/en/centre-for-teaching-and-learning/resources/generative-ai/academic-integrity-ai-use/index.html#:~:text=Let%20students%20know%20that%20although,proper%20attribution%2C%20instructors%20can%20consider"
-    },
-    {
-      "table": "5",
-      "row": "29",
-      "status": "ERROR",
-      "status_code": "",
-      "url": "https://uwaterloo.ca/academic-integrity/artificial-intelligence-and-chatgpt",
-      "final_url": "",
-      "content_type": "",
-      "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>",
-      "elapsed_sec": "0.35",
-      "context": "North America 北美 | Canada 加拿大 | University of Waterloo 滑鐵盧大學 | Artificial intelligence and ChatGPT 人工智慧與 ChatGPT |  | https://uwaterloo.ca/academic-integrity/artificial-intelligence-and-chatgpt"
-    },
-    {
-      "table": "5",
-      "row": "30",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://montrealdeclaration-responsibleai.com/about/#:~:text=The%20Montreal%20Declaration%20for%20a",
-      "final_url": "https://montrealdeclaration-responsibleai.com/about/#:~:text=The%20Montreal%20Declaration%20for%20a",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.73",
-      "context": "North America 北美 | Canada 加拿大 | University of Montreal 蒙特婁大學 | About the Montréal Declaration on Responsible AI 關於《蒙特婁負責任人工智慧宣言》 |  | https://montrealdeclaration-responsibleai.com/about/#:~:text=The%20Montreal%20Declaration%20for%20a,%2C%20knowledge%2C%20democracy%20and%20responsibility."
-    },
-    {
-      "table": "5",
-      "row": "31",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.humanities.mcmaster.ca/wp-content/uploads/2024/11/Provisional-Guidelines-on-the-Use-of-Generative-AI-in-Research_For-Feedback.pdf",
-      "final_url": "https://www.humanities.mcmaster.ca/wp-content/uploads/2024/11/Provisional-Guidelines-on-the-Use-of-Generative-AI-in-Research_For-Feedback.pdf",
-      "content_type": "application/pdf",
-      "error": "",
-      "elapsed_sec": "0.75",
-      "context": "North America 北美 | Canada 加拿大 | McMaster University 麥馬斯特大學 | Provisional Guidelines: The Use of Generative Artificial Intelligence (AI) in Teaching and Learning at McMaster 臨時指南：在麥馬斯特（McMaster）教學與學習中使用生成人工智慧（AI） University 大學 | 2024.9 | https://www.humanities.mcmaster.ca/wp-content/uploads/2024/11/Provisional-Guidelines-on-the-Use-of-Generative-AI-in-Research_For-Feedback.pdf"
-    },
-    {
-      "table": "5",
-      "row": "32",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://forogpp.com/wp-content/uploads/2023/02/guidelines-for-the-use-of-artificial-intelligence-in-university-courses-v4.3.pdf",
-      "final_url": "https://forogpp.com/wp-content/uploads/2023/02/guidelines-for-the-use-of-artificial-intelligence-in-university-courses-v4.3.pdf",
-      "content_type": "application/pdf",
-      "error": "",
-      "elapsed_sec": "0.46",
-      "context": "South America 南美洲 | Colombia 哥倫比亞 | Universidad del Rosario 羅薩里奧大學 | Guidelines for the Use of Artificial Intelligence in University Courses 大學課程中人工智慧使用指南 | Version 4.3 (21/02/2023). 版本 4.3（2023/02/21）。 | https://forogpp.com/wp-content/uploads/2023/02/guidelines-for-the-use-of-artificial-intelligence-in-university-courses-v4.3.pdf"
-    },
-    {
-      "table": "5",
-      "row": "33",
-      "status": "ERROR",
-      "status_code": "404",
-      "url": "https://ialab.com.ar/webia/wp-content/uploads/2024/02/Guia-uso-IAG-.pdf",
-      "final_url": "https://www.ialab.com.ar/webia/wp-content/uploads/2024/02/Guia-uso-IAG-.pdf",
-      "content_type": "",
-      "error": "HTTP Error 404: Not Found",
-      "elapsed_sec": "1.06",
-      "context": "South America 南美洲 | Argentina 阿根廷 | University of Buenos Aires 布宜諾斯艾利斯大學 | Guidelines for the use of ChatGPT and text generative AI in Justice 在司法系統使用 ChatGPT 與文本生成式人工智慧的指南 |  | https://ialab.com.ar/webia/wp-content/uploads/2024/02/Guia-uso-IAG-.pdf"
-    },
-    {
-      "table": "5",
-      "row": "34",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://juangutierrez.co/wp-content/uploads/2023/08/guidelines-for-the-use-of-artificial-intelligence-in-university-contexts-v5.0.pdf",
-      "final_url": "https://juangutierrez.co/wp-content/uploads/2023/08/guidelines-for-the-use-of-artificial-intelligence-in-university-contexts-v5.0.pdf",
-      "content_type": "application/pdf",
-      "error": "",
-      "elapsed_sec": "0.41",
-      "context": "South America 南美洲 | Colombia 哥倫比亞 | Universidad de Los Andes 洛杉磯安第斯大學 | Guidelines for the use of artificial intelligence in university contexts 大學情境中人工智慧使用指南 | Version 5.0 (15/08/2023) 版本 5.0（2023/08/15） | https://juangutierrez.co/wp-content/uploads/2023/08/guidelines-for-the-use-of-artificial-intelligence-in-university-contexts-v5.0.pdf"
-    },
-    {
-      "table": "5",
-      "row": "35",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://revistas.javeriana.edu.co/files-articulos/CRC-EPUJ/manuales/ETHICS/",
-      "final_url": "https://revistas.javeriana.edu.co/files-articulos/CRC-EPUJ/manuales/ETHICS/",
-      "content_type": "text/html",
-      "error": "",
-      "elapsed_sec": "0.79",
-      "context": "South America 南美洲 | Colombia 哥倫比亞 | Pontifical Javeriana University 宗座哈維里亞納大學 | Editorial Policy, Publication Ethics and Malpractice Statement 出版方針、出版倫理與不當行為聲明 |  | https://revistas.javeriana.edu.co/files-articulos/CRC-EPUJ/manuales/ETHICS/"
-    },
-    {
-      "table": "5",
-      "row": "36",
-      "status": "ERROR",
-      "status_code": "",
-      "url": "https://www.researchgate.net/publication/360849668_Readiness_of_the_judicial_sector_for_artificial_intelligence_in_Latin_America",
-      "final_url": "",
-      "content_type": "",
-      "error": "HTTP Error 403: Forbidden",
-      "elapsed_sec": "0.21",
-      "context": "South America 南美洲 | Argentina 阿根廷 | Universidad de san andres | Readiness of the judicial sector for artificial intelligence in Latin America 拉丁美洲司法部門對人工智慧的準備情況 |  | https://www.researchgate.net/publication/360849668_Readiness_of_the_judicial_sector_for_artificial_intelligence_in_Latin_America"
-    },
-    {
-      "table": "5",
-      "row": "37",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.uc.cl/noticias/chatgpt-como-usarlo-en-clases/",
-      "final_url": "https://www.uc.cl/noticias/chatgpt-como-usarlo-en-clases/",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.98",
-      "context": "South America 南美洲 | Chile 智利 | Pontificia universidad católica 天主教聖哲明大學 de chile 智利 | ChatGPT: ¿Cómo usarlo en clases? ChatGPT：如何在課堂上使用？ |  | https://www.uc.cl/noticias/chatgpt-como-usarlo-en-clases/"
-    },
-    {
-      "table": "5",
-      "row": "38",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://aiig.tsinghua.edu.cn/en/International_Forum/2022/About_the_Forum.htm",
-      "final_url": "https://aiig.tsinghua.edu.cn/en/International_Forum/2022/About_the_Forum.htm",
-      "content_type": "text/html",
-      "error": "",
-      "elapsed_sec": "0.43",
-      "context": "Asia 亞洲 | China 中國 | Tsinghua University | International AI Cooperation and Governance Forum 2022 2022 年國際人工智慧合作與治理論壇 |  | https://aiig.tsinghua.edu.cn/en/International_Forum/2022/About_the_Forum.htm"
-    },
-    {
-      "table": "5",
-      "row": "39",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://law.nus.edu.sg/trail/responsible-use-of-ai/",
-      "final_url": "https://law.nus.edu.sg/trail/responsible-use-of-ai/",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.26",
-      "context": "Asia 亞洲 | Singapore 新加坡 | National University of Singapore 新加坡國立大學 | Responsible Use of AI–Guidance from a Singapore Regulatory Perspective 人工智慧負責任使用——來自新加坡監管角度的指引 |  | https://law.nus.edu.sg/trail/responsible-use-of-ai/"
-    },
-    {
-      "table": "5",
-      "row": "40",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://en.nagoya-u.ac.jp/academics/ai/index.html#:~:text=Even%20if%20the%20provided%20information",
-      "final_url": "https://en.nagoya-u.ac.jp/about/commitments/ai/",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "2.08",
-      "context": "Asia 亞洲 | Japan 日本 | Nagoya University 名古屋大學 | Regarding the Use of Generative AI 關於生成式人工智慧的使用 |  | https://en.nagoya-u.ac.jp/academics/ai/index.html#:~:text=Even%20if%20the%20provided%20information,be%20imposed%20in%20such%20cases."
-    },
-    {
-      "table": "5",
-      "row": "41",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.tufs.ac.jp/documents/education/guideline/ai_guideline_en.pdf",
-      "final_url": "https://www.tufs.ac.jp/documents/education/guideline/ai_guideline_en.pdf",
-      "content_type": "application/pdf",
-      "error": "",
-      "elapsed_sec": "0.35",
-      "context": "Asia 亞洲 | Japan 日本 | University of Toky 東京大學 | Guidelines for Instructors Regarding AI in University Education at Tokyo University of Foreign Studies 東京外國語大學教職員有關大學教育中人工智慧使用的指引 | March 22, 2023 2023 年 3 月 22 日 | https://www.tufs.ac.jp/documents/education/guideline/ai_guideline_en.pdf"
-    },
-    {
-      "table": "5",
-      "row": "42",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.aqs.cuhk.edu.hk/documents/A-guide-for-students_use-of-AI-tools.pdf",
-      "final_url": "https://www.aqs.cuhk.edu.hk/documents/A-guide-for-students_use-of-AI-tools.pdf",
-      "content_type": "application/pdf",
-      "error": "",
-      "elapsed_sec": "0.32",
-      "context": "Asia 亞洲 | Hong Kong 香港 | University of Hong Kong 香港大學 | Use of Artificial Intelligence Tools in Teaching, Learning and Assessments A Guide for Students 教學、學習與評量中人工智慧工具的使用 學生指南 |  | https://www.aqs.cuhk.edu.hk/documents/A-guide-for-students_use-of-AI-tools.pdf"
-    },
-    {
-      "table": "5",
-      "row": "43",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://sapi.co.kr/wp-content/uploads/2021/04/SAPI-%ED%99%9C%EB%8F%99%EB%B3%B4%EA%B3%A0%EC%84%9C_ENG.pdf",
-      "final_url": "https://sapi.co.kr/wp-content/uploads/2021/04/SAPI-%ED%99%9C%EB%8F%99%EB%B3%B4%EA%B3%A0%EC%84%9C_ENG.pdf",
-      "content_type": "application/pdf",
-      "error": "",
-      "elapsed_sec": "0.48",
-      "context": "Asia 亞洲 | South Korea 南韓 | Seoul National University 首爾大學 | Seoul National University AI Policy Initiative 首爾大學人工智慧政策倡議 |  | https://sapi.co.kr/wp-content/uploads/2021/04/SAPI-%ED%99%9C%EB%8F%99%EB%B3%B4%EA%B3%A0%EC%84%9C_ENG.pdf"
-    },
-    {
-      "table": "5",
-      "row": "44",
-      "status": "ERROR",
-      "status_code": "404",
-      "url": "https://catalog.lib.kyushu-u.ac.jp/opac_download_md/7343643/60_p019.pdf",
-      "final_url": "https://catalog.lib.kyushu-u.ac.jp/opac_download_md/7343643/60_p019.pdf",
-      "content_type": "",
-      "error": "HTTP Error 404: Not Found",
-      "elapsed_sec": "0.19",
-      "context": "Asia 亞洲 | Japan 日本 | Kyushu University 九州大學 | Note on the Use of Generative AI in Education at Kyushu University - For Teachers 關於在九州大學教育中使用生成式人工智慧的說明 — 給教師 |  | https://catalog.lib.kyushu-u.ac.jp/opac_download_md/7343643/60_p019.pdf"
-    },
-    {
-      "table": "5",
-      "row": "45",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.waseda.jp/top/en/news/77786",
-      "final_url": "https://www.waseda.jp/top/en/news/77786",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.5",
-      "context": "Asia 亞洲 | Japan 日本 | Weseda University 韋塞達大學 | About the Use of Generative Artificial Intelligence (ChatGPT, etc.) 關於生成式人工智慧（ChatGPT 等）的使用 | April 21, 2023 2023 年 4 月 21 日 | https://www.waseda.jp/top/en/news/77786"
-    },
-    {
-      "table": "5",
-      "row": "46",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://heyzine.com/flip-book/3a9d4cb37e.html#page/1",
-      "final_url": "https://heyzine.com/flip-book/3a9d4cb37e.html#page/1",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "1.08",
-      "context": "Asia 亞洲 | South Korea 南韓 | Ulsan National Institute of Science and Technology 蔚山科學技術院（UNIST） | A Guide to the Use of Generative Al 生成式人工智慧使用指南 | 2023 | https://heyzine.com/flip-book/3a9d4cb37e.html#page/1"
-    },
-    {
-      "table": "5",
-      "row": "47",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://cte.smu.edu.sg/resources/smu-framework-generative-ai",
-      "final_url": "https://cte.smu.edu.sg/ai",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.69",
-      "context": "Asia 亞洲 | Singapore 新加坡 | Signapore Management University 新加坡管理大學 | SMU Framework for The Use of Generative AI Tools 新加坡管理大學生成式 AI 工具使用框架 |  | https://cte.smu.edu.sg/resources/smu-framework-generative-ai"
-    },
-    {
-      "table": "5",
-      "row": "48",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.ntu.edu.sg/research/resources/use-of-gai-in-research",
-      "final_url": "https://www.ntu.edu.sg/research/resources/use-of-gai-in-research",
-      "content_type": "text/html; charset=utf-8",
-      "error": "",
-      "elapsed_sec": "0.12",
-      "context": "Asia 亞洲 | Singapore 新加坡 | Nayang Technological University 南洋理工大學 | NTU Position on the Use of Generative Artificial Intelligence in Research 南洋理工大學對於在研究中使用生成式人工智慧的立場 |  | https://www.ntu.edu.sg/research/resources/use-of-gai-in-research"
-    },
-    {
-      "table": "5",
-      "row": "49",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://ctld.site.nthu.edu.tw/var/file/217/1217/img/555612445.pdf",
-      "final_url": "https://ctld.site.nthu.edu.tw/var/file/217/1217/img/555612445.pdf",
-      "content_type": "application/pdf",
-      "error": "",
-      "elapsed_sec": "0.08",
-      "context": "Asia 亞洲 | Taiwan 臺灣 | National Tsing Hua University 國立清華大學 | Guidelines for Collaboration, Co-learning, and Cultivation of AI Competencies AI 能力之協作、共同學習與培育準則 |  | https://ctld.site.nthu.edu.tw/var/file/217/1217/img/555612445.pdf"
-    },
-    {
-      "table": "5",
-      "row": "50",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.dlc.ntu.edu.tw/en/ai-tools-en/",
-      "final_url": "https://www.dlc.ntu.edu.tw/en/ai-tools-en/",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.96",
-      "context": "Asia 亞洲 | Taiwan 台灣 | National Taiwan University 國立臺灣大學 | Guidance for Use of Generative AI Tools for Teaching and Learning 生成式 AI 工具教學與學習使用指引 |  | https://www.dlc.ntu.edu.tw/en/ai-tools-en/"
-    },
-    {
-      "table": "5",
-      "row": "52",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.chula.ac.th/en/news/125190/",
-      "final_url": "https://www.chula.ac.th/en/news/125190/",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.49",
-      "context": "Asia 亞洲 | Thailand 泰國 | Chulalongkorn University 朱拉隆功大學 | Principles and Guidelines for using AI Tools 使用 AI 工具的原則與指引 |  | https://www.chula.ac.th/en/news/125190/"
-    },
-    {
-      "table": "5",
-      "row": "53",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://umresearch.um.edu.my/wp-content/uploads/2023/07/Guideline-English-Version.docx",
-      "final_url": "https://umresearch.um.edu.my/wp-content/uploads/2023/07/Guideline-English-Version.docx",
-      "content_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "error": "",
-      "elapsed_sec": "0.39",
-      "context": "Asia 亞洲 | Malaysia 馬來西亞 | Universiti Malaya 馬來亞大學 | Guideline (English Version) 指引（英文版） |  | https://umresearch.um.edu.my/wp-content/uploads/2023/07/Guideline-English-Version.docx"
-    },
-    {
-      "table": "5",
-      "row": "54",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://cadelead.upm.edu.my/upload/dokumen/20230202105701Guide_for_ChatGPT_Usage_in_Teaching_and_Learning.pdf",
-      "final_url": "https://cadelead.upm.edu.my/upload/dokumen/20230202105701Guide_for_ChatGPT_Usage_in_Teaching_and_Learning.pdf",
-      "content_type": "application/pdf",
-      "error": "",
-      "elapsed_sec": "17.13",
-      "context": "Asia 亞洲 | Malaysia 馬來西亞 | Universiti Putra Malaysia 馬來亞博特拉大學 | Guide for ChatGPT usage in Teaching and Learning ChatGPT 在教學與學習中的使用指南 |  | https://cadelead.upm.edu.my/upload/dokumen/20230202105701Guide_for_ChatGPT_Usage_in_Teaching_and_Learning.pdf"
-    },
-    {
-      "table": "5",
-      "row": "55",
-      "status": "ERROR",
-      "status_code": "",
-      "url": "https://www.unimelb.edu.au/ai/home/governance-and-ai-principles",
-      "final_url": "",
-      "content_type": "",
-      "error": "HTTP Error 403: Forbidden",
-      "elapsed_sec": "0.3",
-      "context": "Oceania 大洋洲 | Australia 澳洲 | The University of Melbourne 墨爾本大學 | AI governance 人工智慧治理 |  | https://www.unimelb.edu.au/ai/home/governance-and-ai-principles"
-    },
-    {
-      "table": "5",
-      "row": "56",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.sydney.edu.au/news-opinion/news/2024/11/15/how-to-use-ai-to-learn-without-cheating-students-develop-new-guide.html",
-      "final_url": "https://www.sydney.edu.au/news-opinion/news/2024/11/15/how-to-use-ai-to-learn-without-cheating-students-develop-new-guide.html",
-      "content_type": "text/html;charset=utf-8",
-      "error": "",
-      "elapsed_sec": "0.32",
-      "context": "Oceania 大洋洲 | Australia 澳洲 | The University of Sydney 悉尼大學 | AI in Education, University of Sydney guidelines 悉尼大學「教育中的人工智慧」指引 |  | https://www.sydney.edu.au/news-opinion/news/2024/11/15/how-to-use-ai-to-learn-without-cheating-students-develop-new-guide.html"
-    },
-    {
-      "table": "5",
-      "row": "57",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.teaching.unsw.edu.au/ai/guidelines",
-      "final_url": "https://www.teaching.unsw.edu.au/ai/guidelines",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.79",
-      "context": "Oceania 大洋洲 | Australia 澳洲 | University of New South Wales 新南威爾斯大學 | UNSW's AI Guidelines and Framework 新南威爾斯大學的人工智慧準則與架構 |  | https://www.teaching.unsw.edu.au/ai/guidelines"
-    },
-    {
-      "table": "5",
-      "row": "58",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.anu.edu.au/students/academic-skills/academic-integrity/best-practice-principles/guide-for-students-best",
-      "final_url": "https://www.anu.edu.au/students/academic-skills/referencing-and-academic-integrity/academic-integrity-best-practice/guide",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "2.87",
-      "context": "Oceania 大洋洲 | Australia 澳洲 | The Australian National University 澳洲國立大學 | Guide for students: best practice when using Generative AI 學生指南：使用生成式 AI 的最佳實務 |  | https://www.anu.edu.au/students/academic-skills/academic-integrity/best-practice-principles/guide-for-students-best"
-    },
-    {
-      "table": "5",
-      "row": "59",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.uts.edu.au/about/leadership-governance/policies/a-z/use-of-ai-in-research-guidelines",
-      "final_url": "https://www.uts.edu.au/about/leadership-governance/policies/a-z/use-of-ai-in-research-guidelines",
-      "content_type": "text/html; charset=utf-8",
-      "error": "",
-      "elapsed_sec": "0.41",
-      "context": "Oceania 大洋洲 | Australia 澳洲 | University of Technology Sydney 雪梨科技大學 | The Use of AI in Research Guidelines 研究中使用人工智慧指引 |  | https://www.uts.edu.au/about/leadership-governance/policies/a-z/use-of-ai-in-research-guidelines"
-    },
-    {
-      "table": "5",
-      "row": "60",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.adelaide.edu.au/student/academic-skills/academic-integrity-for-students/working-with-artificial-intelligence",
-      "final_url": "https://adelaide.edu.au/about/policies/academic-integrity-policy/",
-      "content_type": "text/html;charset=utf-8",
-      "error": "",
-      "elapsed_sec": "0.65",
-      "context": "Oceania 大洋洲 | Australia 澳洲 | The University of Adelaide 阿德雷得大學 | Working with Artificial Intelligence 使用人工智慧工作 |  | https://www.adelaide.edu.au/student/academic-skills/academic-integrity-for-students/working-with-artificial-intelligence"
-    },
-    {
-      "table": "5",
-      "row": "61",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.uwa.edu.au/students/-/media/project/uwa/uwa/students/docs/studysmarter/using-ai-tools-at-uwa.pdf",
-      "final_url": "https://www.uwa.edu.au/404",
-      "content_type": "text/html; charset=utf-8",
-      "error": "",
-      "elapsed_sec": "2.47",
-      "context": "Oceania 大洋洲 | Australia 澳洲 | The University of Western Australia 西澳大學 | Using AI Tools at UWA: A Guide for Students 在西澳大學使用人工智慧工具：學生指南 |  | https://www.uwa.edu.au/students/-/media/project/uwa/uwa/students/docs/studysmarter/using-ai-tools-at-uwa.pdf"
-    },
-    {
-      "table": "5",
-      "row": "62",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://web.library.uq.edu.au/study-and-learning-support/ai-student-hub/uqs-rules-using-ai",
-      "final_url": "https://guides.library.uq.edu.au/tools-and-techniques/ai-student-hub/ai-for-assessment",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "1.41",
-      "context": "Oceania 大洋洲 | Australia 澳洲 | The University of Queensland 昆士蘭大學 | UQ’s rules for using AI UQ 使用人工智慧的規範 |  | https://web.library.uq.edu.au/study-and-learning-support/ai-student-hub/uqs-rules-using-ai"
-    },
-    {
-      "table": "5",
-      "row": "63",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.monash.edu/ai/tools-training-and-resources/ai-policies-and-guidelines",
-      "final_url": "https://www.monash.edu/ai/tools-training-and-resources/ai-policies-and-guidelines",
-      "content_type": "text/html; charset=utf-8",
-      "error": "",
-      "elapsed_sec": "0.99",
-      "context": "Oceania 大洋洲 | Australia 澳洲 | Monash University 莫納什大學 | AI policies and guidelines 人工智慧政策與指引 |  | https://www.monash.edu/ai/tools-training-and-resources/ai-policies-and-guidelines"
-    },
-    {
-      "table": "5",
-      "row": "64",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.auckland.ac.nz/en/students/forms-policies-and-guidelines/student-policies-and-guidelines/academic-integrity-copyright/advice-for-student-on-using-generative-ai.html",
-      "final_url": "https://www.auckland.ac.nz/en/students/forms-policies-and-guidelines/student-policies-and-guidelines/academic-integrity-copyright/advice-for-student-on-using-ai.html",
-      "content_type": "text/html;charset=utf-8",
-      "error": "",
-      "elapsed_sec": "1.97",
-      "context": "Oceania 大洋洲 | New Zealand 紐西蘭 | University of Auckland 奧克蘭大學 | Advice for students on using generative AI in coursework 關於學生在課程作業中使用生成式人工智慧的建議 |  | https://www.auckland.ac.nz/en/students/forms-policies-and-guidelines/student-policies-and-guidelines/academic-integrity-copyright/advice-for-student-on-using-generative-ai.html"
-    },
-    {
-      "table": "5",
-      "row": "65",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.otago.ac.nz/administration/policies/policy-collection/use-of-generative-artificial-intelligences-and-autonomous-content-generation-in-learning-and-teaching-policy",
-      "final_url": "https://www.otago.ac.nz/administration/policies/policy-collection/use-of-generative-artificial-intelligences-and-autonomous-content-generation-in-learning-and-teaching-policy",
-      "content_type": "text/html; charset=utf-8",
-      "error": "",
-      "elapsed_sec": "0.88",
-      "context": "Oceania 大洋洲 | New Zealand 紐西蘭 | University of Otago 奧塔哥大學 | Use of Generative-Artificial Intelligences and Autonomous Content Generation in Learning and Teaching Policy 學習與教學中生成式人工智慧與自主內容產生之使用政策 |  | https://www.otago.ac.nz/administration/policies/policy-collection/use-of-generative-artificial-intelligences-and-autonomous-content-generation-in-learning-and-teaching-policy"
-    },
-    {
-      "table": "5",
-      "row": "66",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.canterbury.ac.nz/study/study-support-info/gen-ai-at-uc/responsible-use-gen-ai-tools",
-      "final_url": "https://www.canterbury.ac.nz/study/study-support-info/gen-ai-at-uc/responsible-use-gen-ai-tools",
-      "content_type": "text/html;charset=utf-8",
-      "error": "",
-      "elapsed_sec": "1.41",
-      "context": "Oceania 大洋洲 | New Zealand 紐西蘭 | University of Canterbury 坎特伯雷大學 | Responsible use of Gen-AI tools 負責任地使用生成式人工智慧工具 |  | https://www.canterbury.ac.nz/study/study-support-info/gen-ai-at-uc/responsible-use-gen-ai-tools"
-    },
-    {
-      "table": "5",
-      "row": "67",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.wgtn.ac.nz/students/study/exams/academic-integrity/student-use-of-artificial-intelligence",
-      "final_url": "https://www.wgtn.ac.nz/students/study/exams/academic-integrity/student-use-of-artificial-intelligence",
-      "content_type": "text/html; charset=utf-8",
-      "error": "",
-      "elapsed_sec": "0.19",
-      "context": "Oceania 大洋洲 | New Zealand 紐西蘭 | Victoria University of Wellington 威靈頓維多利亞大學 | Student use of artificial intelligence 學生使用人工智慧 |  | https://www.wgtn.ac.nz/students/study/exams/academic-integrity/student-use-of-artificial-intelligence"
-    },
-    {
-      "table": "5",
-      "row": "68",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.massey.ac.nz/study/study-and-assignment-support-and-guides/academic-integrity-student-guide/artificial-intelligence-ai-usage-and-detection/",
-      "final_url": "https://www.massey.ac.nz/study/study-and-assignment-support-and-guides/academic-integrity-student-guide/artificial-intelligence-ai-usage-and-detection/",
-      "content_type": "text/html; charset=utf-8",
-      "error": "",
-      "elapsed_sec": "0.9",
-      "context": "Oceania 大洋洲 | New Zealand 紐西蘭 | Massey University 梅西大學 | Artificial Intelligence (AI) usage and detection 人工智慧（AI）使用與偵測 |  | https://www.massey.ac.nz/study/study-and-assignment-support-and-guides/academic-integrity-student-guide/artificial-intelligence-ai-usage-and-detection/"
-    },
-    {
-      "table": "5",
-      "row": "69",
-      "status": "ERROR",
-      "status_code": "404",
-      "url": "https://www.waikato.ac.nz/assets/Uploads/Student-life/Student-assessment-Handbook/Guidelines-for-student-use-of-generative-AI-tools-FINAL.pdf",
-      "final_url": "https://www.waikato.ac.nz/assets/Uploads/Student-life/Student-assessment-Handbook/Guidelines-for-student-use-of-generative-AI-tools-FINAL.pdf",
-      "content_type": "",
-      "error": "HTTP Error 404: Not Found",
-      "elapsed_sec": "0.65",
-      "context": "Oceania 大洋洲 | New Zealand 紐西蘭 | University of Waikato 懷卡托大學 | University of Waikato Guidelines for Student Use of Generative AI Tools 懷卡托大學學生使用生成式 AI 工具指南 |  | https://www.waikato.ac.nz/assets/Uploads/Student-life/Student-assessment-Handbook/Guidelines-for-student-use-of-generative-AI-tools-FINAL.pdf"
-    },
-    {
-      "table": "5",
-      "row": "70",
-      "status": "ERROR",
-      "status_code": "",
-      "url": "https://www.aut.ac.nz/about/teaching-learning-and-assessment/generative-ai-and-assessment-at-aut",
-      "final_url": "",
-      "content_type": "",
-      "error": "HTTP Error 403: Forbidden",
-      "elapsed_sec": "0.18",
-      "context": "Oceania 大洋洲 | New Zealand 紐西蘭 | Auckland University of Technology 奧克蘭理工大學 | Generative AI and assessment at AUT 奧克蘭理工大學的生成式人工智慧與評量 |  | https://www.aut.ac.nz/about/teaching-learning-and-assessment/generative-ai-and-assessment-at-aut"
-    },
-    {
-      "table": "5",
-      "row": "71",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://learning.lincoln.ac.uk/academic-skills/ai-guidelines/",
-      "final_url": "https://learning.lincoln.ac.uk/your-academic-journey/gen-ai/",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "2.73",
-      "context": "Oceania 大洋洲 | New Zealand 紐西蘭 | Lincoln University 林肯大學 | AI guidelines AI 準則 |  | https://learning.lincoln.ac.uk/academic-skills/ai-guidelines/"
-    },
-    {
-      "table": "5",
-      "row": "74",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.imperial.ac.uk/admin-services/library/learning-support/generative-ai-guidance/",
-      "final_url": "https://www.imperial.ac.uk/admin-services/library/learning-support/generative-ai-guidance/",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.93",
-      "context": "Europe 歐洲 | UK | Imperial College London 倫敦帝國學院 | Generative AI Guidance 生成式人工智慧指引 |  | https://www.imperial.ac.uk/admin-services/library/learning-support/generative-ai-guidance/"
-    },
-    {
-      "table": "5",
-      "row": "77",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://information-services.ed.ac.uk/computing/comms-and-collab/elm/guidance-for-working-with-generative-ai",
-      "final_url": "https://information-services.ed.ac.uk/computing/comms-and-collab/elm/generative-ai-guidance-for-students/using-generative",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "0.34",
-      "context": "Europe 歐洲 | UK | University of Edinburgh 愛丁堡大學 | Guidance for working with Generative AI (“GenAI”) in your studies 在學習中使用生成式人工智慧（「GenAI」）的指引 |  | https://information-services.ed.ac.uk/computing/comms-and-collab/elm/guidance-for-working-with-generative-ai"
-    },
-    {
-      "table": "5",
-      "row": "78",
-      "status": "ERROR",
-      "status_code": "",
-      "url": "https://www.eur.nl/en/about-university/policy-and-regulations/regulations-and-guidelines/ai-usage-guidelines",
-      "final_url": "",
-      "content_type": "",
-      "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>",
-      "elapsed_sec": "0.63",
-      "context": "Europe 歐洲 | Netherlands 荷蘭 | Erasmus University Rotterdam 鹿特丹伊拉斯姆斯大學 | Generative AI Usage Guidelines 生成式 AI 使用指導原則 |  | https://www.eur.nl/en/about-university/policy-and-regulations/regulations-and-guidelines/ai-usage-guidelines"
-    },
-    {
-      "table": "5",
-      "row": "79",
-      "status": "ERROR",
-      "status_code": "",
-      "url": "https://www.kuleuven.be/english/genai",
-      "final_url": "",
-      "content_type": "",
-      "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>",
-      "elapsed_sec": "0.88",
-      "context": "Europe 歐洲 | Belgium 比利時 | KU Leuven | Responsible use of Generative AI 生成式 AI 的負責任使用 |  | https://www.kuleuven.be/english/genai"
-    },
-    {
-      "table": "5",
-      "row": "80",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://ethz.ch/content/dam/ethz/main/eth-zurich/education/ai_in_education/Generative%20AI%20in%20Teaching%20and%20Learning%20-%20Guidelines%20ETH.pdf",
-      "final_url": "https://ethz.ch/content/dam/ethz/main/eth-zurich/education/ai_in_education/Generative%20AI%20in%20Teaching%20and%20Learning%20-%20Guidelines%20ETH.pdf",
-      "content_type": "application/pdf",
-      "error": "",
-      "elapsed_sec": "0.96",
-      "context": "Europe 歐洲 | Switzerland 瑞士 | ETH Zurich 蘇黎世聯邦理工學院 (ETH Zurich) | Generative AI in Teaching & Learning 教學與學習中的生成式人工智慧 |  | https://ethz.ch/content/dam/ethz/main/eth-zurich/education/ai_in_education/Generative%20AI%20in%20Teaching%20and%20Learning%20-%20Guidelines%20ETH.pdf"
-    },
-    {
-      "table": "5",
-      "row": "81",
-      "status": "ERROR",
-      "status_code": "",
-      "url": "https://student.uva.nl/en/topics/ai-tools-and-your-studies",
-      "final_url": "",
-      "content_type": "",
-      "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>",
-      "elapsed_sec": "0.74",
-      "context": "Europe 歐洲 | Netherlands 荷蘭 | University of Amsterdam 阿姆斯特丹大學 | AI tools and your studies 人工智慧工具與你的學業 |  | https://student.uva.nl/en/topics/ai-tools-and-your-studies"
-    },
-    {
-      "table": "5",
-      "row": "82",
-      "status": "ERROR",
-      "status_code": "",
-      "url": "https://www.uio.no/english/services/ai/",
-      "final_url": "",
-      "content_type": "",
-      "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>",
-      "elapsed_sec": "0.5",
-      "context": "Europe 歐洲 | Norway 挪威 | University of Oslo 奧斯陸大學 | Guidelines for use of AI at UiO 奧斯陸大學使用人工智慧指引 |  | https://www.uio.no/english/services/ai/"
-    },
-    {
-      "table": "5",
-      "row": "83",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://studies.helsinki.fi/instructions/article/using-ai-support-learning",
-      "final_url": "https://studies.helsinki.fi/instructions/article/using-ai-support-learning",
-      "content_type": "text/html; charset=UTF-8",
-      "error": "",
-      "elapsed_sec": "1.29",
-      "context": "Europe 歐洲 | Finland 芬蘭 | University of Helsinki 赫爾辛基大學 | Using AI to support learning 使用人工智慧支援學習 |  | https://studies.helsinki.fi/instructions/article/using-ai-support-learning"
-    },
-    {
-      "table": "5",
-      "row": "84",
-      "status": "ERROR",
-      "status_code": "502",
-      "url": "https://biologia-molecolare.biologia.unipd.it/en/masters-degrees/artificial-intelligence-and-thesis-writing/",
-      "final_url": "https://biologia-molecolare.biologia.unipd.it/en/masters-degrees/artificial-intelligence-and-thesis-writing/",
-      "content_type": "",
-      "error": "HTTP Error 502: Bad Gateway",
-      "elapsed_sec": "1.29",
-      "context": "Europe 歐洲 | Italy 義大利 | University of Padua 帕多瓦大學 | Artificial Intelligence and Thesis Writing 人工智慧與論文寫作 |  | https://biologia-molecolare.biologia.unipd.it/en/masters-degrees/artificial-intelligence-and-thesis-writing/"
-    },
-    {
-      "table": "5",
-      "row": "85",
-      "status": "ERROR",
-      "status_code": "",
-      "url": "https://medarbetare.su.se/en/our-su/communicate-su/communication-support/guidelines-on-using-ai-powered-chatbots-in-education-and-research",
-      "final_url": "",
-      "content_type": "",
-      "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)>",
-      "elapsed_sec": "0.93",
-      "context": "Europe 歐洲 | Sweden 瑞典 | Stockholm University 斯德哥爾摩大學 | Guidelines on using AI-powered chatbots in education and research 關於在教育與研究中使用人工智慧驅動聊天機器人的指引 |  | https://medarbetare.su.se/en/our-su/communicate-su/communication-support/guidelines-on-using-ai-powered-chatbots-in-education-and-research"
-    },
-    {
-      "table": "5",
-      "row": "86",
-      "status": "ERROR",
-      "status_code": "",
-      "url": "https://www.su.se/department-of-computer-and-systems-sciences/education/during-your-studies/dsv-s-ai-policy-1.705912",
-      "final_url": "",
-      "content_type": "",
-      "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)>",
-      "elapsed_sec": "1.45",
-      "context": "Europe 歐洲 | Sweden 瑞典 | Stockholm University 斯德哥爾摩大學 | DSV’s AI policy 數位社會科學系（DSV）的人工智慧政策 |  | https://www.su.se/department-of-computer-and-systems-sciences/education/during-your-studies/dsv-s-ai-policy-1.705912"
-    },
-    {
-      "table": "5",
-      "row": "88",
-      "status": "OK",
-      "status_code": "200",
-      "url": "https://www.tudelft.nl/teaching-support/educational-advice/assess/guidelines/ai-chatbots-in-unsupervised-assessment",
-      "final_url": "https://www.tudelft.nl/teaching-support/educational-advice/assess/guidelines/ai-chatbots-in-unsupervised-assessment",
-      "content_type": "text/html; charset=utf-8",
-      "error": "",
-      "elapsed_sec": "1.04",
-      "context": "Europe 歐洲 | Netherlands 荷蘭 | Delft University of Technology 代爾夫特理工大學 | AI chatbots in unsupervised assessment 用於非監督評估的 AI 聊天機器人 |  | https://www.tudelft.nl/teaching-support/educational-advice/assess/guidelines/ai-chatbots-in-unsupervised-assessment"
-    },
-    {
-      "table": "5",
-      "row": "89",
-      "status": "ERROR",
-      "status_code": "",
-      "url": "https://tecnico.ulisboa.pt/en/news/campus-community/artificial-intelligence-in-education-tecnico-presents-resolution-on-the-use-of-tools-such-as-chatgpt/",
-      "final_url": "",
-      "content_type": "",
-      "error": "<urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)>",
-      "elapsed_sec": "0.59",
-      "context": "Europe 歐洲 | Portugal 葡萄牙 | Universidade de Lisboa 里斯本大學 | Artificial Intelligence in education – Técnico presents resolution on the use of tools such as ChatGPT 教育中的人工智慧——理工學院就使用 ChatGPT 等工具提出決議 |  | https://tecnico.ulisboa.pt/en/news/campus-community/artificial-intelligence-in-education-tecnico-presents-resolution-on-the-use-of-tools-such-as-chatgpt/"
-    }
-  ]
-};
-
+// ─── COLOUR TOKENS ───────────────────────────────────────────
 const C = {
-  ink: "#172033",
-  muted: "#667085",
-  bg: "#f6f8fb",
-  surface: "#ffffff",
-  line: "#d9e0ea",
-  blue: "#2563eb",
-  green: "#15803d",
-  red: "#b42318",
-  amber: "#b45309",
-  slate: "#334155",
+  navy: "#0f172a", navyMid: "#1e293b", navyLight: "#334155",
+  sky: "#0ea5e9", skyLight: "#38bdf8", skyBg: "#f0f9ff",
+  teal: "#0d9488", tealBg: "#f0fdfa",
+  text: "#1e293b", muted: "#64748b", subtle: "#94a3b8",
+  surface: "#ffffff", border: "#e2e8f0",
+  red: "#dc2626", redBg: "#fef2f2",
+  orange: "#ea580c", orangeBg: "#fff7ed",
+  amber: "#ca8a04", amberBg: "#fefce8",
+  green: "#16a34a", greenBg: "#f0fdf4",
+  gray: "#6b7280", grayBg: "#f9fafb",
 };
 
-function statusColor(status) {
-  if (status === "OK") return C.green;
-  if (status === "MISSING" || status === "ERROR" || status === "FAILED") return C.red;
-  return C.amber;
-}
+const POLICY_CODE_MAP = {
+  A: { label: "禁止", color: C.red, bg: C.redBg },
+  B: { label: "限制", color: C.orange, bg: C.orangeBg },
+  C: { label: "指定允許", color: C.amber, bg: C.amberBg },
+  D: { label: "開放鼓勵", color: C.green, bg: C.greenBg },
+  E: { label: "待編碼", color: C.gray, bg: C.grayBg },
+};
 
-function StatusBadge({ status, label }) {
-  const color = statusColor(status);
+// ─── DATA ────────────────────────────────────────────────────
+
+const TABS = [
+  { id: "summary",    icon: "📋", label: "執行摘要" },
+  { id: "howto",     icon: "🧭", label: "使用說明" },
+  { id: "decision",  icon: "⚖️", label: "課程決策表" },
+  { id: "templates", icon: "📝", label: "課綱模板" },
+  { id: "codes",     icon: "🏷️", label: "政策分級" },
+  { id: "taiwan",    icon: "🇹🇼", label: "台灣資料" },
+  { id: "intl",      icon: "🌐", label: "國際機構" },
+  { id: "keyuni",    icon: "🎓", label: "重點大學" },
+  { id: "globaldb",  icon: "🗃️", label: "全球資料庫" },
+  { id: "tools",     icon: "🛠️", label: "實用工具" },
+  { id: "updates",   icon: "🔄", label: "資料更新" },
+];
+
+const DECISION_TABLE = [
+  { context: "人文寫作、文學詮釋、哲學論證", policy: "限制使用", code: "B", allowed: "查找背景、語句潤飾、反向檢查論點漏洞", prohibited: "代寫提綱、論點、段落、最終稿", disclosure: "列出工具、提示詞摘要、使用位置與自行修正內容" },
+  { context: "社會科學大型講課", policy: "指定情境允許", code: "C", allowed: "複習概念、製作練習題、整理閱讀重點", prohibited: "取代指定閱讀、產生可直接提交的答案", disclosure: "作業後附 AI 使用聲明與錯誤檢核" },
+  { context: "量化研究、資料分析、統計作業", policy: "有限允許", code: "C", allowed: "程式除錯、公式解釋、資料視覺化建議", prohibited: "偽造資料、未驗證統計結論、不可重現分析", disclosure: "提供工具、版本、提示詞、程式碼與人工驗證步驟" },
+  { context: "創意寫作、設計、媒體製作", policy: "依學習目標分級", code: "C", allowed: "發想、風格比較、素材草案、修稿建議", prohibited: "未揭露完整生成作品、冒充個人創作歷程", disclosure: "附創作歷程、AI 參與比例、人工選擇與修改說明" },
+  { context: "考試、核心能力認證、個人表現評量", policy: "原則禁止", code: "A", allowed: "除非教師明確設計為 AI 協作測驗", prohibited: "即時答題、替代個人推理、外部工具協助", disclosure: "若允許使用，須在題目或考試規則中明確列示" },
+];
+
+const SYLLABUS_TEMPLATES = [
+  { id: "A", code: "A", title: "原則禁止型", content: `本課程的主要學習目標包含個人閱讀、論證、寫作與判斷能力的培養。除教師於特定作業另行說明外，學生不得使用生成式 AI 產生提綱、論點、段落、引用資料或最終提交內容。若使用 AI 作為字詞查詢或一般背景理解工具，仍須自行查證並於作業中揭露。` },
+  { id: "B", code: "B", title: "有限允許型", content: `學生可以使用生成式 AI 進行發想、資料搜尋輔助、語句潤飾、程式除錯或概念複習，但不得直接提交未經判斷、查證與改寫的 AI 生成內容。學生須在作業末尾註明使用的工具、使用目的、主要提示詞摘要，以及哪些部分受到 AI 協助。` },
+  { id: "C", code: "C", title: "指定任務允許型", content: `本課程僅允許在教師指定的任務中使用生成式 AI。每項作業會明列可使用與不可使用的範圍。未列為可使用的作業，視同不得使用。違反規定且未揭露者，將依本校學術誠信規範處理。` },
+  { id: "D", code: "D", title: "AI 素養導向型", content: `本課程鼓勵學生以批判方式使用生成式 AI，並將 AI 產出視為需要驗證、比較與修正的材料，而非權威答案。學生須對最終提交內容負完全責任，包含事實正確性、引用完整性、偏誤辨識與倫理考量。` },
+];
+
+const POLICY_CODES = [
+  { code: "A", label: "禁止", def: "不得使用 AI 完成核心任務", contexts: "考試、個人寫作能力評量、學術誠信高風險作業" },
+  { code: "B", label: "限制", def: "可用於輔助，但不得產生可直接提交內容", contexts: "人文寫作、閱讀心得、論證訓練" },
+  { code: "C", label: "指定允許", def: "教師列明哪些作業或步驟可使用", contexts: "資料分析、程式除錯、指定 AI literacy 活動" },
+  { code: "D", label: "開放鼓勵", def: "鼓勵使用，但要求揭露、查證與反思", contexts: "AI 素養課、創作比較、工具批判分析" },
+  { code: "E", label: "待編碼", def: "資料不足，需讀原文後分類", contexts: "只有網址或摘要過短的資料" },
+];
+
+const TAIWAN_DATA = [
+  { id:1, level:"國家法規", inst:"數位發展部", name:"人工智慧基本法", type:"治理框架", url:"https://moda.gov.tw/major-policies/ai/governance/19248", date:"2026-01-14", status:"需確認最新版本" },
+  { id:2, level:"國家法規", inst:"國科會", name:"行政院使用生成式AI參考指引", type:"AI素養框架", url:"https://www.nstc.gov.tw/folksonomy/list/c79bf57b-dc94-4aff-8d14-3262b5559cfc?l=ch", date:"", status:"需確認最新版本" },
+  { id:3, level:"教育部", inst:"教育部", name:"中小學數位教學指引3.0版", type:"評量與學術誠信", url:"https://pads.moe.edu.tw", date:"2024", status:"需確認最新版本" },
+  { id:4, level:"教育部", inst:"教育部", name:"中小學使用生成式人工智慧注意事項", type:"教師教學支援", url:"https://pads.moe.edu.tw/download.php", date:"2024", status:"需確認最新版本" },
+  { id:5, level:"學術倫理", inst:"臺灣學術倫理教育學會", name:"人工智慧技術對學術倫理的影響及因應建議", type:"待編碼", url:"https://www.taaee.org.tw/docs/20230223_conclusion_final.pdf", date:"2023-02-23", status:"需確認最新版本" },
+  { id:6, level:"大學校級", inst:"師大", name:"生成式AI之學習應用及參考指引", type:"學生使用指引", url:"https://ctld.ntnu.edu.tw/generative_ai", date:"", status:"需確認最新版本" },
+  { id:7, level:"大學校級", inst:"政大", name:"生成式人工智慧運用簡要原則", type:"學生使用指引", url:"https://sites.google.com/g.nccu.edu.tw/nccubasicprincipleforai", date:"", status:"需確認最新版本" },
+  { id:8, level:"大學校級", inst:"臺大", name:"針對生成式 AI 工具之教學因應措施", type:"教師教學支援", url:"https://www.dlc.ntu.edu.tw/ai-tools/", date:"", status:"需確認最新版本" },
+  { id:9, level:"大學校級", inst:"清大", name:"AI 協作、共學與素養培養指引", type:"AI素養框架", url:"https://ctld.site.nthu.edu.tw/p/450-1217-253458,c0.php?Lang=zh-tw", date:"", status:"需確認最新版本" },
+  { id:10, level:"大學校級", inst:"成大", name:"AI 及相關學習工具參考指南", type:"待編碼", url:"", date:"", status:"需確認最新版本" },
+  { id:11, level:"大學校級", inst:"中山", name:"生成式AI工具使用參照指引", type:"學生使用指引", url:"https://oaa.nsysu.edu.tw/p/406-1003-313202,r1365.php?Lang=zh-tw", date:"", status:"需確認最新版本" },
+  { id:12, level:"大學校級", inst:"陽明交大", name:"因應生成式AI之指引及教學建議", type:"教師教學支援", url:"https://oaeri.nycu.edu.tw/", date:"", status:"需確認最新版本" },
+  { id:13, level:"大學校級", inst:"北科大", name:"因應生成式AI工具之教學參考指引", type:"教師教學支援", url:"https://oaa.ntut.edu.tw/p/406-1008-129455,r11.php?Lang=zh-tw", date:"", status:"需確認最新版本" },
+  { id:14, level:"大學校級", inst:"臺科大", name:"生成式AI簡介與教學策略調整建議方針", type:"教師教學支援", url:"https://ctld.ntust.edu.tw/p/406-1051-111193,r1430.php?Lang=zh-tw", date:"", status:"需確認最新版本" },
+  { id:15, level:"大學校級", inst:"中國醫", name:"針對生成式 AI 工具之教學指引", type:"教師教學支援", url:"https://academic.cmu.edu.tw/?q=zh-hant/node/69", date:"", status:"需確認最新版本" },
+  { id:16, level:"大學校級", inst:"北醫", name:"生成式AI工具之課程教學參考指引", type:"教師教學支援", url:"https://aca.tmu.edu.tw/", date:"", status:"需確認最新版本" },
+  { id:17, level:"大學校級", inst:"逢甲", name:"針對生成式AI工具之教學因應措施", type:"教師教學支援", url:"https://reurl.cc/N2xOm9", date:"", status:"需確認最新版本" },
+  { id:18, level:"大學校級", inst:"慈濟", name:"AI賦能大學教育指引", type:"待編碼", url:"https://info.tcu.edu.tw/hot_news/attch/1120602001/AI.pdf", date:"", status:"需確認最新版本" },
+];
+
+const INTL_ORGS = [
+  { id:1, org:"UNESCO", name:"Guidance for Generative AI in Education and Research (2023)", type:"研究倫理", url:"https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research", summary:"全球首份生成式AI教育指引，涵蓋立即行動、長期政策規劃及人本願景", date:"2023" },
+  { id:2, org:"UNESCO", name:"AI Competency Framework for Teachers (2024)", type:"AI素養框架", url:"https://www.unesco.org/en/digital-education/ai-future-learning/teachers-framework", summary:"協助各國教師系統建立AI能力框架，納入課程設計與教學實踐", date:"2024" },
+  { id:3, org:"UNESCO", name:"AI Competency Framework for Students (2024)", type:"課綱政策範本", url:"https://www.unesco.org/en/digital-education/ai-future-learning/students-framework", summary:"建立學生AI素養路徑，已支持58個國家課綱設計與師資培訓", date:"2024" },
+  { id:4, org:"UNESCO", name:"AI and Education: Guidance for Policy-Makers (2021)", type:"治理框架", url:"https://www.unesco.org/en/articles/ai-and-education-guidance-policy-makers", summary:"針對政策制定者的AI教育指引，提供機會分析、風險管理及政策建議", date:"2021" },
+  { id:5, org:"OECD", name:"Digital Education Outlook 2023", type:"治理框架", url:"https://www.oecd.org/en/publications/oecd-digital-education-outlook-2023_c74f03de-en.html", summary:"18國比較分析，檢視各國對生成式AI的教育監管與指引現況", date:"2023" },
+  { id:6, org:"OECD", name:"Digital Education Outlook 2026（最新版）", type:"研究倫理", url:"https://www.oecd.org/en/publications/oecd-digital-education-outlook-2026_062a7394-en.html", summary:"探討生成式AI在教與學各情境的應用研究、機會、挑戰與政策建議", date:"2026" },
+  { id:7, org:"TeachAI", name:"AI Guidance for Schools Toolkit", type:"待編碼", url:"https://www.teachai.org/toolkit", summary:"協助各國政府及教育機構制定AI指引的實用工具包，含政策原則與三階段轉型架構", date:"" },
+  { id:8, org:"TeachAI", name:"Global AI Education Policy Tracker", type:"治理框架", url:"https://www.teachai.org/policy-tracker", summary:"即時追蹤全球各國及美國各州AI教育政策現況的互動地圖", date:"" },
+  { id:9, org:"TeachAI", name:"Guidance for AI in Education: A Landscape Analysis", type:"待編碼", url:"https://www.teachai.org/guidance-landscape-analysis", summary:"整合美國各州及9個國際脈絡AI教育指引的主題分析，供指引制定者參考", date:"" },
+  { id:10, org:"EDUCAUSE", name:"2024 AI Policies and Guidelines Action Plan", type:"研究倫理", url:"https://www.educause.edu/research/2024/2024-educause-action-plan-ai-policies-and-guidelines", summary:"基於900+高教技術人員調查，提供高等教育AI政策差距分析與行動方案", date:"2024" },
+];
+
+const KEY_UNIVERSITIES = [
+  { rank:"★★★", inst:"Yale University", name:"AI Course & Assignment Design — Sample AI Policies", type:"課綱政策範本", url:"https://poorvucenter.yale.edu/teaching/teaching-resource-library/ai-guidance-for-teachers/ai-course-assignment-design/sample-ai", summary:"依不同課程類型提供教師在授課大綱上應敘明的AI使用政策範本，實用性極高。偵蓉老師推薦！" },
+  { rank:"★★★", inst:"MIT", name:"Using AI Tools — Academic Integrity Handbook", type:"評量與學術誠信", url:"https://integrity.mit.edu/handbook/academic-writing/using-ai-tools", summary:"明確規範學術誠信框架下的AI使用原則與邊界，適用各學科" },
+  { rank:"★★★", inst:"Stanford University", name:"Artificial Intelligence in Teaching — CTL Guidelines", type:"課綱政策範本", url:"https://teachingcommons.stanford.edu/teaching-guides/artificial-intelligence", summary:"教學中心提供教師課綱融入AI政策的實用指引，含課程設計建議與案例" },
+  { rank:"★★★", inst:"Harvard University", name:"AI Guidance for Teaching — Bok Center", type:"評量與學術誠信", url:"https://bokcenter.harvard.edu/ai", summary:"哈佛教學中心AI使用方針，含學術誠信框架與多元作業設計建議" },
+  { rank:"★★★", inst:"University of Oxford", name:"Generative AI — Student and Staff Guidance", type:"評量與學術誠信", url:"https://www.ox.ac.uk/students/academic/good-practice/ai", summary:"牛津大學對生成式AI的教學研究倫理與學術誠信規範" },
+  { rank:"★★", inst:"Imperial College London", name:"AI in Education Hub", type:"教師教學支援", url:"https://www.imperial.ac.uk/staff/tools-and-reference/education-technology/artificial-intelligence/", summary:"含AI介紹、Teaching Toolkit、個案研究、Training & Events、倫理政策與FAQ的完整資源中心" },
+  { rank:"★★", inst:"JISC（英國高教資訊中心）", name:"Navigating Generative AI in Higher Education", type:"治理框架", url:"https://nationalcentreforai.jiscinvolve.org/wp/2024/07/31/navigating-the-future-higher-education-policies-and-guidance-on-generative-ai/", summary:"彙整英國各大學生成式AI政策，持續更新（最後更新2025年4月），含各校政策摘要" },
+  { rank:"★★", inst:"University of Melbourne", name:"Artificial Intelligence and Academic Integrity", type:"評量與學術誠信", url:"https://melbourne-cshe.unimelb.edu.au/ai-aai", summary:"澳洲領先大學的AI評量整合指引，含學術誠信框架與多元評量設計方法" },
+];
+
+const GLOBAL_DB = [
+  { id:1, region:"Africa 非洲", country:"South Africa", uni:"University of Cape Town", name:"Artificial Intelligence for Teaching & Learning", date:"", type:"教師教學支援", status:"缺日期", url:"https://cilt.uct.ac.za/teaching-resources/artificial-intelligence-teaching-learning" },
+  { id:2, region:"Africa 非洲", country:"Egypt", uni:"Cairo University", name:"FCAI Policy and Guidelines for use of Generative AI", date:"2023-09-04", type:"治理框架", status:"需複核", url:"https://fcai.cu.edu.eg/PG/wp-content/uploads/2023/09/FCAI-GAI-Use-Guidelines-v1.1-fnl.pdf" },
+  { id:3, region:"Africa 非洲", country:"South Africa", uni:"University of Witwatersrand", name:"Approach to the use of AI in teaching and learning at Wits", date:"2023-01", type:"教師教學支援", status:"需複核", url:"https://www.wits.ac.za/media/wits-university/learning-and-teaching/cltd/documents/AI-in-teaching-and-learning-at-Wits.pdf" },
+  { id:4, region:"Africa 非洲", country:"South Africa", uni:"University of Pretoria", name:"Student's Guide: Leveraging Generative AI for Teaching and Learning", date:"2023", type:"學生使用指引", status:"需複核", url:"https://www.up.ac.za/media/shared/391/pdfs/up-student-guide_-leveraging-generative-artificial-intelligence-for-learning.zp242396.pdf" },
+  { id:5, region:"Africa 非洲", country:"South Africa", uni:"University of Johannesburg", name:"UJ PRACTICE Notes: Generative AI in Teaching, Learning and Research", date:"", type:"教師教學支援", status:"缺日期", url:"https://www.uj.ac.za/wp-content/uploads/2023/08/uj-ai-practice-guide-2023.pdf" },
+  { id:6, region:"Africa 非洲", country:"South Africa", uni:"Stellenbosch University", name:"Generative AI in TLA at SU", date:"", type:"待編碼", status:"缺日期", url:"https://www.sun.ac.za/english/learning-teaching/ctl/t-l-resources/ai-in-tla-at-su" },
+  { id:7, region:"Africa 非洲", country:"South Africa", uni:"Stellenbosch University", name:"Cool Things Academics Do: AI Literacy in Higher Education", date:"", type:"AI素養框架", status:"缺日期", url:"https://www.sun.ac.za/english/learning-teaching/ctl/Documents/Cool%20Things%20AI%20Case%20Studies%20Booklet%20(25.03.2025).pdf" },
+  { id:8, region:"Africa 非洲", country:"South Africa", uni:"Stellenbosch University", name:"Draft interim SU guidelines on allowable AI use and academic integrity", date:"", type:"評量與學術誠信", status:"缺日期", url:"https://www.sun.ac.za/english/learning-teaching/ctl/Documents/Interim%20SU%20guidelines%20on%20allowable%20AI%20use%20and%20academic%20integrity.pdf" },
+  { id:9, region:"Africa 非洲", country:"South Africa", uni:"University of the Free State", name:"Stepping up with ChatGPT - AI-assisted Technology in Education", date:"", type:"待編碼", status:"缺日期", url:"https://ufs.libguides.com/AI/SteppingupwithChatGPT" },
+  { id:10, region:"Africa 非洲", country:"Egypt", uni:"The American University in Cairo", name:"AUC's Statement on the Use of Artificial Intelligence Tools", date:"", type:"待編碼", status:"缺日期", url:"https://www.aucegypt.edu/about/leadership/provost/use-of-artificial-intelligence-tools" },
+  { id:11, region:"Africa 非洲", country:"South Africa", uni:"North-West University", name:"Guidelines for the Utilization of AI in Teaching and Learning at NWU", date:"", type:"教師教學支援", status:"缺日期", url:"https://news.nwu.ac.za/sites/news.nwu.ac.za/files/files/Robert.Balfour/Utilization-AI-TL.pdf" },
+  { id:12, region:"North America 北美", country:"USA", uni:"Harvard University", name:"Guidelines for Using ChatGPT and other Generative AI tools at Harvard", date:"", type:"待編碼", status:"缺日期", url:"https://provost.harvard.edu/guidelines-using-chatgpt-and-other-generative-ai-tools-harvard" },
+  { id:13, region:"North America 北美", country:"USA", uni:"Stanford University", name:"Generative AI Policy Guidance", date:"2023-02-16", type:"治理框架", status:"需複核", url:"https://communitystandards.stanford.edu/generative-ai-policy-guidance" },
+  { id:14, region:"North America 北美", country:"USA", uni:"MIT", name:"Getting Started with AI-Enhanced Teaching: A Practical Guide for Instructors", date:"", type:"教師教學支援", status:"缺日期", url:"https://mitsloanedtech.mit.edu/ai/teach/getting-started/" },
+  { id:15, region:"North America 北美", country:"USA", uni:"Princeton University", name:"Generative AI Guidance", date:"", type:"待編碼", status:"缺日期", url:"https://mcgraw.princeton.edu/generative-ai" },
+  { id:16, region:"North America 北美", country:"USA", uni:"University of Chicago", name:"Guidance for Syllabus Statements on the Use of AI Tools", date:"", type:"課綱政策範本", status:"缺日期", url:"https://teaching.uchicago.edu/sites/default/files/2023-09/CCTL_AI%20Syllabus%20Statements.pdf" },
+  { id:17, region:"North America 北美", country:"USA", uni:"Columbia University", name:"Considerations for AI Tools in the Classroom", date:"", type:"待編碼", status:"缺日期", url:"https://ctl.columbia.edu/resources-and-technology/resources/ai-tools/" },
+  { id:18, region:"North America 北美", country:"USA", uni:"California Institute of Technology", name:"Guidance on the Use of Generative AI and LLM Tools", date:"", type:"待編碼", status:"缺日期", url:"https://www.imss.caltech.edu/services/ai" },
+  { id:19, region:"North America 北美", country:"USA", uni:"UC Berkeley", name:"Appropriate Use of Generative AI Tools", date:"", type:"待編碼", status:"缺日期", url:"https://oercs.berkeley.edu/appropriate-use-generative-ai-tools" },
+  { id:20, region:"North America 北美", country:"USA", uni:"Yale University", name:"Guidelines for the Use of Generative AI Tools", date:"", type:"待編碼", status:"缺日期", url:"https://provost.yale.edu/news/guidelines-use-generative-ai-tools" },
+  { id:21, region:"North America 北美", country:"USA", uni:"University of Pennsylvania", name:"Statement on Guidance for UPenn Community on Use of Generative AI", date:"", type:"待編碼", status:"缺日期", url:"https://isc.upenn.edu/security/AI-guidance" },
+  { id:22, region:"North America 北美", country:"USA", uni:"UCLA", name:"Generative AI for Teaching and Learning at UCLA", date:"", type:"教師教學支援", status:"缺日期", url:"https://docs.google.com/document/d/1V9OpwizUiHgLVMeEx-7g3AV1QrTAkBo0D-dsFv0DlwM/edit" },
+  { id:23, region:"North America 北美", country:"USA", uni:"Cornell University", name:"Guidelines for Artificial Intelligence", date:"", type:"待編碼", status:"缺日期", url:"https://it.cornell.edu/ai/ai-guidelines" },
+  { id:24, region:"North America 北美", country:"Canada", uni:"University of Toronto", name:"Generative Artificial Intelligence in the Classroom: FAQs", date:"", type:"待編碼", status:"缺日期", url:"https://www.viceprovostundergrad.utoronto.ca/16072-2/teaching-initiatives/generative-artificial-intelligence/" },
+  { id:25, region:"North America 北美", country:"Canada", uni:"University of British Columbia", name:"UBC Guidance on GenAI Syllabus", date:"", type:"課綱政策範本", status:"缺日期", url:"https://academicintegrity.ubc.ca/generative-ai-syllabus/" },
+  { id:26, region:"North America 北美", country:"Canada", uni:"McGill University", name:"Principles on Generative AI in Teaching and Learning at McGill", date:"", type:"教師教學支援", status:"缺日期", url:"https://www.mcgill.ca/provost/files/provost/principles_on_generative_ai_in_teaching_and_learning_at_mcgill.pdf" },
+  { id:27, region:"North America 北美", country:"Canada", uni:"University of Alberta", name:"Academic Integrity and AI Use", date:"", type:"評量與學術誠信", status:"缺日期", url:"https://www.ualberta.ca/en/centre-for-teaching-and-learning/resources/generative-ai/academic-integrity-ai-use/index.html" },
+  { id:28, region:"North America 北美", country:"Canada", uni:"University of Waterloo", name:"Artificial intelligence and ChatGPT", date:"", type:"待編碼", status:"缺日期", url:"https://uwaterloo.ca/academic-integrity/artificial-intelligence-and-chatgpt" },
+  { id:29, region:"North America 北美", country:"Canada", uni:"University of Montreal", name:"About the Montréal Declaration on Responsible AI", date:"", type:"待編碼", status:"缺日期", url:"https://montrealdeclaration-responsibleai.com/about/" },
+  { id:30, region:"North America 北美", country:"Canada", uni:"McMaster University", name:"Provisional Guidelines: Use of Generative AI in Teaching and Learning", date:"2024-09", type:"教師教學支援", status:"需複核", url:"https://www.humanities.mcmaster.ca/wp-content/uploads/2024/11/Provisional-Guidelines-on-the-Use-of-Generative-AI-in-Research_For-Feedback.pdf" },
+  { id:31, region:"South America 南美洲", country:"Colombia", uni:"Universidad del Rosario", name:"Guidelines for the Use of AI in University Courses", date:"2023-02-21", type:"待編碼", status:"需複核", url:"https://forogpp.com/wp-content/uploads/2023/02/guidelines-for-the-use-of-artificial-intelligence-in-university-courses-v4.3.pdf" },
+  { id:32, region:"South America 南美洲", country:"Argentina", uni:"University of Buenos Aires", name:"Guidelines for the use of ChatGPT and text generative AI", date:"", type:"待編碼", status:"缺日期", url:"https://ialab.com.ar/webia/wp-content/uploads/2024/02/Guia-uso-IAG-.pdf" },
+  { id:33, region:"South America 南美洲", country:"Colombia", uni:"Universidad de Los Andes", name:"Guidelines for the use of AI in university contexts", date:"2023-08-15", type:"待編碼", status:"需複核", url:"https://juangutierrez.co/wp-content/uploads/2023/08/guidelines-for-the-use-of-artificial-intelligence-in-university-contexts-v5.0.pdf" },
+  { id:34, region:"South America 南美洲", country:"Colombia", uni:"Pontifical Javeriana University", name:"Editorial Policy, Publication Ethics and Malpractice Statement", date:"", type:"治理框架", status:"缺日期", url:"" },
+  { id:35, region:"South America 南美洲", country:"Argentina", uni:"Universidad de San Andres", name:"Readiness of the judicial sector for AI in Latin America", date:"", type:"待編碼", status:"缺日期", url:"https://www.researchgate.net/publication/360849668" },
+  { id:36, region:"South America 南美洲", country:"Chile", uni:"Pontificia Universidad Católica de Chile", name:"ChatGPT: ¿Cómo usarlo en clases?", date:"", type:"待編碼", status:"缺日期", url:"https://www.uc.cl/noticias/chatgpt-como-usarlo-en-clases/" },
+  { id:37, region:"Asia 亞洲", country:"China", uni:"Tsinghua University", name:"International AI Cooperation and Governance Forum 2022", date:"", type:"治理框架", status:"缺日期", url:"https://aiig.tsinghua.edu.cn/en/International_Forum/2022/About_the_Forum.htm" },
+  { id:38, region:"Asia 亞洲", country:"Singapore", uni:"National University of Singapore", name:"Responsible Use of AI – Guidance from a Singapore Regulatory Perspective", date:"", type:"待編碼", status:"缺日期", url:"https://law.nus.edu.sg/trail/responsible-use-of-ai/" },
+  { id:39, region:"Asia 亞洲", country:"Japan", uni:"Nagoya University", name:"Regarding the Use of Generative AI", date:"", type:"待編碼", status:"缺日期", url:"https://en.nagoya-u.ac.jp/academics/ai/index.html" },
+  { id:40, region:"Asia 亞洲", country:"Japan", uni:"Tokyo University of Foreign Studies", name:"Guidelines for Instructors Regarding AI in University Education", date:"2023-03-22", type:"教師教學支援", status:"需複核", url:"https://www.tufs.ac.jp/documents/education/guideline/ai_guideline_en.pdf" },
+  { id:41, region:"Asia 亞洲", country:"Hong Kong", uni:"University of Hong Kong", name:"Use of AI Tools in Teaching, Learning and Assessments", date:"", type:"評量與學術誠信", status:"缺日期", url:"" },
+  { id:42, region:"Asia 亞洲", country:"South Korea", uni:"Seoul National University", name:"Seoul National University AI Policy Initiative", date:"", type:"治理框架", status:"缺日期", url:"" },
+  { id:43, region:"Asia 亞洲", country:"Japan", uni:"Kyushu University", name:"Note on the Use of Generative AI in Education at Kyushu University", date:"", type:"教師教學支援", status:"缺日期", url:"https://catalog.lib.kyushu-u.ac.jp/opac_download_md/7343643/60_p019.pdf" },
+  { id:44, region:"Asia 亞洲", country:"Japan", uni:"Waseda University", name:"About the Use of Generative Artificial Intelligence (ChatGPT, etc.)", date:"2023-04-21", type:"待編碼", status:"需複核", url:"https://www.waseda.jp/top/en/news/77786" },
+  { id:45, region:"Asia 亞洲", country:"South Korea", uni:"UNIST 蔚山科學技術院", name:"A Guide to the Use of Generative AI", date:"2023", type:"待編碼", status:"需複核", url:"https://heyzine.com/flip-book/3a9d4cb37e.html#page/1" },
+  { id:46, region:"Asia 亞洲", country:"Singapore", uni:"Singapore Management University", name:"SMU Framework for The Use of Generative AI Tools", date:"", type:"學生使用指引", status:"缺日期", url:"https://cte.smu.edu.sg/resources/smu-framework-generative-ai" },
+  { id:47, region:"Asia 亞洲", country:"Singapore", uni:"Nanyang Technological University", name:"NTU Position on the Use of Generative AI in Research", date:"", type:"研究倫理", status:"缺日期", url:"https://www.ntu.edu.sg/research/resources/use-of-gai-in-research" },
+  { id:48, region:"Asia 亞洲", country:"Taiwan", uni:"National Tsing Hua University 清大", name:"Guidelines for Collaboration, Co-learning, and Cultivation of AI Competencies", date:"", type:"待編碼", status:"缺日期", url:"https://ctld.site.nthu.edu.tw/var/file/217/1217/img/555612445.pdf" },
+  { id:49, region:"Asia 亞洲", country:"Taiwan", uni:"National Taiwan University 臺大", name:"Guidance for Use of Generative AI Tools for Teaching and Learning", date:"", type:"教師教學支援", status:"缺日期", url:"https://www.dlc.ntu.edu.tw/en/ai-tools-en/" },
+  { id:50, region:"Asia 亞洲", country:"Hong Kong", uni:"The Chinese University of Hong Kong", name:"Use of AI Tools in Teaching, Learning and Assessments", date:"", type:"評量與學術誠信", status:"缺日期", url:"https://www.aqs.cuhk.edu.hk/documents/A-guide-for-students_use-of-AI-tools.pdf" },
+  { id:51, region:"Asia 亞洲", country:"Thailand", uni:"Chulalongkorn University", name:"Principles and Guidelines for using AI Tools", date:"", type:"待編碼", status:"缺日期", url:"https://www.chula.ac.th/en/news/125190/" },
+  { id:52, region:"Asia 亞洲", country:"Malaysia", uni:"Universiti Malaya", name:"Guideline (English Version)", date:"", type:"待編碼", status:"缺日期", url:"https://umresearch.um.edu.my/wp-content/uploads/2023/07/Guideline-English-Version.docx" },
+  { id:53, region:"Asia 亞洲", country:"Malaysia", uni:"Universiti Putra Malaysia", name:"Guide for ChatGPT usage in Teaching and Learning", date:"", type:"教師教學支援", status:"缺日期", url:"https://cadelead.upm.edu.my/upload/dokumen/20230202105701Guide_for_ChatGPT_Usage_in_Teaching_and_Learning.pdf" },
+  { id:54, region:"Oceania 大洋洲", country:"Australia", uni:"University of Melbourne", name:"AI governance", date:"", type:"治理框架", status:"缺日期", url:"https://www.unimelb.edu.au/ai/home/governance-and-ai-principles" },
+  { id:55, region:"Oceania 大洋洲", country:"Australia", uni:"University of Sydney", name:"AI in Education, University of Sydney guidelines", date:"", type:"待編碼", status:"缺日期", url:"https://www.sydney.edu.au/news-opinion/news/2024/11/15/how-to-use-ai-to-learn-without-cheating-students-develop-new-guide.html" },
+  { id:56, region:"Oceania 大洋洲", country:"Australia", uni:"University of New South Wales", name:"UNSW's AI Guidelines and Framework", date:"", type:"待編碼", status:"缺日期", url:"https://www.teaching.unsw.edu.au/ai/guidelines" },
+  { id:57, region:"Oceania 大洋洲", country:"Australia", uni:"Australian National University", name:"Guide for students: best practice when using Generative AI", date:"", type:"學生使用指引", status:"缺日期", url:"https://www.anu.edu.au/students/academic-skills/academic-integrity/best-practice-principles/guide-for-students-best" },
+  { id:58, region:"Oceania 大洋洲", country:"Australia", uni:"University of Technology Sydney", name:"The Use of AI in Research Guidelines", date:"", type:"研究倫理", status:"缺日期", url:"https://www.uts.edu.au/about/leadership-governance/policies/a-z/use-of-ai-in-research-guidelines" },
+  { id:59, region:"Oceania 大洋洲", country:"Australia", uni:"University of Adelaide", name:"Working with Artificial Intelligence", date:"", type:"待編碼", status:"缺日期", url:"https://www.adelaide.edu.au/student/academic-skills/academic-integrity-for-students/working-with-artificial-intelligence" },
+  { id:60, region:"Oceania 大洋洲", country:"Australia", uni:"University of Western Australia", name:"Using AI Tools at UWA: A Guide for Students", date:"", type:"學生使用指引", status:"缺日期", url:"https://www.uwa.edu.au/students/-/media/project/uwa/uwa/students/docs/studysmarter/using-ai-tools-at-uwa.pdf" },
+  { id:61, region:"Oceania 大洋洲", country:"Australia", uni:"University of Queensland", name:"UQ's rules for using AI", date:"", type:"待編碼", status:"缺日期", url:"https://web.library.uq.edu.au/study-and-learning-support/ai-student-hub/uqs-rules-using-ai" },
+  { id:62, region:"Oceania 大洋洲", country:"Australia", uni:"Monash University", name:"AI policies and guidelines", date:"", type:"待編碼", status:"缺日期", url:"https://www.monash.edu/ai/tools-training-and-resources/ai-policies-and-guidelines" },
+  { id:63, region:"Oceania 大洋洲", country:"New Zealand", uni:"University of Auckland", name:"Advice for students on using generative AI in coursework", date:"", type:"學生使用指引", status:"缺日期", url:"https://www.auckland.ac.nz/en/students/forms-policies-and-guidelines/student-policies-and-guidelines/academic-integrity-copyright/advice-for-student-on-using-generative-ai.html" },
+  { id:64, region:"Oceania 大洋洲", country:"New Zealand", uni:"University of Otago", name:"Use of Generative AI and Autonomous Content Generation in Learning and Teaching Policy", date:"", type:"治理框架", status:"缺日期", url:"https://www.otago.ac.nz/administration/policies/policy-collection/use-of-generative-artificial-intelligences-and-autonomous-content-generation-in-learning-and-teaching-policy" },
+  { id:65, region:"Oceania 大洋洲", country:"New Zealand", uni:"University of Canterbury", name:"Responsible use of Gen-AI tools", date:"", type:"待編碼", status:"缺日期", url:"https://www.canterbury.ac.nz/study/study-support-info/gen-ai-at-uc/responsible-use-gen-ai-tools" },
+  { id:66, region:"Oceania 大洋洲", country:"New Zealand", uni:"Victoria University of Wellington", name:"Student use of artificial intelligence", date:"", type:"學生使用指引", status:"缺日期", url:"https://www.wgtn.ac.nz/students/study/exams/academic-integrity/student-use-of-artificial-intelligence" },
+  { id:67, region:"Oceania 大洋洲", country:"New Zealand", uni:"Massey University", name:"Artificial Intelligence (AI) usage and detection", date:"", type:"待編碼", status:"缺日期", url:"https://www.massey.ac.nz/study/study-and-assignment-support-and-guides/academic-integrity-student-guide/artificial-intelligence-ai-usage-and-detection/" },
+  { id:68, region:"Oceania 大洋洲", country:"New Zealand", uni:"University of Waikato", name:"Guidelines for Student Use of Generative AI Tools", date:"", type:"學生使用指引", status:"缺日期", url:"https://www.waikato.ac.nz/assets/Uploads/Student-life/Student-assessment-Handbook/Guidelines-for-student-use-of-generative-AI-tools-FINAL.pdf" },
+  { id:69, region:"Oceania 大洋洲", country:"New Zealand", uni:"Auckland University of Technology", name:"Generative AI and assessment at AUT", date:"", type:"評量與學術誠信", status:"缺日期", url:"https://www.aut.ac.nz/about/teaching-learning-and-assessment/generative-ai-and-assessment-at-aut" },
+  { id:70, region:"Oceania 大洋洲", country:"New Zealand", uni:"Lincoln University", name:"AI guidelines", date:"", type:"待編碼", status:"缺日期", url:"https://learning.lincoln.ac.uk/academic-skills/ai-guidelines/" },
+  { id:71, region:"Europe 歐洲", country:"UK", uni:"University of Oxford", name:"Use of generative AI tools to support learning", date:"", type:"待編碼", status:"缺日期", url:"https://www.ox.ac.uk/students/academic/good-practice/ai" },
+  { id:72, region:"Europe 歐洲", country:"UK", uni:"University of Cambridge", name:"Artificial intelligence and teaching, learning, and assessment", date:"", type:"評量與學術誠信", status:"缺日期", url:"https://www.cambridgeinternational.org/support-and-training-for-schools/teaching-cambridge-at-your-school/artificial-intelligence/" },
+  { id:73, region:"Europe 歐洲", country:"UK", uni:"Imperial College London", name:"Generative AI Guidance", date:"", type:"待編碼", status:"缺日期", url:"https://www.imperial.ac.uk/admin-services/library/learning-support/generative-ai-guidance/" },
+  { id:74, region:"Europe 歐洲", country:"UK", uni:"London School of Economics", name:"Statement on Generative AI and Education", date:"", type:"待編碼", status:"缺日期 / 待補URL", url:"" },
+  { id:75, region:"Europe 歐洲", country:"UK", uni:"University College London", name:"Three categories of GenAI use in assessment", date:"", type:"評量與學術誠信", status:"缺日期", url:"https://www.ucl.ac.uk/teaching-learning/generative-ai-hub/three-categories-genai-use-assessment" },
+  { id:76, region:"Europe 歐洲", country:"UK", uni:"University of Edinburgh", name:"Guidance for working with Generative AI in your studies", date:"", type:"待編碼", status:"缺日期", url:"https://information-services.ed.ac.uk/computing/comms-and-collab/elm/guidance-for-working-with-generative-ai" },
+  { id:77, region:"Europe 歐洲", country:"Netherlands", uni:"Erasmus University Rotterdam", name:"Generative AI Usage Guidelines", date:"", type:"待編碼", status:"缺日期", url:"https://www.eur.nl/en/about-university/policy-and-regulations/regulations-and-guidelines/ai-usage-guidelines" },
+  { id:78, region:"Europe 歐洲", country:"Belgium", uni:"KU Leuven", name:"Responsible use of Generative AI", date:"", type:"待編碼", status:"缺日期", url:"https://www.kuleuven.be/english/genai" },
+  { id:79, region:"Europe 歐洲", country:"Switzerland", uni:"ETH Zurich", name:"Generative AI in Teaching & Learning", date:"", type:"教師教學支援", status:"缺日期", url:"https://ethz.ch/content/dam/ethz/main/eth-zurich/education/ai_in_education/Generative%20AI%20in%20Teaching%20and%20Learning%20-%20Guidelines%20ETH.pdf" },
+  { id:80, region:"Europe 歐洲", country:"Netherlands", uni:"University of Amsterdam", name:"AI tools and your studies", date:"", type:"待編碼", status:"缺日期", url:"https://student.uva.nl/en/topics/ai-tools-and-your-studies" },
+  { id:81, region:"Europe 歐洲", country:"Norway", uni:"University of Oslo", name:"Guidelines for use of AI at UiO", date:"", type:"待編碼", status:"缺日期", url:"https://www.uio.no/english/services/ai/" },
+  { id:82, region:"Europe 歐洲", country:"Finland", uni:"University of Helsinki", name:"Using AI to support learning", date:"", type:"待編碼", status:"缺日期", url:"https://studies.helsinki.fi/instructions/article/using-ai-support-learning" },
+  { id:83, region:"Europe 歐洲", country:"Italy", uni:"University of Padua", name:"Artificial Intelligence and Thesis Writing", date:"", type:"待編碼", status:"缺日期", url:"https://biologia-molecolare.biologia.unipd.it/en/masters-degrees/artificial-intelligence-and-thesis-writing/" },
+  { id:84, region:"Europe 歐洲", country:"Sweden", uni:"Stockholm University", name:"Guidelines on using AI-powered chatbots in education and research", date:"", type:"研究倫理", status:"缺日期", url:"https://medarbetare.su.se/en/our-su/communicate-su/communication-support/guidelines-on-using-ai-powered-chatbots-in-education-and-research" },
+  { id:85, region:"Europe 歐洲", country:"Sweden", uni:"Stockholm University", name:"DSV's AI policy", date:"", type:"治理框架", status:"缺日期", url:"https://www.su.se/department-of-computer-and-systems-sciences/education/during-your-studies/dsv-s-ai-policy-1.705912" },
+  { id:86, region:"Europe 歐洲", country:"Denmark", uni:"Technical University of Denmark", name:"DTU opens up for the use of AI in teaching", date:"", type:"教師教學支援", status:"缺日期", url:"https://www.dtu.dk/english/newsarchive/2024/01/dtu-opens-up-for-the-use-of-artificial-intelligence-in-teaching" },
+  { id:87, region:"Europe 歐洲", country:"Netherlands", uni:"Delft University of Technology", name:"AI chatbots in unsupervised assessment", date:"", type:"評量與學術誠信", status:"缺日期", url:"https://www.tudelft.nl/teaching-support/educational-advice/assess/guidelines/ai-chatbots-in-unsupervised-assessment" },
+  { id:88, region:"Europe 歐洲", country:"Portugal", uni:"Universidade de Lisboa", name:"Artificial Intelligence in education – Técnico presents resolution", date:"", type:"待編碼", status:"缺日期", url:"https://tecnico.ulisboa.pt/en/news/campus-community/artificial-intelligence-in-education-tecnico-presents-resolution-on-the-use-of-tools-such-as-chatgpt/" },
+  { id:89, region:"Europe 歐洲", country:"Netherlands", uni:"University of Utrecht", name:"Guidelines for the use of generative AI", date:"", type:"待編碼", status:"待補URL", url:"" },
+  { id:90, region:"Europe 歐洲", country:"Switzerland", uni:"University of Zurich", name:"Guidelines for the Use of AI Tools", date:"", type:"待編碼", status:"待補URL", url:"" },
+];
+
+// ─── HELPER COMPONENTS ───────────────────────────────────────
+
+function Badge({ code }) {
+  const m = POLICY_CODE_MAP[code] || POLICY_CODE_MAP.E;
   return (
-    <span style={{
-      display: "inline-flex", alignItems: "center", gap: 6,
-      color, background: `${color}12`, border: `1px solid ${color}35`,
-      borderRadius: 999, padding: "3px 8px", fontSize: 12, whiteSpace: "nowrap"
-    }}>
-      <span style={{ width: 7, height: 7, borderRadius: "50%", background: color }} />
-      {label || status}
+    <span style={{ display:"inline-block", padding:"2px 8px", borderRadius:4, fontSize:11, fontWeight:600, color:m.color, background:m.bg, border:`1px solid ${m.color}30` }}>
+      {code} · {m.label}
     </span>
   );
 }
 
-function LinkButton({ href, children }) {
-  if (!href) return <span style={{ color: C.muted }}>無</span>;
-  return <a href={href} target="_blank" rel="noreferrer"
-    style={{ color: C.blue, fontWeight: 600, textDecoration: "none" }}>{children}</a>;
+function StatusDot({ status }) {
+  const ok = status === "需複核";
+  const warn = status === "缺日期";
+  const err = status.includes("URL");
+  const color = ok ? C.amber : warn ? C.orange : err ? C.red : C.gray;
+  return <span style={{ display:"inline-block", width:8, height:8, borderRadius:"50%", background:color, marginRight:5 }} title={status} />;
 }
 
-function Card({ children, style }) {
-  return <section style={{ background: C.surface, border: `1px solid ${C.line}`, borderRadius: 8, padding: 16, ...style }}>{children}</section>;
-}
-
-function Header({ title, subtitle }) {
+function SectionHeader({ icon, title, sub }) {
   return (
-    <div style={{ marginBottom: 16 }}>
-      <h2 style={{ margin: 0, color: C.ink, fontSize: 22 }}>{title}</h2>
-      {subtitle && <p style={{ margin: "6px 0 0", color: C.muted, lineHeight: 1.6 }}>{subtitle}</p>}
+    <div style={{ marginBottom:24 }}>
+      <h2 style={{ fontSize:22, fontWeight:700, color:C.navy, margin:0, display:"flex", alignItems:"center", gap:8 }}>
+        <span>{icon}</span>{title}
+      </h2>
+      {sub && <p style={{ color:C.muted, fontSize:13, margin:"6px 0 0", lineHeight:1.6 }}>{sub}</p>}
+      <div style={{ height:3, width:48, background:`linear-gradient(90deg,${C.sky},${C.teal})`, borderRadius:2, marginTop:10 }} />
     </div>
   );
 }
 
-function Summary() {
-  const twOk = DATA.taiwan.filter(x => x.downloadStatus === "OK" || x.downloadStatus === "OK_CACHED").length;
-  const broken = DATA.urlChecks.filter(x => x.status !== "OK");
+function Card({ children, style={} }) {
+  return <div style={{ background:C.surface, borderRadius:10, border:`1px solid ${C.border}`, padding:20, ...style }}>{children}</div>;
+}
+
+function StatCard({ value, label, color=C.sky }) {
+  return (
+    <Card style={{ textAlign:"center", flex:"1 1 120px" }}>
+      <div style={{ fontSize:32, fontWeight:800, color }}>{value}</div>
+      <div style={{ fontSize:12, color:C.muted, marginTop:4 }}>{label}</div>
+    </Card>
+  );
+}
+
+// ─── TAB CONTENTS ────────────────────────────────────────────
+
+function SummaryTab() {
+  const regionDist = { "Africa 非洲":11, "North America 北美":19, "South America 南美洲":6, "Asia 亞洲":17, "Oceania 大洋洲":17, "Europe 歐洲":20 };
   return (
     <div>
-      <Header title="AI 教學指引資料檢核總覽" subtitle={`更新日：${DATA.generatedAt}。資料以 Word 原表格、URL 批次檢查、台灣 PDF 下載紀錄整併。`} />
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: 12, marginBottom: 16 }}>
-        <Metric label="URL 總數" value={DATA.urlSummary.total} />
-        <Metric label="URL 正常" value={DATA.urlSummary.ok} tone="green" />
-        <Metric label="URL 需處理" value={DATA.urlSummary.error} tone="red" />
-        <Metric label="台灣 PDF 存檔" value={`${twOk}/${DATA.taiwan.length}`} tone="green" />
+      <SectionHeader icon="📋" title="執行摘要" sub="本文件為全球 AI 教學指引的可查核、可比較、可落地採用的教師與校級政策參考工具包。" />
+      <div style={{ display:"flex", gap:12, flexWrap:"wrap", marginBottom:20 }}>
+        <StatCard value="90" label="全球大學資料筆數" color={C.sky} />
+        <StatCard value="26" label="台灣機構資料筆數" color={C.teal} />
+        <StatCard value="10" label="國際機構指引筆數" color="#8b5cf6" />
+        <StatCard value="80" label="缺發布日期筆數" color={C.orange} />
       </div>
-      <Card>
-        <h3 style={{ marginTop: 0 }}>主要結論</h3>
-        <ul style={{ margin: 0, paddingLeft: 20, color: C.ink, lineHeight: 1.8 }}>
-          <li>原 JSX/HTML 有嚴重亂碼與 JSX 字串錯誤，已重建為乾淨、可維護的資料介面。</li>
-          <li>台灣來源已成功下載或轉存 {twOk} / {DATA.taiwan.length} 筆 PDF，檔案存於 <code>台灣各大學AI教學指引</code>；失敗項目已保留在下載紀錄中。</li>
-          <li>URL 批次檢查目前仍有 {broken.length} 筆需人工確認；部分是網站阻擋、SSL 或原始資料搬移。</li>
-          <li>前端已移除直接呼叫 Claude API 的功能。API 金鑰不應放在瀏覽器端，後續若要自動更新應改用後端或排程腳本。</li>
-        </ul>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16, marginBottom:20 }}>
+        <Card>
+          <h3 style={{ margin:"0 0 12px", fontSize:14, fontWeight:700, color:C.navy }}>🎯 核心用途升級方向</h3>
+          {["課綱政策範本（可直接改寫）","作業設計決策輔助工具","學術誠信揭露要求範例","AI 素養教學活動設計"].map(i=>(
+            <div key={i} style={{ display:"flex", alignItems:"center", gap:8, padding:"6px 0", borderBottom:`1px solid ${C.border}`, fontSize:13, color:C.text }}>
+              <span style={{ color:C.teal }}>✓</span> {i}
+            </div>
+          ))}
+        </Card>
+        <Card>
+          <h3 style={{ margin:"0 0 12px", fontSize:14, fontWeight:700, color:C.navy }}>🌍 全球資料分布</h3>
+          {Object.entries(regionDist).map(([r,n])=>(
+            <div key={r} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"5px 0", borderBottom:`1px solid ${C.border}`, fontSize:13 }}>
+              <span style={{ color:C.text }}>{r.split(" ")[0]}</span>
+              <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                <div style={{ width: n*5, height:8, background:`linear-gradient(90deg,${C.sky},${C.teal})`, borderRadius:4 }} />
+                <span style={{ color:C.muted, fontWeight:600, minWidth:20, textAlign:"right" }}>{n}</span>
+              </div>
+            </div>
+          ))}
+        </Card>
+      </div>
+      <Card style={{ background:`linear-gradient(135deg,${C.skyBg},${C.tealBg})` }}>
+        <h3 style={{ margin:"0 0 10px", fontSize:14, fontWeight:700, color:C.navy }}>⚡ 後續優先工作清單</h3>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
+          {[
+            ["補日期","80 筆資料缺發布/更新日期，優先補查"],
+            ["確認 URL","3 筆網址欄仍需補正式 URL"],
+            ["人工校對","中文摘要需人工查核，不依賴機器翻譯"],
+            ["政策強度編碼","依 A-E 分類，完成 E（待編碼）資料"],
+          ].map(([t,d])=>(
+            <div key={t} style={{ background:C.surface, borderRadius:8, padding:12, border:`1px solid ${C.border}` }}>
+              <div style={{ fontWeight:700, color:C.sky, fontSize:13, marginBottom:4 }}>{t}</div>
+              <div style={{ color:C.muted, fontSize:12 }}>{d}</div>
+            </div>
+          ))}
+        </div>
       </Card>
     </div>
   );
 }
 
-function Metric({ label, value, tone }) {
-  const color = tone === "green" ? C.green : tone === "red" ? C.red : C.blue;
-  return (
-    <Card>
-      <div style={{ color: C.muted, fontSize: 13 }}>{label}</div>
-      <div style={{ color, fontWeight: 800, fontSize: 28, marginTop: 6 }}>{value}</div>
-    </Card>
-  );
-}
-
-function Taiwan() {
-  return (
-    <DataTable
-      title="台灣教學指引與 PDF 存檔"
-      subtitle="PDF 欄位可直接開啟本機已下載/轉存的檔案。狀態為瀏覽器端檢核與下載紀錄，不等同內容已逐字審定。"
-      rows={DATA.taiwan}
-      columns={[
-        ["org", "機構"],
-        ["name", "文件名稱"],
-        ["kind", "來源型態"],
-        ["downloadStatus", "PDF存檔", r => <StatusBadge status={r.downloadStatus} />],
-        ["urlStatus", "URL", r => <StatusBadge status={r.urlStatus} label={r.statusCode ? `${r.urlStatus} ${r.statusCode}` : r.urlStatus} />],
-        ["url", "來源", r => <LinkButton href={r.url}>開啟</LinkButton>],
-        ["pdfFile", "PDF", r => <LinkButton href={r.pdfFile}>PDF</LinkButton>],
-      ]}
-    />
-  );
-}
-
-function Resources({ kind }) {
-  const config = {
-    syllabus: ["課綱政策與教師可用資源", DATA.syllabus, "institution"],
-    intl: ["國際機構 AI 教育框架", DATA.intl, "org"],
-    keyuni: ["國際重點大學 AI 教學指引", DATA.keyuni, "institution"],
-  }[kind];
-  return (
-    <DataTable
-      title={config[0]}
-      rows={config[1]}
-      columns={[
-        [config[2], "機構"],
-        ["name", "文件名稱"],
-        ["type", "初步類型"],
-        ["urlStatus", "URL狀態", r => <StatusBadge status={r.urlStatus} label={r.statusCode ? `${r.urlStatus} ${r.statusCode}` : r.urlStatus} />],
-        ["url", "來源", r => <LinkButton href={r.url}>開啟</LinkButton>],
-        ["summary", "摘要"],
-      ]}
-    />
-  );
-}
-
-function GlobalDB() {
-  return (
-    <DataTable
-      title="全球大學 AI 教學指引資料庫"
-      subtitle="保留原始 90 筆資料並加上 URL 狀態。日期空白或 URL 失效者應列為下一輪查核優先項。"
-      rows={DATA.globaldb}
-      searchable
-      columns={[
-        ["region", "區域"],
-        ["country", "國家"],
-        ["institution", "機構"],
-        ["name", "文件名稱"],
-        ["date", "日期", r => r.date || <span style={{ color: C.amber }}>待補</span>],
-        ["type", "類型"],
-        ["urlStatus", "URL", r => <StatusBadge status={r.urlStatus} label={r.statusCode ? `${r.urlStatus} ${r.statusCode}` : r.urlStatus} />],
-        ["url", "來源", r => <LinkButton href={r.url}>開啟</LinkButton>],
-      ]}
-    />
-  );
-}
-
-function Templates() {
-  const templates = [
-    ["A 原則禁止型", "本課程的主要學習目標包含個人閱讀、論證、寫作與判斷能力的培養。除教師於特定作業另行說明外，學生不得使用生成式 AI 產生提綱、論點、段落、引用資料或最終提交內容。若使用 AI 作為字詞查詢或一般背景理解工具，仍須自行查證並於作業中揭露。"],
-    ["B 有限允許型", "學生可以使用生成式 AI 進行發想、資料搜尋輔助、語句潤飾、程式除錯或概念複習，但不得直接提交未經判斷、查證與改寫的 AI 生成內容。學生須在作業末尾註明使用的工具、使用目的、主要提示詞摘要，以及哪些部分受到 AI 協助。"],
-    ["C 指定任務允許型", "本課程僅允許在教師指定的任務中使用生成式 AI。每項作業會明列可使用與不可使用的範圍。未列為可使用的作業，視同不得使用。違反規定且未揭露者，將依本校學術誠信規範處理。"],
-    ["D AI 素養導向型", "本課程鼓勵學生以批判方式使用生成式 AI，並將 AI 產出視為需要驗證、比較與修正的材料，而非權威答案。學生須對最終提交內容負完全責任，包含事實正確性、引用完整性、偏誤辨識與倫理考量。"],
+function HowtoTab() {
+  const rows = [
+    ["教師要寫授課大綱", "先看「課程決策表」與「課綱模板」，再查「重點大學」課綱來源。"],
+    ["系所要訂共通規範", "先看「政策分級」，再參照「台灣資料」與「國際機構」框架。"],
+    ["研究助理要繼續蒐集", "依本 SOP 補齊日期、URL、版本狀態與查核日期。"],
+    ["要做人文社會課程指引", "比較寫作、詮釋、創作、資料分析與田野研究的 AI 使用邊界。"],
+  ];
+  const disciplines = [
+    ["寫作/論證", "AI 容易取代核心學習歷程", "限制或禁止，要求草稿、引用與反思紀錄", "B / A"],
+    ["閱讀/摘要", "AI 摘要可能造成未讀原文與錯誤理解", "允許作為核對工具，不可取代指定閱讀", "C"],
+    ["量化分析", "AI 可提升效率但可能產生不可重現或錯誤程式", "要求程式碼、資料來源與人工驗證", "C"],
+    ["田野/訪談", "涉及隱私、同意與資料保護", "禁止上傳未匿名化資料，要求倫理審查意識", "A"],
+    ["創作/媒體", "AI 參與程度影響作者性與評分公平", "要求揭露 AI 參與比例與創作歷程", "C / D"],
   ];
   return (
     <div>
-      <Header title="授課大綱 AI 使用政策模板" subtitle="可直接作為 syllabus 初稿，再依課程目標與作業型態修訂。" />
-      <div style={{ display: "grid", gap: 12 }}>
-        {templates.map(([title, body]) => (
-          <Card key={title}>
-            <h3 style={{ margin: "0 0 8px", color: C.ink }}>{title}</h3>
-            <p style={{ margin: 0, lineHeight: 1.8, color: C.ink }}>{body}</p>
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function UrlChecks() {
-  return (
-    <DataTable
-      title="URL 批次檢查報告"
-      subtitle="狀態來自本機批次檢查。403/SSL/timeout 需人工開啟複核；404 通常代表原始資料已搬移或截斷。"
-      rows={DATA.urlChecks}
-      searchable
-      columns={[
-        ["table", "表"],
-        ["row", "列"],
-        ["status", "狀態", r => <StatusBadge status={r.status} label={r.status_code ? `${r.status} ${r.status_code}` : r.status} />],
-        ["url", "URL", r => <LinkButton href={r.url}>{r.url}</LinkButton>],
-        ["error", "錯誤/備註"],
-      ]}
-    />
-  );
-}
-
-function DataTable({ title, subtitle, rows, columns, searchable }) {
-  const [q, setQ] = useState("");
-  const filtered = useMemo(() => {
-    const needle = q.trim().toLowerCase();
-    if (!needle) return rows;
-    return rows.filter(r => JSON.stringify(r).toLowerCase().includes(needle));
-  }, [q, rows]);
-  return (
-    <div>
-      <Header title={title} subtitle={subtitle} />
-      {searchable && (
-        <input value={q} onChange={e => setQ(e.target.value)} placeholder="搜尋機構、國家、文件名稱或 URL"
-          style={{ width: "100%", padding: "10px 12px", border: `1px solid ${C.line}`, borderRadius: 8, marginBottom: 12 }} />
-      )}
-      <Card style={{ padding: 0, overflow: "hidden" }}>
-        <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+      <SectionHeader icon="🧭" title="如何使用本平台" />
+      <Card style={{ marginBottom:20 }}>
+        <h3 style={{ margin:"0 0 14px", fontSize:14, fontWeight:700, color:C.navy }}>依使用者身分找入口</h3>
+        <div style={{ display:"grid", gap:10 }}>
+          {rows.map(([r,d])=>(
+            <div key={r} style={{ display:"flex", gap:14, alignItems:"flex-start", padding:12, borderRadius:8, background:C.skyBg, border:`1px solid ${C.sky}20` }}>
+              <span style={{ fontWeight:700, color:C.sky, minWidth:140, fontSize:13 }}>{r}</span>
+              <span style={{ color:C.text, fontSize:13, lineHeight:1.6 }}>{d}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
+      <Card>
+        <h3 style={{ margin:"0 0 14px", fontSize:14, fontWeight:700, color:C.navy }}>人文社會領域 AI 使用邊界參考</h3>
+        <div style={{ overflowX:"auto" }}>
+          <table style={{ width:"100%", borderCollapse:"collapse", fontSize:13 }}>
             <thead>
-              <tr style={{ background: "#eef3f8" }}>
-                {columns.map(([key, label]) => <th key={key} style={{ textAlign: "left", padding: 10, color: C.slate, borderBottom: `1px solid ${C.line}`, whiteSpace: "nowrap" }}>{label}</th>)}
+              <tr style={{ background:C.navyMid }}>
+                {["任務類型","主要風險","建議做法","建議代碼"].map(h=>(
+                  <th key={h} style={{ padding:"10px 12px", color:"#e2e8f0", textAlign:"left", fontWeight:600 }}>{h}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {filtered.map((row, idx) => (
-                <tr key={row.id || idx}>
-                  {columns.map(([key, label, render]) => (
-                    <td key={key} style={{ padding: 10, borderBottom: `1px solid ${C.line}`, verticalAlign: "top", color: C.ink, maxWidth: key === "summary" || key === "error" ? 360 : 260 }}>
-                      {render ? render(row) : row[key]}
+              {disciplines.map((r,i)=>(
+                <tr key={i} style={{ background:i%2===0?C.surface:C.grayBg }}>
+                  {r.map((c,j)=>(
+                    <td key={j} style={{ padding:"9px 12px", color:C.text, borderBottom:`1px solid ${C.border}`, verticalAlign:"top" }}>
+                      {j===3 ? c.split("/").map(x=><Badge key={x} code={x.trim()} />) : c}
                     </td>
                   ))}
                 </tr>
@@ -4009,52 +351,652 @@ function DataTable({ title, subtitle, rows, columns, searchable }) {
           </table>
         </div>
       </Card>
-      <div style={{ color: C.muted, fontSize: 12, marginTop: 8 }}>顯示 {filtered.length} / {rows.length} 筆</div>
     </div>
   );
 }
 
-export default function App() {
-  const tabs = [
-    ["summary", "總覽"],
-    ["taiwan", "台灣指引"],
-    ["syllabus", "課綱資源"],
-    ["intl", "國際框架"],
-    ["keyuni", "重點大學"],
-    ["global", "全球資料庫"],
-    ["templates", "課綱模板"],
-    ["urls", "URL檢查"],
-  ];
-  const [tab, setTab] = useState("summary");
-  const view = {
-    summary: <Summary />,
-    taiwan: <Taiwan />,
-    syllabus: <Resources kind="syllabus" />,
-    intl: <Resources kind="intl" />,
-    keyuni: <Resources kind="keyuni" />,
-    global: <GlobalDB />,
-    templates: <Templates />,
-    urls: <UrlChecks />,
-  }[tab];
+function DecisionTab() {
   return (
-    <div style={{ minHeight: "100vh", display: "flex", background: C.bg, fontFamily: "'Noto Sans TC', system-ui, sans-serif" }}>
-      <aside style={{ width: 210, background: C.ink, color: "white", padding: 14, position: "sticky", top: 0, height: "100vh", boxSizing: "border-box" }}>
-        <h1 style={{ fontSize: 18, lineHeight: 1.3, margin: "4px 0 16px" }}>AI 教學指引資料檢核</h1>
-        <nav style={{ display: "grid", gap: 6 }}>
-          {tabs.map(([id, label]) => (
-            <button key={id} onClick={() => setTab(id)}
-              style={{ textAlign: "left", border: 0, borderRadius: 6, padding: "9px 10px", cursor: "pointer", color: "white", background: tab === id ? C.blue : "transparent", fontWeight: tab === id ? 700 : 500 }}>
-              {label}
+    <div>
+      <SectionHeader icon="⚖️" title="教師課綱 AI 使用政策決策表" sub="依課程類型快速選擇適合的政策強度與揭露要求。" />
+      {DECISION_TABLE.map((row,i)=>(
+        <Card key={i} style={{ marginBottom:14 }}>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:12 }}>
+            <h3 style={{ margin:0, fontSize:15, fontWeight:700, color:C.navy }}>{row.context}</h3>
+            <div style={{ display:"flex", gap:8, alignItems:"center", flexShrink:0 }}>
+              <span style={{ fontSize:13, color:C.muted }}>{row.policy}</span>
+              <Badge code={row.code} />
+            </div>
+          </div>
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12 }}>
+            {[["✅ 可允許使用",row.allowed,C.greenBg,C.green],["🚫 應禁止或限制",row.prohibited,C.redBg,C.red],["📋 學生揭露要求",row.disclosure,C.skyBg,C.sky]].map(([label,val,bg,col])=>(
+              <div key={label} style={{ background:bg, borderRadius:8, padding:12, border:`1px solid ${col}20` }}>
+                <div style={{ fontWeight:700, color:col, fontSize:12, marginBottom:6 }}>{label}</div>
+                <div style={{ color:C.text, fontSize:12, lineHeight:1.65 }}>{val}</div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+function TemplatesTab({ copyTemplate, copiedId }) {
+  const DISCLOSURE_FIELDS = [
+    ["使用工具","例如 ChatGPT、Claude、Gemini、Copilot、Perplexity 等"],
+    ["使用目的","發想、摘要、翻譯、潤飾、除錯、資料分析、圖像生成等"],
+    ["使用範圍","說明哪些段落、程式碼、圖表或研究步驟受到 AI 協助"],
+    ["主要提示詞摘要","不必逐字貼上全部對話，但需說明提問方向與關鍵要求"],
+    ["人工查證與修改","列出學生如何查證、修正錯誤、改寫或拒絕 AI 建議"],
+    ["責任聲明","學生確認最終提交內容由本人負責，並符合課程與學術誠信規範"],
+  ];
+  const CHECKLIST = [
+    ["學習目標是否清楚","學生是否知道本作業要練習的是知識、方法、判斷、寫作或工具使用？"],
+    ["AI 使用邊界是否明確","是否列出允許、限制、禁止的具體行為？"],
+    ["評量方式是否能看見過程","是否要求草稿、資料處理紀錄、口頭說明、反思或版本紀錄？"],
+    ["揭露要求是否可執行","學生是否知道如何填寫 AI 使用聲明？"],
+    ["風險是否被處理","是否考慮隱私、偏誤、著作權、錯誤資訊與不公平取得工具？"],
+    ["違規後果是否清楚","是否連結校內學術誠信規範或教師課程規則？"],
+  ];
+  const [checked, setChecked] = useState({});
+  const toggle = k => setChecked(p=>({...p,[k]:!p[k]}));
+
+  return (
+    <div>
+      <SectionHeader icon="📝" title="課綱模板與實用工具" sub="點擊複製按鈕即可直接貼入您的課程大綱。" />
+      <div style={{ display:"grid", gap:16, marginBottom:24 }}>
+        {SYLLABUS_TEMPLATES.map(t=>(
+          <Card key={t.id}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                <Badge code={t.code} />
+                <span style={{ fontWeight:700, color:C.navy, fontSize:15 }}>{t.title}</span>
+              </div>
+              <button
+                onClick={()=>copyTemplate(t.id, t.content)}
+                style={{ padding:"6px 14px", borderRadius:6, border:`1px solid ${C.sky}`, background:copiedId===t.id?C.sky:C.surface, color:copiedId===t.id?"white":C.sky, cursor:"pointer", fontSize:12, fontWeight:600, transition:"all .2s" }}>
+                {copiedId===t.id ? "✓ 已複製！" : "📋 複製條文"}
+              </button>
+            </div>
+            <div style={{ background:C.grayBg, borderRadius:8, padding:14, fontSize:13, lineHeight:1.75, color:C.text, borderLeft:`4px solid ${POLICY_CODE_MAP[t.code]?.color}` }}>
+              {t.content}
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      <Card style={{ marginBottom:20 }}>
+        <h3 style={{ margin:"0 0 14px", fontSize:15, fontWeight:700, color:C.navy }}>📋 學生 AI 使用揭露表欄位</h3>
+        <div style={{ display:"grid", gap:8 }}>
+          {DISCLOSURE_FIELDS.map(([f,d])=>(
+            <div key={f} style={{ display:"flex", gap:12, padding:10, borderRadius:8, background:C.skyBg, fontSize:13 }}>
+              <span style={{ fontWeight:700, color:C.sky, minWidth:120 }}>{f}</span>
+              <span style={{ color:C.text }}>{d}</span>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <Card>
+        <h3 style={{ margin:"0 0 14px", fontSize:15, fontWeight:700, color:C.navy }}>✅ 作業設計檢核表</h3>
+        <div style={{ display:"grid", gap:8 }}>
+          {CHECKLIST.map(([item,q],i)=>(
+            <div key={i} onClick={()=>toggle(i)} style={{ display:"flex", gap:12, padding:10, borderRadius:8, background:checked[i]?C.greenBg:C.surface, border:`1px solid ${checked[i]?C.green:C.border}`, cursor:"pointer", transition:"all .2s" }}>
+              <span style={{ width:20, height:20, borderRadius:4, border:`2px solid ${checked[i]?C.green:C.border}`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, background:checked[i]?C.green:"transparent", color:"white", fontSize:12 }}>
+                {checked[i]?"✓":""}
+              </span>
+              <div>
+                <div style={{ fontWeight:600, color:C.navy, fontSize:13 }}>{item}</div>
+                <div style={{ color:C.muted, fontSize:12, marginTop:2 }}>{q}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop:12, textAlign:"right", fontSize:12, color:C.muted }}>
+          已完成 {Object.values(checked).filter(Boolean).length}/{CHECKLIST.length} 項
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function CodesTab() {
+  return (
+    <div>
+      <SectionHeader icon="🏷️" title="政策強度與使用情境編碼" sub="用 A-E 五個代碼快速標記每份指引的政策強度。" />
+      <div style={{ display:"grid", gap:12 }}>
+        {POLICY_CODES.map(pc=>{
+          const m = POLICY_CODE_MAP[pc.code];
+          return (
+            <Card key={pc.code}>
+              <div style={{ display:"flex", gap:16, alignItems:"flex-start" }}>
+                <div style={{ width:48, height:48, borderRadius:10, background:m.bg, border:`2px solid ${m.color}`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                  <span style={{ fontWeight:800, fontSize:20, color:m.color }}>{pc.code}</span>
+                </div>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontWeight:700, fontSize:16, color:m.color, marginBottom:4 }}>{pc.label}</div>
+                  <div style={{ color:C.text, fontSize:13, marginBottom:8 }}>{pc.def}</div>
+                  <div style={{ background:m.bg, borderRadius:6, padding:"6px 10px", fontSize:12, color:m.color }}>
+                    📌 適用情境：{pc.contexts}
+                  </div>
+                </div>
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function TaiwanTab() {
+  const levels = [...new Set(TAIWAN_DATA.map(r=>r.level))];
+  const [filter, setFilter] = useState("全部");
+  const filtered = filter==="全部" ? TAIWAN_DATA : TAIWAN_DATA.filter(r=>r.level===filter);
+  return (
+    <div>
+      <SectionHeader icon="🇹🇼" title="台灣 AI 教學與治理資料地圖" sub="26 筆台灣各層級機構 AI 教學指引，含國家法規、教育部政策、大學校級指引。" />
+      <div style={{ display:"flex", gap:8, marginBottom:16, flexWrap:"wrap" }}>
+        {["全部",...levels].map(l=>(
+          <button key={l} onClick={()=>setFilter(l)}
+            style={{ padding:"5px 12px", borderRadius:20, border:`1px solid ${filter===l?C.sky:C.border}`, background:filter===l?C.sky:C.surface, color:filter===l?"white":C.muted, cursor:"pointer", fontSize:12, fontWeight:600 }}>
+            {l}
+          </button>
+        ))}
+      </div>
+      <div style={{ display:"grid", gap:10 }}>
+        {filtered.map(r=>(
+          <Card key={r.id}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:12 }}>
+              <div style={{ flex:1 }}>
+                <div style={{ display:"flex", gap:8, alignItems:"center", marginBottom:6 }}>
+                  <span style={{ background:C.skyBg, color:C.sky, fontSize:11, fontWeight:700, padding:"2px 8px", borderRadius:4 }}>{r.level}</span>
+                  <span style={{ background:C.grayBg, color:C.muted, fontSize:11, padding:"2px 8px", borderRadius:4 }}>{r.type}</span>
+                  {r.date && <span style={{ color:C.muted, fontSize:11 }}>📅 {r.date}</span>}
+                </div>
+                <div style={{ fontWeight:700, color:C.navy, fontSize:14, marginBottom:3 }}>{r.inst}</div>
+                <div style={{ color:C.text, fontSize:13 }}>{r.name}</div>
+              </div>
+              <div style={{ display:"flex", flexDirection:"column", gap:6, alignItems:"flex-end", flexShrink:0 }}>
+                <span style={{ fontSize:11, color:C.orange, background:C.orangeBg, padding:"2px 8px", borderRadius:4 }}>{r.status}</span>
+                {r.url && <a href={r.url} target="_blank" rel="noopener noreferrer" style={{ fontSize:12, color:C.sky, textDecoration:"none" }}>🔗 前往</a>}
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function IntlTab() {
+  const orgs = [...new Set(INTL_ORGS.map(r=>r.org))];
+  const [filter, setFilter] = useState("全部");
+  const filtered = filter==="全部" ? INTL_ORGS : INTL_ORGS.filter(r=>r.org===filter);
+  return (
+    <div>
+      <SectionHeader icon="🌐" title="國際機構 AI 教育框架" sub="UNESCO、OECD、TeachAI、EDUCAUSE 等 10 筆國際指引。" />
+      <div style={{ display:"flex", gap:8, marginBottom:16 }}>
+        {["全部",...orgs].map(o=>(
+          <button key={o} onClick={()=>setFilter(o)}
+            style={{ padding:"5px 12px", borderRadius:20, border:`1px solid ${filter===o?C.teal:C.border}`, background:filter===o?C.teal:C.surface, color:filter===o?"white":C.muted, cursor:"pointer", fontSize:12, fontWeight:600 }}>
+            {o}
+          </button>
+        ))}
+      </div>
+      <div style={{ display:"grid", gap:12 }}>
+        {filtered.map(r=>(
+          <Card key={r.id}>
+            <div style={{ display:"flex", gap:12 }}>
+              <div style={{ width:52, flexShrink:0 }}>
+                <div style={{ background:C.teal, color:"white", fontWeight:800, fontSize:11, borderRadius:6, padding:"4px 6px", textAlign:"center" }}>{r.org}</div>
+                {r.date && <div style={{ fontSize:10, color:C.muted, textAlign:"center", marginTop:4 }}>{r.date}</div>}
+              </div>
+              <div style={{ flex:1 }}>
+                <div style={{ fontWeight:700, color:C.navy, fontSize:14, marginBottom:6 }}>{r.name}</div>
+                <div style={{ color:C.muted, fontSize:12, lineHeight:1.6, marginBottom:8 }}>{r.summary}</div>
+                <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+                  <span style={{ background:C.tealBg, color:C.teal, fontSize:11, padding:"2px 8px", borderRadius:4 }}>{r.type}</span>
+                  {r.url && <a href={r.url} target="_blank" rel="noopener noreferrer" style={{ fontSize:12, color:C.sky }}>🔗 原文連結</a>}
+                </div>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function KeyUnisTab() {
+  return (
+    <div>
+      <SectionHeader icon="🎓" title="國際重點大學 AI 教學指引" sub="8 所優先參考的重點大學，含課綱範本、學術誠信框架與教師工具。" />
+      <div style={{ display:"grid", gap:14 }}>
+        {KEY_UNIVERSITIES.map((u,i)=>(
+          <Card key={i}>
+            <div style={{ display:"flex", gap:14, alignItems:"flex-start" }}>
+              <div style={{ textAlign:"center", flexShrink:0, minWidth:48 }}>
+                <div style={{ fontSize:18 }}>{u.rank}</div>
+                <div style={{ fontSize:10, color:C.muted, marginTop:2 }}>優先度</div>
+              </div>
+              <div style={{ flex:1 }}>
+                <div style={{ display:"flex", gap:8, alignItems:"center", marginBottom:6, flexWrap:"wrap" }}>
+                  <span style={{ fontWeight:700, color:C.navy, fontSize:15 }}>{u.inst}</span>
+                  <span style={{ background:C.skyBg, color:C.sky, fontSize:11, padding:"2px 8px", borderRadius:4 }}>{u.type}</span>
+                </div>
+                <div style={{ color:C.text, fontSize:13, marginBottom:8, fontWeight:600 }}>{u.name}</div>
+                <div style={{ color:C.muted, fontSize:12, lineHeight:1.65, marginBottom:10 }}>{u.summary}</div>
+                <a href={u.url} target="_blank" rel="noopener noreferrer"
+                  style={{ display:"inline-flex", alignItems:"center", gap:4, padding:"6px 14px", background:C.sky, color:"white", borderRadius:6, fontSize:12, fontWeight:600, textDecoration:"none" }}>
+                  🔗 前往指引
+                </a>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function GlobalDBTab() {
+  const [search, setSearch] = useState("");
+  const [region, setRegion] = useState("all");
+  const [type, setType] = useState("all");
+  const [status, setStatus] = useState("all");
+  const [page, setPage] = useState(1);
+  const PER_PAGE = 20;
+
+  const regions = useMemo(()=>[...new Set(GLOBAL_DB.map(r=>r.region))], []);
+  const types = useMemo(()=>[...new Set(GLOBAL_DB.map(r=>r.type))], []);
+
+  const filtered = useMemo(()=>{
+    const q = search.toLowerCase();
+    return GLOBAL_DB.filter(r=>{
+      const ms = !q||r.uni.toLowerCase().includes(q)||r.name.toLowerCase().includes(q)||r.country.toLowerCase().includes(q);
+      const mr = region==="all"||r.region===region;
+      const mt = type==="all"||r.type===type;
+      const mst = status==="all"||r.status===status;
+      return ms&&mr&&mt&&mst;
+    });
+  }, [search,region,type,status]);
+
+  const pages = Math.ceil(filtered.length/PER_PAGE);
+  const pageData = filtered.slice((page-1)*PER_PAGE, page*PER_PAGE);
+
+  const exportCSV = () => {
+    const cols = ["id","region","country","uni","name","date","type","status","url"];
+    const rows = [cols.join(","), ...filtered.map(r=>cols.map(c=>`"${(r[c]||"").replace(/"/g,'""')}"`).join(","))];
+    const blob = new Blob(["\uFEFF"+rows.join("\n")], {type:"text/csv"});
+    const a = document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="AI_Teaching_Guidelines_DB.csv"; a.click();
+  };
+
+  return (
+    <div>
+      <SectionHeader icon="🗃️" title="全球大學 AI 教學指引資料庫" sub={`共 90 筆 · 篩選後顯示 ${filtered.length} 筆 · 第 ${page}/${pages} 頁`} />
+
+      {/* Filters */}
+      <Card style={{ marginBottom:16 }}>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr auto", gap:10, alignItems:"end" }}>
+          <div>
+            <label style={{ fontSize:12, color:C.muted, display:"block", marginBottom:4 }}>搜尋機構/文件名稱</label>
+            <input value={search} onChange={e=>{setSearch(e.target.value);setPage(1);}}
+              placeholder="輸入關鍵字…" style={{ width:"100%", padding:"8px 10px", border:`1px solid ${C.border}`, borderRadius:6, fontSize:13, boxSizing:"border-box" }} />
+          </div>
+          <div>
+            <label style={{ fontSize:12, color:C.muted, display:"block", marginBottom:4 }}>地區</label>
+            <select value={region} onChange={e=>{setRegion(e.target.value);setPage(1);}}
+              style={{ width:"100%", padding:"8px 10px", border:`1px solid ${C.border}`, borderRadius:6, fontSize:13 }}>
+              <option value="all">全部地區</option>
+              {regions.map(r=><option key={r} value={r}>{r}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={{ fontSize:12, color:C.muted, display:"block", marginBottom:4 }}>指引類型</label>
+            <select value={type} onChange={e=>{setType(e.target.value);setPage(1);}}
+              style={{ width:"100%", padding:"8px 10px", border:`1px solid ${C.border}`, borderRadius:6, fontSize:13 }}>
+              <option value="all">全部類型</option>
+              {types.map(t=><option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
+          <button onClick={exportCSV}
+            style={{ padding:"8px 16px", background:C.teal, color:"white", border:"none", borderRadius:6, cursor:"pointer", fontSize:12, fontWeight:600, whiteSpace:"nowrap" }}>
+            ⬇ 匯出 CSV
+          </button>
+        </div>
+      </Card>
+
+      {/* Table */}
+      <div style={{ overflowX:"auto", background:C.surface, borderRadius:10, border:`1px solid ${C.border}` }}>
+        <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
+          <thead>
+            <tr style={{ background:C.navyMid }}>
+              {["#","地區","機構名稱","文件名稱","日期","類型","查核狀態","連結"].map(h=>(
+                <th key={h} style={{ padding:"10px 12px", color:"#e2e8f0", textAlign:"left", fontWeight:600, whiteSpace:"nowrap" }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {pageData.map((r,i)=>(
+              <tr key={r.id} style={{ background:i%2===0?C.surface:C.grayBg, transition:"background .15s" }}>
+                <td style={{ padding:"9px 12px", color:C.subtle, borderBottom:`1px solid ${C.border}` }}>{r.id}</td>
+                <td style={{ padding:"9px 12px", color:C.muted, borderBottom:`1px solid ${C.border}`, whiteSpace:"nowrap" }}>{r.region.split(" ")[0]}</td>
+                <td style={{ padding:"9px 12px", borderBottom:`1px solid ${C.border}`, maxWidth:180 }}>
+                  <div style={{ fontWeight:600, color:C.navy }}>{r.uni}</div>
+                  <div style={{ color:C.muted, fontSize:11 }}>{r.country}</div>
+                </td>
+                <td style={{ padding:"9px 12px", color:C.text, borderBottom:`1px solid ${C.border}`, maxWidth:260 }}>{r.name}</td>
+                <td style={{ padding:"9px 12px", color:C.muted, borderBottom:`1px solid ${C.border}`, whiteSpace:"nowrap" }}>{r.date||<span style={{color:C.orange}}>待補</span>}</td>
+                <td style={{ padding:"9px 12px", borderBottom:`1px solid ${C.border}`, whiteSpace:"nowrap" }}>
+                  <span style={{ background:C.skyBg, color:C.sky, fontSize:10, padding:"2px 6px", borderRadius:4 }}>{r.type}</span>
+                </td>
+                <td style={{ padding:"9px 12px", borderBottom:`1px solid ${C.border}` }}>
+                  <StatusDot status={r.status} />
+                  <span style={{ fontSize:10, color:C.muted }}>{r.status}</span>
+                </td>
+                <td style={{ padding:"9px 12px", borderBottom:`1px solid ${C.border}` }}>
+                  {r.url ? <a href={r.url} target="_blank" rel="noopener noreferrer" style={{ color:C.sky, fontSize:12 }}>🔗</a> : <span style={{color:C.border}}>—</span>}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
+      {pages>1&&(
+        <div style={{ display:"flex", justifyContent:"center", gap:6, marginTop:14 }}>
+          <button onClick={()=>setPage(p=>Math.max(1,p-1))} disabled={page===1}
+            style={{ padding:"6px 12px", border:`1px solid ${C.border}`, borderRadius:6, background:C.surface, cursor:page===1?"not-allowed":"pointer", color:C.muted, fontSize:12 }}>←</button>
+          {Array.from({length:pages},(_,i)=>i+1).map(p=>(
+            <button key={p} onClick={()=>setPage(p)}
+              style={{ padding:"6px 12px", border:`1px solid ${p===page?C.sky:C.border}`, borderRadius:6, background:p===page?C.sky:C.surface, color:p===page?"white":C.muted, cursor:"pointer", fontSize:12 }}>
+              {p}
             </button>
           ))}
-        </nav>
-        <div style={{ color: "#9ca3af", fontSize: 12, marginTop: 18, lineHeight: 1.5 }}>
-          URL 檢查：{DATA.urlSummary.ok}/{DATA.urlSummary.total}<br />
-          台灣 PDF：{DATA.taiwan.filter(x => x.downloadStatus === "OK" || x.downloadStatus === "OK_CACHED").length}/{DATA.taiwan.length}
+          <button onClick={()=>setPage(p=>Math.min(pages,p+1))} disabled={page===pages}
+            style={{ padding:"6px 12px", border:`1px solid ${C.border}`, borderRadius:6, background:C.surface, cursor:page===pages?"not-allowed":"pointer", color:C.muted, fontSize:12 }}>→</button>
         </div>
-      </aside>
-      <main style={{ flex: 1, padding: 24, minWidth: 0 }}>
-        {view}
+      )}
+    </div>
+  );
+}
+
+function ToolsTab() {
+  const syllabus_resources = [
+    { inst:"Yale University (Poorvu Center)", name:"Sample AI Syllabus Statements", feature:"依課程類型分類（大型講課、STEM、人文寫作、創意寫作），最常被引用", url:"https://poorvucenter.yale.edu/teaching/teaching-resource-library/ai-guidance-for-teachers/ai-course-assignment-design/sample-ai" },
+    { inst:"Stanford University", name:"Creating Your Course Policy on AI", feature:"從學術誠信、學生成功、課業負擔三面向思考，有具體範例句子可直接套用", url:"https://teachingcommons.stanford.edu/teaching-guides/artificial-intelligence" },
+    { inst:"University of Texas at Austin", name:"Generative AI Syllabus Statements", feature:"針對不同情境提供極具體文字（如「可用於發想但不可生成可交作業文本」）", url:"https://provost.utexas.edu/policies-resources/faculty-resources/ai-guidance/generative-ai-syllabus-statements" },
+    { inst:"Tufts University", name:"Developing Syllabus Statements for AI", feature:"範本中融入「學習目標」論述，解釋為何訂定此政策", url:"https://provost.tufts.edu/celt/developing-syllabus-statements-for-ai/" },
+    { inst:"Lance Eaton（研究者）", name:"Syllabi Policies for AI Generative Tools", feature:"最大型的眾包政策資料庫，含數百位教師的實際 syllabus 條文", url:"https://docs.google.com/document/d/1RMVwzjc1o0Mi8Blw_-JUTcXv02b2WRH86vw7mi16W3U/edit" },
+    { inst:"MLA-CCCC Joint Task Force", name:"Building a Culture for Gen AI Literacy", feature:"專針對語言、文學、寫作課程，對人文學科最具參考價值", url:"https://mla.org/About-Us/Governance/Committees/MLA-CCCC-Task-Force-on-Writing-and-AI" },
+  ];
+  return (
+    <div>
+      <SectionHeader icon="🛠️" title="教師最實用資源精選" sub="附錄：原始重點資源彙整，可直接採用或改寫。" />
+      <div style={{ display:"grid", gap:12 }}>
+        {syllabus_resources.map((r,i)=>(
+          <Card key={i}>
+            <div style={{ display:"flex", justifyContent:"space-between", gap:12 }}>
+              <div>
+                <div style={{ fontWeight:700, color:C.navy, fontSize:14, marginBottom:4 }}>{r.name}</div>
+                <div style={{ color:C.sky, fontSize:12, marginBottom:6 }}>{r.inst}</div>
+                <div style={{ color:C.text, fontSize:12, lineHeight:1.6 }}>{r.feature}</div>
+              </div>
+              <a href={r.url} target="_blank" rel="noopener noreferrer"
+                style={{ flexShrink:0, padding:"6px 14px", background:C.sky, color:"white", borderRadius:6, fontSize:12, fontWeight:600, textDecoration:"none", height:"fit-content" }}>
+                前往
+              </a>
+            </div>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function UpdatesTab() {
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState("");
+  const [lastChecked, setLastChecked] = useState("");
+  const [scheduleInfo, setScheduleInfo] = useState(false);
+
+  const checkUpdates = async () => {
+    setLoading(true); setResult("");
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          model:"claude-sonnet-4-20250514",
+          max_tokens:1000,
+          messages:[{
+            role:"user",
+            content:`你是一位 AI 教學政策追蹤專家。請根據以下資料庫狀態進行分析：
+
+資料庫概況（截至 2026-05-22）：
+- 全球 90 筆大學 AI 教學指引，80 筆缺發布日期
+- 台灣 26 筆機構（教育部、國科會、數位發展部、26 所大學）
+- 國際機構：UNESCO、OECD、TeachAI、EDUCAUSE
+- 8 所重點大學：Yale、MIT、Stanford、Harvard、Oxford、Imperial、JISC、Melbourne
+
+請提供：
+1. **近期最可能有新版指引的 3-5 個機構**（說明原因）
+2. **2025-2026 年 AI 教學政策的主要趨勢**（3-4 條）
+3. **下次人工查核的重點項目**（2-3 條，具體可操作）
+
+請用繁體中文回答，格式清晰，每點簡短有力。`
+          }]
+        })
+      });
+      const data = await res.json();
+      const text = data.content?.find(b=>b.type==="text")?.text || "無法取得結果";
+      setResult(text);
+      setLastChecked(new Date().toLocaleString("zh-TW"));
+    } catch(e) {
+      setResult(`查核失敗：${e.message}`);
+    }
+    setLoading(false);
+  };
+
+  const scheduleOptions = [
+    { icon:"⚙️", title:"GitHub Actions（免費推薦）", desc:"每日定時觸發 workflow，爬取各大學指引頁面的最新內容，比對差異後自動發通知。", code:`# .github/workflows/ai-guidelines-check.yml
+name: Daily AI Guidelines Check
+on:
+  schedule:
+    - cron: '0 2 * * *'  # 每天 UTC 02:00（台灣 10:00）
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install requests beautifulsoup4
+      - run: python scripts/check_updates.py
+      - name: Send notification if changes found
+        if: steps.check.outputs.changed == 'true'
+        uses: dawidd6/action-send-mail@v3` },
+    { icon:"🔄", title:"n8n / Make 自動化（低代碼）", desc:"建立定時工作流程：每日爬取目標 URL → 比對快取 → 有更新則寄 Email 或發 Slack 通知。", code:`工作流程設計：
+1. 定時觸發（每日一次）
+2. HTTP Request 節點 → 依序抓取各大學 URL
+3. 比對上次快取內容
+4. 若發現差異 → Email/Slack 通知
+5. 更新快取資料` },
+    { icon:"🐍", title:"Python + 排程腳本", desc:"本地或雲端 VPS 執行，使用 cron + requests 定期抓取，並透過 Anthropic API 智慧分析變動。", code:`import schedule, time, requests
+from anthropic import Anthropic
+
+def check_url(url, cache):
+    r = requests.get(url, timeout=10)
+    if cache.get(url) != r.text[:500]:
+        cache[url] = r.text[:500]
+        return True  # 有變動
+    return False
+
+def daily_check():
+    URLS = [
+        "https://poorvucenter.yale.edu/...",
+        "https://www.nstc.gov.tw/...",
+        # 加入更多追蹤 URL
+    ]
+    changes = [u for u in URLS if check_url(u, cache)]
+    if changes:
+        # 用 Claude API 分析變動摘要
+        client = Anthropic()
+        client.messages.create(...)
+
+schedule.every().day.at("10:00").do(daily_check)
+while True:
+    schedule.run_pending()
+    time.sleep(60)` },
+  ];
+
+  return (
+    <div>
+      <SectionHeader icon="🔄" title="資料更新與排程設定" sub="AI 教學指引持續演進，建議定期查核。以下提供 AI 智能查核與自動排程設定方案。" />
+
+      {/* AI Check Panel */}
+      <Card style={{ marginBottom:20, background:`linear-gradient(135deg, ${C.navyMid}, ${C.navy})` }}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
+          <div>
+            <h3 style={{ margin:0, color:"white", fontSize:16, fontWeight:700 }}>🤖 AI 智能查核</h3>
+            <p style={{ color:C.subtle, fontSize:13, margin:"4px 0 0" }}>
+              點擊下方按鈕，由 AI 分析近期最可能更新的指引，並提供查核建議。
+            </p>
+            {lastChecked && <p style={{ color:C.sky, fontSize:12, margin:"6px 0 0" }}>上次查核：{lastChecked}</p>}
+          </div>
+          <button onClick={checkUpdates} disabled={loading}
+            style={{ padding:"10px 22px", borderRadius:8, border:"none", background:loading?"#475569":C.sky, color:"white", cursor:loading?"not-allowed":"pointer", fontSize:14, fontWeight:700, display:"flex", alignItems:"center", gap:8, flexShrink:0 }}>
+            {loading ? "🔄 分析中…" : "🔍 立即查核"}
+          </button>
+        </div>
+        {result && (
+          <div style={{ background:"rgba(255,255,255,0.08)", borderRadius:8, padding:16, color:"#e2e8f0", fontSize:13, lineHeight:1.75, whiteSpace:"pre-wrap", border:"1px solid rgba(255,255,255,0.1)", maxHeight:320, overflowY:"auto" }}>
+            {result}
+          </div>
+        )}
+      </Card>
+
+      {/* Schedule Options */}
+      <div style={{ marginBottom:14, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+        <h3 style={{ margin:0, fontSize:15, fontWeight:700, color:C.navy }}>⏰ 自動排程設定方案</h3>
+        <button onClick={()=>setScheduleInfo(!scheduleInfo)}
+          style={{ padding:"5px 12px", border:`1px solid ${C.border}`, borderRadius:6, background:C.surface, color:C.sky, cursor:"pointer", fontSize:12 }}>
+          {scheduleInfo ? "收起" : "展開說明"}
+        </button>
+      </div>
+      <div style={{ display:"grid", gap:14 }}>
+        {scheduleOptions.map((opt,i)=>(
+          <Card key={i}>
+            <div style={{ display:"flex", gap:12 }}>
+              <span style={{ fontSize:24 }}>{opt.icon}</span>
+              <div style={{ flex:1 }}>
+                <h4 style={{ margin:"0 0 6px", fontSize:14, fontWeight:700, color:C.navy }}>{opt.title}</h4>
+                <p style={{ margin:"0 0 10px", color:C.muted, fontSize:13 }}>{opt.desc}</p>
+                {scheduleInfo && (
+                  <pre style={{ background:C.navyMid, color:"#a5f3fc", padding:12, borderRadius:8, fontSize:11, overflowX:"auto", margin:0, lineHeight:1.7 }}>{opt.code}</pre>
+                )}
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      {/* Update SOP */}
+      <Card style={{ marginTop:20, background:C.tealBg }}>
+        <h3 style={{ margin:"0 0 12px", fontSize:15, fontWeight:700, color:C.teal }}>📋 人工查核 SOP</h3>
+        {[
+          "判斷新增資料用途：校級政策、教師教學、學生指引、學術誠信、研究倫理或 AI 素養",
+          "優先找官方來源：政府、學校教務處、教學中心、學術誠信辦公室、圖書館、正式 PDF",
+          "補齊基本欄位：發布日期、更新日期、適用對象、正式 URL、查核日期",
+          "用政策強度 A-E 編碼，再用使用情境標籤標示",
+          "人工校對中文摘要：保留原文標題，中文摘要只描述重點，不直接照機器翻譯",
+          "每學期更新一次；若台灣法規或校級政策更新，立即重新查核相關段落",
+        ].map((s,i)=>(
+          <div key={i} style={{ display:"flex", gap:10, padding:"8px 0", borderBottom:i<5?`1px solid ${C.border}`:"none", fontSize:13, color:C.text }}>
+            <span style={{ color:C.teal, fontWeight:700, minWidth:20 }}>{i+1}.</span> {s}
+          </div>
+        ))}
+      </Card>
+    </div>
+  );
+}
+
+// ─── MAIN APP ────────────────────────────────────────────────
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState("summary");
+
+  useEffect(() => {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap";
+    document.head.appendChild(link);
+    document.body.style.margin = "0";
+  }, []);
+
+  const content = {
+    summary:   <SummaryTab />,
+    howto:     <HowtoTab />,
+    decision:  <DecisionTab />,
+    templates: <TemplatesTab copyTemplate={(id,c)=>{navigator.clipboard.writeText(c);}} copiedId={null} />,
+    codes:     <CodesTab />,
+    taiwan:    <TaiwanTab />,
+    intl:      <IntlTab />,
+    keyuni:    <KeyUnisTab />,
+    globaldb:  <GlobalDBTab />,
+    tools:     <ToolsTab />,
+    updates:   <UpdatesTab />,
+  };
+
+  // Special stateful template tab
+  function StatefulTemplateTab() {
+    const [copiedId, setCopiedId] = useState(null);
+    const copyTemplate = (id, c) => {
+      navigator.clipboard.writeText(c);
+      setCopiedId(id);
+      setTimeout(()=>setCopiedId(null), 2000);
+    };
+    return <TemplatesTab copyTemplate={copyTemplate} copiedId={copiedId} />;
+  }
+
+  return (
+    <div style={{ fontFamily:"'Noto Sans TC', sans-serif", display:"flex", height:"100vh", background:C.skyBg, overflow:"hidden" }}>
+      {/* Sidebar */}
+      <nav style={{ width:195, background:C.navy, display:"flex", flexDirection:"column", flexShrink:0, overflowY:"auto" }}>
+        <div style={{ padding:"18px 14px 14px", borderBottom:"1px solid rgba(255,255,255,0.08)" }}>
+          <div style={{ fontSize:15, fontWeight:800, color:C.skyLight, letterSpacing:"-0.3px" }}>AI 教學指引</div>
+          <div style={{ fontSize:11, color:C.subtle, marginTop:3 }}>全球政策資料庫平台</div>
+          <div style={{ marginTop:10, display:"flex", gap:6 }}>
+            <span style={{ background:"rgba(56,189,248,0.15)", color:C.skyLight, fontSize:10, padding:"2px 6px", borderRadius:4 }}>90 校</span>
+            <span style={{ background:"rgba(16,185,129,0.15)", color:"#34d399", fontSize:10, padding:"2px 6px", borderRadius:4 }}>更新 05-22</span>
+          </div>
+        </div>
+        <div style={{ flex:1, padding:"8px 0" }}>
+          {TABS.map(tab=>(
+            <button key={tab.id} onClick={()=>setActiveTab(tab.id)}
+              style={{
+                width:"100%", display:"flex", alignItems:"center", gap:9, padding:"9px 14px",
+                border:"none", cursor:"pointer", textAlign:"left",
+                background:activeTab===tab.id?"rgba(56,189,248,0.12)":"transparent",
+                color:activeTab===tab.id?C.skyLight:C.subtle,
+                borderLeft:activeTab===tab.id?`3px solid ${C.sky}`:"3px solid transparent",
+                fontSize:13, fontFamily:"inherit", fontWeight:activeTab===tab.id?700:400,
+                transition:"all .15s",
+              }}>
+              <span style={{ fontSize:15 }}>{tab.icon}</span>
+              <span>{tab.label}</span>
+            </button>
+          ))}
+        </div>
+        <div style={{ padding:"10px 14px", borderTop:"1px solid rgba(255,255,255,0.08)", fontSize:10, color:"#334155" }}>
+          最後文件更新：2026-05-22
+        </div>
+      </nav>
+
+      {/* Content */}
+      <main style={{ flex:1, overflowY:"auto", padding:"28px 28px 40px" }}>
+        {activeTab === "templates" ? <StatefulTemplateTab /> : content[activeTab]}
       </main>
     </div>
   );

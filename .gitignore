@@ -5,7 +5,11 @@ __pycache__/
 *.log
 
 # Verification screenshots can be regenerated
-app-check.png
+app-check*.png
+
+# Local backup of the failed regenerated UI
+failed-optimization-backup/
+restore_original_template.py
 
 # OS/editor files
 .DS_Store

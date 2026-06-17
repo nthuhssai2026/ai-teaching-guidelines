@@ -51,9 +51,9 @@ Run-Step "Download or print Taiwan guideline PDFs" {
   & $Python "download_taiwan_guidelines.py"
 }
 
-Run-Step "Rebuild JSX and HTML" {
-  & $Python "build_guidelines_app.py"
-}
+Write-Host ""
+Write-Host "==> Skip frontend rebuild" -ForegroundColor Cyan
+Write-Host "The original ai-teaching-guidelines template is preserved. Run build_guidelines_app.py manually only if you explicitly want to regenerate the app."
 
 if ($Chrome) {
   Run-Step "Render index.html screenshot" {
