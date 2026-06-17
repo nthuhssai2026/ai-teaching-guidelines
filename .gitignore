@@ -1,0 +1,18 @@
+# Local/runtime noise
+__pycache__/
+*.pyc
+*.tmp
+*.log
+
+# Verification screenshots can be regenerated
+app-check.png
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+~$*
+
+# Dependency folders if this project later becomes a Node/Python app
+node_modules/
+.venv/
+venv/
