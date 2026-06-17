@@ -198,7 +198,7 @@ const DATA = {
       "url": "https://tech2021.mystrikingly.com/aitools?utm_source=email_deliver&utm_medium=email&utm_campaign=aitools",
       "kind": "html",
       "downloadStatus": "FAILED",
-      "pdfFile": "台灣各大學AI教學指引/14_高雄大學_AI生成工具使用指引.pdf",
+      "pdfFile": "",
       "message": "PDF appears to be an error page: 403 ERROR",
       "urlStatus": "ERROR",
       "statusCode": "",
@@ -281,9 +281,9 @@ const DATA = {
       "name": "針對生成式AI工具之教學因應措施",
       "url": "https://ctld.ncnu.edu.tw/var/file/62/1062/img/578134211.pdf",
       "kind": "pdf",
-      "downloadStatus": "FAILED",
+      "downloadStatus": "OK",
       "pdfFile": "台灣各大學AI教學指引/20_暨南大學_針對生成式AI工具之教學因應措施.pdf",
-      "message": "<urlopen error [WinError 10060] 連線嘗試失敗，因為連線對象有一段時間並未正確回應，或是連線建立失敗，因為連線的主機無法回應。>",
+      "message": "",
       "urlStatus": "未批次檢查",
       "statusCode": "",
       "finalUrl": "https://ctld.ncnu.edu.tw/var/file/62/1062/img/578134211.pdf",
@@ -3837,7 +3837,7 @@ function Header({ title, subtitle }) {
 }
 
 function Summary() {
-  const twOk = DATA.taiwan.filter(x => x.downloadStatus === "OK").length;
+  const twOk = DATA.taiwan.filter(x => x.downloadStatus === "OK" || x.downloadStatus === "OK_CACHED").length;
   const broken = DATA.urlChecks.filter(x => x.status !== "OK");
   return (
     <div>
@@ -4050,7 +4050,7 @@ export default function App() {
         </nav>
         <div style={{ color: "#9ca3af", fontSize: 12, marginTop: 18, lineHeight: 1.5 }}>
           URL 檢查：{DATA.urlSummary.ok}/{DATA.urlSummary.total}<br />
-          台灣 PDF：{DATA.taiwan.filter(x => x.downloadStatus === "OK").length}/{DATA.taiwan.length}
+          台灣 PDF：{DATA.taiwan.filter(x => x.downloadStatus === "OK" || x.downloadStatus === "OK_CACHED").length}/{DATA.taiwan.length}
         </div>
       </aside>
       <main style={{ flex: 1, padding: 24, minWidth: 0 }}>

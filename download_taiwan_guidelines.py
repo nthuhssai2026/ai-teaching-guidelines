@@ -117,18 +117,29 @@ def main():
     rows = []
     for item in ITEMS:
         dest = OUT_DIR / safe_name(item)
+        temp_dest = dest.with_name(dest.stem + ".download.tmp.pdf")
         status = "OK"
         message = ""
         try:
+            temp_dest.unlink(missing_ok=True)
             if item["kind"] == "pdf":
-                download_pdf(item["url"], dest)
+                download_pdf(item["url"], temp_dest)
             else:
-                print_html_to_pdf(item["url"], dest)
-            validate_pdf(dest)
+                print_html_to_pdf(item["url"], temp_dest)
+            validate_pdf(temp_dest)
+            temp_dest.replace(dest)
             time.sleep(0.2)
         except Exception as exc:
             status = "FAILED"
             message = str(exc)
+            temp_dest.unlink(missing_ok=True)
+            if dest.exists():
+                try:
+                    validate_pdf(dest)
+                    status = "OK_CACHED"
+                    message = f"Using previous valid PDF; refresh failed: {message}"
+                except Exception:
+                    dest.unlink(missing_ok=True)
         rows.append({**item, "status": status, "file": str(dest), "message": message})
         print(f"{item['id']:02d} {item['org']} {status} {message}")
 

@@ -256,7 +256,7 @@ function Header({ title, subtitle }) {
 }
 
 function Summary() {
-  const twOk = DATA.taiwan.filter(x => x.downloadStatus === "OK").length;
+  const twOk = DATA.taiwan.filter(x => x.downloadStatus === "OK" || x.downloadStatus === "OK_CACHED").length;
   const broken = DATA.urlChecks.filter(x => x.status !== "OK");
   return (
     <div>
@@ -469,7 +469,7 @@ export default function App() {
         </nav>
         <div style={{ color: "#9ca3af", fontSize: 12, marginTop: 18, lineHeight: 1.5 }}>
           URL 檢查：{DATA.urlSummary.ok}/{DATA.urlSummary.total}<br />
-          台灣 PDF：{DATA.taiwan.filter(x => x.downloadStatus === "OK").length}/{DATA.taiwan.length}
+          台灣 PDF：{DATA.taiwan.filter(x => x.downloadStatus === "OK" || x.downloadStatus === "OK_CACHED").length}/{DATA.taiwan.length}
         </div>
       </aside>
       <main style={{ flex: 1, padding: 24, minWidth: 0 }}>
