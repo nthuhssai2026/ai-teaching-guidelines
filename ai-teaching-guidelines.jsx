@@ -252,7 +252,7 @@ function SummaryTab() {
       <SectionHeader icon="📋" title="執行摘要" sub="本文件為全球 AI 教學指引的可查核、可比較、可落地採用的教師與校級政策參考工具包。" />
       <div style={{ display:"flex", gap:12, flexWrap:"wrap", marginBottom:20 }}>
         <StatCard value="90" label="全球大學資料筆數" color={C.sky} />
-        <StatCard value="26" label="台灣機構資料筆數" color={C.teal} />
+        <StatCard value="18" label="台灣機構資料筆數" color={C.teal} />
         <StatCard value="10" label="國際機構指引筆數" color="#8b5cf6" />
         <StatCard value="80" label="缺發布日期筆數" color={C.orange} />
       </div>
@@ -496,7 +496,7 @@ function TaiwanTab() {
   const filtered = filter==="全部" ? TAIWAN_DATA : TAIWAN_DATA.filter(r=>r.level===filter);
   return (
     <div>
-      <SectionHeader icon="🇹🇼" title="台灣 AI 教學與治理資料地圖" sub="26 筆台灣各層級機構 AI 教學指引，含國家法規、教育部政策、大學校級指引。" />
+      <SectionHeader icon="🇹🇼" title="台灣 AI 教學與治理資料地圖" sub="18 筆台灣各層級機構 AI 教學指引，含國家法規、教育部政策、大學校級指引。" />
       <div style={{ display:"flex", gap:8, marginBottom:16, flexWrap:"wrap" }}>
         {["全部",...levels].map(l=>(
           <button key={l} onClick={()=>setFilter(l)}
@@ -758,48 +758,7 @@ function ToolsTab() {
 }
 
 function UpdatesTab() {
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState("");
-  const [lastChecked, setLastChecked] = useState("");
   const [scheduleInfo, setScheduleInfo] = useState(false);
-
-  const checkUpdates = async () => {
-    setLoading(true); setResult("");
-    try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({
-          model:"claude-sonnet-4-20250514",
-          max_tokens:1000,
-          messages:[{
-            role:"user",
-            content:`你是一位 AI 教學政策追蹤專家。請根據以下資料庫狀態進行分析：
-
-資料庫概況（截至 2026-05-22）：
-- 全球 90 筆大學 AI 教學指引，80 筆缺發布日期
-- 台灣 26 筆機構（教育部、國科會、數位發展部、26 所大學）
-- 國際機構：UNESCO、OECD、TeachAI、EDUCAUSE
-- 8 所重點大學：Yale、MIT、Stanford、Harvard、Oxford、Imperial、JISC、Melbourne
-
-請提供：
-1. **近期最可能有新版指引的 3-5 個機構**（說明原因）
-2. **2025-2026 年 AI 教學政策的主要趨勢**（3-4 條）
-3. **下次人工查核的重點項目**（2-3 條，具體可操作）
-
-請用繁體中文回答，格式清晰，每點簡短有力。`
-          }]
-        })
-      });
-      const data = await res.json();
-      const text = data.content?.find(b=>b.type==="text")?.text || "無法取得結果";
-      setResult(text);
-      setLastChecked(new Date().toLocaleString("zh-TW"));
-    } catch(e) {
-      setResult(`查核失敗：${e.message}`);
-    }
-    setLoading(false);
-  };
 
   const scheduleOptions = [
     { icon:"⚙️", title:"GitHub Actions（免費推薦）", desc:"每日定時觸發 workflow，爬取各大學指引頁面的最新內容，比對差異後自動發通知。", code:`# .github/workflows/ai-guidelines-check.yml
@@ -853,29 +812,7 @@ while True:
 
   return (
     <div>
-      <SectionHeader icon="🔄" title="資料更新與排程設定" sub="AI 教學指引持續演進，建議定期查核。以下提供 AI 智能查核與自動排程設定方案。" />
-
-      {/* AI Check Panel */}
-      <Card style={{ marginBottom:20, background:`linear-gradient(135deg, ${C.navyMid}, ${C.navy})` }}>
-        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
-          <div>
-            <h3 style={{ margin:0, color:"white", fontSize:16, fontWeight:700 }}>🤖 AI 智能查核</h3>
-            <p style={{ color:C.subtle, fontSize:13, margin:"4px 0 0" }}>
-              點擊下方按鈕，由 AI 分析近期最可能更新的指引，並提供查核建議。
-            </p>
-            {lastChecked && <p style={{ color:C.sky, fontSize:12, margin:"6px 0 0" }}>上次查核：{lastChecked}</p>}
-          </div>
-          <button onClick={checkUpdates} disabled={loading}
-            style={{ padding:"10px 22px", borderRadius:8, border:"none", background:loading?"#475569":C.sky, color:"white", cursor:loading?"not-allowed":"pointer", fontSize:14, fontWeight:700, display:"flex", alignItems:"center", gap:8, flexShrink:0 }}>
-            {loading ? "🔄 分析中…" : "🔍 立即查核"}
-          </button>
-        </div>
-        {result && (
-          <div style={{ background:"rgba(255,255,255,0.08)", borderRadius:8, padding:16, color:"#e2e8f0", fontSize:13, lineHeight:1.75, whiteSpace:"pre-wrap", border:"1px solid rgba(255,255,255,0.1)", maxHeight:320, overflowY:"auto" }}>
-            {result}
-          </div>
-        )}
-      </Card>
+      <SectionHeader icon="🔄" title="資料更新與排程設定" sub="AI 教學指引持續演進，建議定期查核。以下提供自動排程設定方案。" />
 
       {/* Schedule Options */}
       <div style={{ marginBottom:14, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
