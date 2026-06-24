@@ -1177,6 +1177,10 @@ function getUrlVerification(url) {
   return { status:"ERROR", label:`需人工複核${row.code ? " " + row.code : ""}`, date:URL_VERIFIED_DATE, color:C.orange, bg:C.orangeBg };
 }
 
+function getVerificationKey(url) {
+  return getUrlVerification(url).status;
+}
+
 function VerificationCell({ url }) {
   const v = getUrlVerification(url);
   return (
@@ -1186,6 +1190,27 @@ function VerificationCell({ url }) {
     </div>
   );
 }
+
+const TAIWAN_PDF_FILES = {
+  1: "台灣各大學AI教學指引/01_數位發展部_人工智慧基本法.pdf",
+  2: "台灣各大學AI教學指引/02_國科會_行政院及所屬機關構使用生成式AI參考指引.pdf",
+  3: "台灣各大學AI教學指引/04_教育部_中小學數位教學指引3.0.pdf",
+  4: "台灣各大學AI教學指引/05_教育部_中小學使用生成式人工智慧注意事項.pdf",
+  5: "台灣各大學AI教學指引/06_臺灣學術倫理教育學會_人工智慧技術對學術倫理的影響及因應建議.pdf",
+  6: "台灣各大學AI教學指引/07_臺師大_生成式AI之學習應用及參考指引.pdf",
+  7: "台灣各大學AI教學指引/08_政大_生成式人工智慧運用簡要原則.pdf",
+  8: "台灣各大學AI教學指引/09_臺大_針對生成式AI工具之教學因應措施.pdf",
+  9: "台灣各大學AI教學指引/11_清華大學_大學教育場域AI協作共學與素養培養指引.pdf",
+  10: "台灣各大學AI教學指引/12_成功大學_AI及相關學習工具參考指南.pdf",
+  11: "台灣各大學AI教學指引/13_中山大學_生成式AI工具使用參照指引.pdf",
+  12: "台灣各大學AI教學指引/19_陽明交通大學_因應生成式AI之指引及教學建議.pdf",
+  13: "台灣各大學AI教學指引/23_北科大_因應生成式AI工具之教學參考指引.pdf",
+  14: "台灣各大學AI教學指引/16_臺科大_生成式AI簡介與教學策略調整建議方針.pdf",
+  15: "台灣各大學AI教學指引/18_中國醫藥大學_針對生成式AI工具之教學指引.pdf",
+  16: "台灣各大學AI教學指引/25_臺北醫學大學_生成式AI工具之課程教學參考指引.pdf",
+  17: "台灣各大學AI教學指引/26_逢甲大學_針對生成式AI工具之教學因應措施.pdf",
+  18: "台灣各大學AI教學指引/27_慈濟大學_AI賦能大學教育指引.pdf",
+};
 
 function StatusDot({ status }) {
   const ok = status.includes("已核實") || status.includes("PDF已存檔");
@@ -1498,6 +1523,7 @@ function TaiwanTab() {
               <div style={{ display:"flex", flexDirection:"column", gap:6, alignItems:"flex-end", flexShrink:0 }}>
                 <span style={{ fontSize:11, color:C.orange, background:C.orangeBg, padding:"2px 8px", borderRadius:4 }}>{r.status}</span>
                 {r.url && <a href={r.url} target="_blank" rel="noopener noreferrer" style={{ fontSize:12, color:C.sky, textDecoration:"none" }}>🔗 前往</a>}
+                {TAIWAN_PDF_FILES[r.id] && <a href={TAIWAN_PDF_FILES[r.id]} target="_blank" rel="noopener noreferrer" style={{ fontSize:12, color:C.teal, textDecoration:"none" }}>📄 PDF</a>}
               </div>
             </div>
           </Card>
@@ -1590,23 +1616,35 @@ function GlobalDBTab() {
 
   const regions = useMemo(()=>[...new Set(GLOBAL_DB.map(r=>r.region))], []);
   const types = useMemo(()=>[...new Set(GLOBAL_DB.map(r=>r.type))], []);
+  const verificationSummary = useMemo(()=>GLOBAL_DB.reduce((acc,r)=>{
+    const key = getVerificationKey(r.url);
+    acc[key] = (acc[key]||0)+1;
+    return acc;
+  }, {}), []);
 
   const filtered = useMemo(()=>{
     const q = search.toLowerCase();
     return GLOBAL_DB.filter(r=>{
-      const ms = !q||r.uni.toLowerCase().includes(q)||r.name.toLowerCase().includes(q)||r.country.toLowerCase().includes(q);
+      const v = getUrlVerification(r.url);
+      const haystack = [r.uni,r.name,r.country,r.region,r.type,r.url,v.label,v.date].join(" ").toLowerCase();
+      const ms = !q||haystack.includes(q);
       const mr = region==="all"||r.region===region;
       const mt = type==="all"||r.type===type;
-      return ms&&mr&&mt;
+      const mv = status==="all"||v.status===status;
+      return ms&&mr&&mt&&mv;
     });
   }, [search,region,type,status]);
 
-  const pages = Math.ceil(filtered.length/PER_PAGE);
+  const pages = Math.max(1, Math.ceil(filtered.length/PER_PAGE));
   const pageData = filtered.slice((page-1)*PER_PAGE, page*PER_PAGE);
 
   const exportCSV = () => {
-    const cols = ["id","region","country","uni","name","date","type","url"];
-    const rows = [cols.join(","), ...filtered.map(r=>cols.map(c=>`"${(r[c]||"").replace(/"/g,'""')}"`).join(","))];
+    const cols = ["id","region","country","uni","name","date","type","verificationDate","verificationStatus","url"];
+    const rows = [cols.join(","), ...filtered.map(r=>{
+      const v = getUrlVerification(r.url);
+      const row = { ...r, verificationDate:v.date, verificationStatus:v.label };
+      return cols.map(c=>`"${(row[c]||"").replace(/"/g,'""')}"`).join(",");
+    })];
     const blob = new Blob(["\uFEFF"+rows.join("\n")], {type:"text/csv"});
     const a = document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="AI_Teaching_Guidelines_DB.csv"; a.click();
   };
@@ -1614,12 +1652,18 @@ function GlobalDBTab() {
   return (
     <div>
       <SectionHeader icon="🗃️" title="全球大學 AI 教學指引資料庫" sub={`共 90 筆 · 篩選後顯示 ${filtered.length} 筆 · 第 ${page}/${pages} 頁`} />
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(4, minmax(0, 1fr))", gap:10, marginBottom:16 }}>
+        <StatCard value={verificationSummary.OK||0} label="URL 已核實" color={C.green} />
+        <StatCard value={verificationSummary.ERROR||0} label="需人工複核" color={C.orange} />
+        <StatCard value={verificationSummary.MISSING||0} label="待補 URL" color={C.red} />
+        <StatCard value={GLOBAL_DB.filter(r=>!r.date).length} label="待補發布日期" color={C.amber} />
+      </div>
 
       {/* Filters */}
       <Card style={{ marginBottom:16 }}>
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr auto", gap:10, alignItems:"end" }}>
+        <div style={{ display:"grid", gridTemplateColumns:"1.4fr 1fr 1fr 1fr auto", gap:10, alignItems:"end" }}>
           <div>
-            <label style={{ fontSize:12, color:C.muted, display:"block", marginBottom:4 }}>搜尋機構/文件名稱</label>
+            <label style={{ fontSize:12, color:C.muted, display:"block", marginBottom:4 }}>搜尋機構/文件/URL/核實狀態</label>
             <input value={search} onChange={e=>{setSearch(e.target.value);setPage(1);}}
               placeholder="輸入關鍵字…" style={{ width:"100%", padding:"8px 10px", border:`1px solid ${C.border}`, borderRadius:6, fontSize:13, boxSizing:"border-box" }} />
           </div>
@@ -1637,6 +1681,17 @@ function GlobalDBTab() {
               style={{ width:"100%", padding:"8px 10px", border:`1px solid ${C.border}`, borderRadius:6, fontSize:13 }}>
               <option value="all">全部類型</option>
               {types.map(t=><option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={{ fontSize:12, color:C.muted, display:"block", marginBottom:4 }}>核實狀態</label>
+            <select value={status} onChange={e=>{setStatus(e.target.value);setPage(1);}}
+              style={{ width:"100%", padding:"8px 10px", border:`1px solid ${C.border}`, borderRadius:6, fontSize:13 }}>
+              <option value="all">全部狀態</option>
+              <option value="OK">URL 已核實</option>
+              <option value="ERROR">需人工複核</option>
+              <option value="MISSING">待補 URL</option>
+              <option value="UNCHECKED">未列入批次檢查</option>
             </select>
           </div>
           <button onClick={exportCSV}
