@@ -1938,7 +1938,7 @@ export default function App() {
           <div style={{ fontSize:11, color:C.subtle, marginTop:3 }}>全球政策資料庫平台</div>
           <div style={{ marginTop:10, display:"flex", gap:6 }}>
             <span style={{ background:"rgba(56,189,248,0.15)", color:C.skyLight, fontSize:10, padding:"2px 6px", borderRadius:4 }}>90 校</span>
-            <span style={{ background:"rgba(16,185,129,0.15)", color:"#34d399", fontSize:10, padding:"2px 6px", borderRadius:4 }}>更新 05-22</span>
+            <span style={{ background:"rgba(16,185,129,0.15)", color:"#34d399", fontSize:10, padding:"2px 6px", borderRadius:4 }}>更新 06-25</span>
           </div>
         </div>
         <div style={{ flex:1, padding:"8px 0" }}>
@@ -1959,7 +1959,7 @@ export default function App() {
           ))}
         </div>
         <div style={{ padding:"10px 14px", borderTop:"1px solid rgba(255,255,255,0.08)", fontSize:10, color:"#334155" }}>
-          最後文件更新：2026-05-22
+          最後文件更新：2026-06-25
         </div>
       </nav>
 
