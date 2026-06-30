@@ -1245,57 +1245,188 @@ function StatCard({ value, label, color=C.sky }) {
   );
 }
 
+function AppStyles() {
+  return <style>{`
+    .skip-link {
+      position: fixed; left: 12px; top: -48px; z-index: 100;
+      padding: 9px 12px; border-radius: 6px; background: #ffffff;
+      color: #0f172a; box-shadow: 0 4px 14px rgba(15,23,42,.18);
+    }
+    .skip-link:focus { top: 12px; }
+    .nav-tab:focus-visible, .home-action:focus-visible {
+      outline: 3px solid #7dd3fc; outline-offset: -3px;
+    }
+    .nav-tab:hover { background: rgba(56,189,248,.08) !important; color: #e0f2fe !important; }
+    .home-action:hover { border-color: #0ea5e9 !important; background: #f0f9ff !important; }
+    .home-stat-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; margin-bottom: 18px; }
+    .home-action-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; margin-bottom: 20px; }
+    .home-primary-grid { display: grid; grid-template-columns: minmax(0,1.65fr) minmax(280px,1fr); gap: 16px; margin-bottom: 16px; }
+    .home-lower-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .home-workflow-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px 12px; }
+    .home-roadmap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    @media (max-width: 1040px) {
+      .home-stat-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .home-action-grid { grid-template-columns: 1fr; }
+      .home-primary-grid, .home-lower-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 760px) {
+      body { height: auto !important; overflow: auto !important; }
+      .app-shell { min-height: 100vh; height: auto !important; flex-direction: column; overflow: visible !important; }
+      .app-nav { width: 100% !important; max-height: none; overflow: visible !important; position: sticky; top: 0; z-index: 20; }
+      .app-nav-head { display: none; }
+      .app-nav-tabs { display: flex; overflow-x: auto; padding: 4px !important; }
+      .nav-tab { width: auto !important; flex: 0 0 auto; border-left: 0 !important; padding: 9px 11px !important; }
+      .app-nav-footer { display: none; }
+      .app-main { overflow: visible !important; padding: 18px 14px 32px !important; }
+      .home-stat-grid, .home-workflow-grid, .home-roadmap-grid { grid-template-columns: 1fr; }
+      .home-hero { padding: 20px !important; }
+      .home-hero h1 { font-size: 25px !important; }
+    }
+  `}</style>;
+}
+
 // ─── TAB CONTENTS ────────────────────────────────────────────
 
-function SummaryTab() {
+function SummaryTab({ onNavigate }) {
   const regionDist = { "Africa 非洲":11, "North America 北美":19, "South America 南美洲":6, "Asia 亞洲":17, "Oceania 大洋洲":17, "Europe 歐洲":20 };
+  const workflow = [
+    ["1","整理原始資料","集中政策、研究、影片清單與既有教材。"],
+    ["2","掃描並萃取","找出教學設計、課程安排與學習活動內容。"],
+    ["3","建立指引整理檔","移除重複、合併相近內容並保留不同觀點。"],
+    ["4","準備三份必要輸入","課程大綱、教學指引整理檔及分析 PROMPT。"],
+    ["5","在同一工作區上傳","將三份文件一起上傳至 AI 對話或專案。"],
+    ["6","產出並由教師確認","對應週次、使用時機與理由，最後由教師修正。"],
+  ];
+  const actions = [
+    ["globaldb","瀏覽全球資料庫","搜尋學校、文件、政策類型與核實狀態"],
+    ["howto","查看使用流程","依六步流程整理教材並上傳分析 PROMPT"],
+    ["decision","建立課程政策","依課程任務選擇 AI 使用強度與揭露要求"],
+  ];
   return (
-    <div>
-      <SectionHeader icon="📋" title="執行摘要" sub="本文件為全球 AI 教學指引的可查核、可比較、可落地採用的教師與校級政策參考工具包。" />
-      <div style={{ display:"flex", gap:12, flexWrap:"wrap", marginBottom:20 }}>
-        <StatCard value="90" label="全球大學資料筆數" color={C.sky} />
-        <StatCard value="18" label="台灣機構資料筆數" color={C.teal} />
-        <StatCard value="10" label="國際機構指引筆數" color="#8b5cf6" />
-        <StatCard value="80" label="缺發布日期筆數" color={C.orange} />
-      </div>
-      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16, marginBottom:20 }}>
-        <Card>
-          <h3 style={{ margin:"0 0 12px", fontSize:14, fontWeight:700, color:C.navy }}>🎯 核心用途升級方向</h3>
-          {["課綱政策範本（可直接改寫）","作業設計決策輔助工具","學術誠信揭露要求範例","AI 素養教學活動設計"].map(i=>(
-            <div key={i} style={{ display:"flex", alignItems:"center", gap:8, padding:"6px 0", borderBottom:`1px solid ${C.border}`, fontSize:13, color:C.text }}>
-              <span style={{ color:C.teal }}>✓</span> {i}
+    <div className="home-dashboard">
+      <section className="home-hero" style={{ background:C.surface, border:`1px solid ${C.border}`, borderLeft:`5px solid ${C.teal}`, borderRadius:8, padding:"24px 26px", marginBottom:18 }}>
+        <div style={{ display:"flex", justifyContent:"space-between", gap:18, alignItems:"flex-start", flexWrap:"wrap" }}>
+          <div style={{ maxWidth:820 }}>
+            <div style={{ color:C.teal, fontWeight:700, fontSize:12, marginBottom:7 }}>全球政策資料庫平台</div>
+            <h1 style={{ margin:0, color:C.navy, fontSize:30, lineHeight:1.25, letterSpacing:0, textWrap:"balance" }}>AI 教學指引資料庫</h1>
+            <p style={{ margin:"10px 0 0", color:C.muted, fontSize:13, lineHeight:1.7, textWrap:"pretty" }}>
+              現階段完成資料蒐集、來源查核、中文化摘要、初步分類與網頁查詢；後續規劃導入多層次標籤、資料品質檢核及 RAG 問答。
+            </p>
+          </div>
+          <div style={{ color:C.muted, fontSize:11, lineHeight:1.6, borderLeft:`3px solid ${C.teal}`, paddingLeft:12 }}>
+            資料更新<br/><strong style={{ color:C.navy, fontSize:13 }}>2026-06-30</strong>
+          </div>
+        </div>
+        <div style={{ display:"flex", gap:7, flexWrap:"wrap", marginTop:15 }}>
+          <span style={{ padding:"4px 8px", borderRadius:4, background:C.tealBg, color:C.teal, fontSize:11, fontWeight:700 }}>目前：中文化資料庫與查詢</span>
+          <span style={{ padding:"4px 8px", borderRadius:4, background:C.orangeBg, color:C.orange, fontSize:11, fontWeight:700 }}>後續：多層標籤與 RAG</span>
+        </div>
+      </section>
+
+      <section className="home-stat-grid" aria-label="資料庫統計">
+        {[
+          ["90","全球大學資料筆數",C.sky],
+          ["18","台灣機構資料筆數",C.teal],
+          ["10","國際機構指引筆數",C.orange],
+          ["8","國際重點大學",C.navyLight],
+        ].map(([value,label,color])=>(
+          <div key={label} style={{ background:C.surface, border:`1px solid ${C.border}`, borderTop:`4px solid ${color}`, borderRadius:8, padding:"17px 18px" }}>
+            <div style={{ color, fontSize:30, fontWeight:800, lineHeight:1, fontVariantNumeric:"tabular-nums" }}>{value}</div>
+            <div style={{ color:C.text, fontSize:12, fontWeight:700, marginTop:9 }}>{label}</div>
+          </div>
+        ))}
+      </section>
+
+      <section className="home-action-grid" aria-label="主要功能入口">
+        {actions.map(([id,title,desc])=>(
+          <button key={id} type="button" className="home-action" onClick={()=>onNavigate(id)}
+            style={{ display:"flex", justifyContent:"space-between", alignItems:"center", gap:12, padding:"15px 16px", borderRadius:8, border:`1px solid ${C.border}`, background:C.surface, textAlign:"left", cursor:"pointer", fontFamily:"inherit", transition:"background-color .15s ease, border-color .15s ease" }}>
+            <span style={{ minWidth:0 }}>
+              <span style={{ display:"block", color:C.navy, fontWeight:700, fontSize:14 }}>{title}</span>
+              <span style={{ display:"block", color:C.muted, fontSize:11, lineHeight:1.5, marginTop:4 }}>{desc}</span>
+            </span>
+            <span aria-hidden="true" style={{ color:C.sky, fontSize:20, flexShrink:0 }}>→</span>
+          </button>
+        ))}
+      </section>
+
+      <div className="home-primary-grid">
+        <section style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:8, padding:20 }}>
+          <h2 style={{ margin:"0 0 5px", color:C.navy, fontSize:18 }}>AI 協助課程素材整理流程</h2>
+          <p style={{ margin:"0 0 15px", color:C.muted, fontSize:12, lineHeight:1.6 }}>先整理資料，再用三份必要輸入進行課程專屬分析。</p>
+          <div className="home-workflow-grid">
+            {workflow.map(([n,t,d])=>(
+              <div key={n} style={{ display:"grid", gridTemplateColumns:"30px minmax(0,1fr)", gap:9, padding:11, background:C.grayBg, border:`1px solid ${C.border}`, borderRadius:7 }}>
+                <span style={{ width:28, height:28, borderRadius:"50%", display:"grid", placeItems:"center", background:C.teal, color:"white", fontSize:12, fontWeight:800 }}>{n}</span>
+                <span style={{ minWidth:0 }}>
+                  <strong style={{ display:"block", color:C.navy, fontSize:12, marginBottom:3 }}>{t}</strong>
+                  <span style={{ display:"block", color:C.muted, fontSize:11, lineHeight:1.5 }}>{d}</span>
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <aside style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:8, padding:20 }}>
+          <h2 style={{ margin:"0 0 5px", color:C.navy, fontSize:18 }}>分析階段使用說明</h2>
+          <p style={{ margin:"0 0 14px", color:C.muted, fontSize:12, lineHeight:1.6 }}>三份文件用途不同，應在同一個 AI 工作區同時提供。</p>
+          {["課程大綱","教學指引整理檔","分析 PROMPT"].map((item,i)=>(
+            <div key={item} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 11px", marginBottom:8, background:C.tealBg, borderLeft:`4px solid ${C.teal}`, borderRadius:5, color:C.text, fontSize:12, fontWeight:700 }}>
+              <span style={{ width:22, height:22, display:"grid", placeItems:"center", borderRadius:4, background:"#ccfbf1", color:C.teal, fontSize:11 }}>{i+1}</span>
+              {item}
             </div>
           ))}
-        </Card>
-        <Card>
-          <h3 style={{ margin:"0 0 12px", fontSize:14, fontWeight:700, color:C.navy }}>🌍 全球資料分布</h3>
+          <div style={{ marginTop:13, padding:13, borderRadius:7, background:C.amberBg, border:`1px solid ${C.amber}35` }}>
+            <strong style={{ display:"block", color:C.amber, fontSize:12, marginBottom:7 }}>PROMPT 上傳前檢核</strong>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:5, color:C.text, fontSize:10, lineHeight:1.5 }}>
+              {["角色與任務範圍","理論或分析框架","明確分析步驟","輸出格式與篇幅","引用與查證要求","隱私及著作權界線"].map(x=><span key={x}>✓ {x}</span>)}
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <div className="home-lower-grid">
+        <section style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:8, padding:20 }}>
+          <h2 style={{ margin:"0 0 12px", fontSize:15, color:C.navy }}>全球資料分布</h2>
           {Object.entries(regionDist).map(([r,n])=>(
             <div key={r} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"5px 0", borderBottom:`1px solid ${C.border}`, fontSize:13 }}>
-              <span style={{ color:C.text }}>{r.split(" ")[0]}</span>
+              <span style={{ color:C.text }}>{r}</span>
               <div style={{ display:"flex", alignItems:"center", gap:8 }}>
                 <div style={{ width: n*5, height:8, background:`linear-gradient(90deg,${C.sky},${C.teal})`, borderRadius:4 }} />
-                <span style={{ color:C.muted, fontWeight:600, minWidth:20, textAlign:"right" }}>{n}</span>
+                <span style={{ color:C.muted, fontWeight:600, minWidth:20, textAlign:"right", fontVariantNumeric:"tabular-nums" }}>{n}</span>
               </div>
             </div>
           ))}
-        </Card>
-      </div>
-      <Card style={{ background:`linear-gradient(135deg,${C.skyBg},${C.tealBg})` }}>
-        <h3 style={{ margin:"0 0 10px", fontSize:14, fontWeight:700, color:C.navy }}>⚡ 後續優先工作清單</h3>
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
+        </section>
+        <section style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:8, padding:20 }}>
+          <h2 style={{ margin:"0 0 12px", fontSize:15, color:C.navy }}>資料品質狀態</h2>
           {[
-            ["補日期","80 筆資料缺發布/更新日期，優先補查"],
-            ["確認 URL","3 筆網址欄仍需補正式 URL"],
-            ["人工校對","中文摘要需人工查核，不依賴機器翻譯"],
-            ["政策強度編碼","依 A-E 分類，完成 E（待編碼）資料"],
-          ].map(([t,d])=>(
-            <div key={t} style={{ background:C.surface, borderRadius:8, padding:12, border:`1px solid ${C.border}` }}>
-              <div style={{ fontWeight:700, color:C.sky, fontSize:13, marginBottom:4 }}>{t}</div>
-              <div style={{ color:C.muted, fontSize:12 }}>{d}</div>
+            ["待補發布日期","80 筆","持續人工補查"],
+            ["待補正式 URL","3 筆","優先確認官方來源"],
+            ["最近網址核實","2026-06-17","保留查核紀錄"],
+            ["中文摘要","人工校對","不直接採用機器翻譯"],
+          ].map(([t,v,d])=>(
+            <div key={t} style={{ display:"grid", gridTemplateColumns:"1fr auto", gap:8, padding:"7px 0", borderBottom:`1px solid ${C.border}` }}>
+              <span><strong style={{ display:"block", color:C.text, fontSize:12 }}>{t}</strong><span style={{ color:C.muted, fontSize:10 }}>{d}</span></span>
+              <span style={{ color:C.orange, fontSize:12, fontWeight:700, fontVariantNumeric:"tabular-nums" }}>{v}</span>
             </div>
           ))}
+        </section>
+      </div>
+
+      <section style={{ background:C.navy, borderRadius:8, padding:"19px 21px", color:"white" }}>
+        <h2 style={{ margin:"0 0 13px", fontSize:16, color:"white" }}>建置進度與後續規劃</h2>
+        <div className="home-roadmap-grid">
+          <div>
+            <strong style={{ color:"#5eead4", fontSize:12 }}>目前已完成</strong>
+            <p style={{ margin:"6px 0 0", color:"#cbd5e1", fontSize:11, lineHeight:1.65 }}>人工蒐集與來源查核、中文化摘要與初步分類、網頁篩選查詢及台灣指引本地備份。</p>
+          </div>
+          <div>
+            <strong style={{ color:"#fcd34d", fontSize:12 }}>下一階段規劃</strong>
+            <p style={{ margin:"6px 0 0", color:"#cbd5e1", fontSize:11, lineHeight:1.65 }}>導入半自動多層次標籤與資料品質檢核；完成引用追溯後，再建置向量檢索與 RAG 問答。</p>
+          </div>
         </div>
-      </Card>
+      </section>
     </div>
   );
 }
@@ -1941,7 +2072,11 @@ while True:
 // ─── MAIN APP ────────────────────────────────────────────────
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState("summary");
+  const initialTab = () => {
+    const hash = window.location.hash.replace("#","");
+    return TABS.some(tab=>tab.id===hash) ? hash : "summary";
+  };
+  const [activeTab, setActiveTab] = useState(initialTab);
 
   useEffect(() => {
     const link = document.createElement("link");
@@ -1949,10 +2084,23 @@ export default function App() {
     link.href = "https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap";
     document.head.appendChild(link);
     document.body.style.margin = "0";
+    const onHashChange = () => {
+      const hash = window.location.hash.replace("#","");
+      if (TABS.some(tab=>tab.id===hash)) setActiveTab(hash);
+    };
+    window.addEventListener("hashchange", onHashChange);
+    if (!window.location.hash) window.history.replaceState(null,"","#summary");
+    return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
 
+  const navigateTo = id => {
+    setActiveTab(id);
+    if (window.location.hash !== `#${id}`) window.location.hash = id;
+    document.getElementById("main-content")?.scrollTo({ top:0 });
+  };
+
   const content = {
-    summary:   <SummaryTab />,
+    summary:   <SummaryTab onNavigate={navigateTo} />,
     howto:     <HowtoTab />,
     decision:  <DecisionTab />,
     templates: <TemplatesTab copyTemplate={(id,c)=>{navigator.clipboard.writeText(c);}} copiedId={null} />,
@@ -1977,10 +2125,13 @@ export default function App() {
   }
 
   return (
-    <div style={{ fontFamily:"'Noto Sans TC', sans-serif", display:"flex", height:"100vh", background:C.skyBg, overflow:"hidden" }}>
+    <>
+    <AppStyles />
+    <a className="skip-link" href="#main-content" onClick={e=>{ e.preventDefault(); document.getElementById("main-content")?.focus(); }}>跳至主要內容</a>
+    <div className="app-shell" style={{ fontFamily:"'Noto Sans TC', sans-serif", display:"flex", height:"100vh", background:C.skyBg, overflow:"hidden" }}>
       {/* Sidebar */}
-      <nav style={{ width:195, background:C.navy, display:"flex", flexDirection:"column", flexShrink:0, overflowY:"auto" }}>
-        <div style={{ padding:"18px 14px 14px", borderBottom:"1px solid rgba(255,255,255,0.08)" }}>
+      <nav className="app-nav" aria-label="主要導覽" style={{ width:195, background:C.navy, display:"flex", flexDirection:"column", flexShrink:0, overflowY:"auto" }}>
+        <div className="app-nav-head" style={{ padding:"18px 14px 14px", borderBottom:"1px solid rgba(255,255,255,0.08)" }}>
           <div style={{ fontSize:15, fontWeight:800, color:C.skyLight, letterSpacing:"-0.3px" }}>AI 教學指引</div>
           <div style={{ fontSize:11, color:C.subtle, marginTop:3 }}>全球政策資料庫平台</div>
           <div style={{ marginTop:10, display:"flex", gap:6 }}>
@@ -1988,9 +2139,9 @@ export default function App() {
             <span style={{ background:"rgba(16,185,129,0.15)", color:"#34d399", fontSize:10, padding:"2px 6px", borderRadius:4 }}>更新 06-30</span>
           </div>
         </div>
-        <div style={{ flex:1, padding:"8px 0" }}>
+        <div className="app-nav-tabs" style={{ flex:1, padding:"8px 0" }}>
           {TABS.map(tab=>(
-            <button key={tab.id} onClick={()=>setActiveTab(tab.id)}
+            <button key={tab.id} type="button" className="nav-tab" aria-current={activeTab===tab.id?"page":undefined} onClick={()=>navigateTo(tab.id)}
               style={{
                 width:"100%", display:"flex", alignItems:"center", gap:9, padding:"9px 14px",
                 border:"none", cursor:"pointer", textAlign:"left",
@@ -1998,22 +2149,23 @@ export default function App() {
                 color:activeTab===tab.id?C.skyLight:C.subtle,
                 borderLeft:activeTab===tab.id?`3px solid ${C.sky}`:"3px solid transparent",
                 fontSize:13, fontFamily:"inherit", fontWeight:activeTab===tab.id?700:400,
-                transition:"all .15s",
+                transition:"background-color .15s ease, color .15s ease, border-color .15s ease",
               }}>
-              <span style={{ fontSize:15 }}>{tab.icon}</span>
+              <span aria-hidden="true" style={{ fontSize:15 }}>{tab.icon}</span>
               <span>{tab.label}</span>
             </button>
           ))}
         </div>
-        <div style={{ padding:"10px 14px", borderTop:"1px solid rgba(255,255,255,0.08)", fontSize:10, color:"#334155" }}>
+        <div className="app-nav-footer" style={{ padding:"10px 14px", borderTop:"1px solid rgba(255,255,255,0.08)", fontSize:10, color:"#64748b" }}>
           最後文件更新：2026-06-30
         </div>
       </nav>
 
       {/* Content */}
-      <main style={{ flex:1, overflowY:"auto", padding:"28px 28px 40px" }}>
+      <main id="main-content" className="app-main" tabIndex="-1" style={{ flex:1, overflowY:"auto", padding:"24px 28px 40px" }}>
         {activeTab === "templates" ? <StatefulTemplateTab /> : content[activeTab]}
       </main>
     </div>
+    </>
   );
 }
