@@ -1,28 +1,4 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI 教學指引資料庫</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Noto Sans TC',sans-serif;background:#f0f9ff;overflow:hidden;height:100vh}
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-track{background:#f1f5f9}
-::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
-input,select,button{font-family:'Noto Sans TC',sans-serif}
-a{text-decoration:none}
-</style>
-</head>
-<body>
-<div id="root"></div>
-<script type="text/babel">
-const {useState,useEffect,useMemo}=React;
+import { useState, useEffect, useMemo } from "react";
 
 // ─── COLOUR TOKENS ───────────────────────────────────────────
 const C = {
@@ -1964,7 +1940,7 @@ while True:
 
 // ─── MAIN APP ────────────────────────────────────────────────
 
-function App() {
+export default function App() {
   const [activeTab, setActiveTab] = useState("summary");
 
   useEffect(() => {
@@ -2041,9 +2017,3 @@ function App() {
     </div>
   );
 }
-
-
-ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
-</script>
-</body>
-</html>
