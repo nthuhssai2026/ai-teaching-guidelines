@@ -1,6 +1,9 @@
 
 // ─── 課程應用（Step 1–8 實作） ───────────────────────────────
 
+// 「AI 課程建議」後台網址：本機測試為 localhost；搬上雲端後改成正式網址
+const AI_SUGGEST_URL = "http://localhost:8787";
+
 const APPLY_META = {
   generated: "2026-09-06",
   course: "〈科技與社會〉（清大通識，林文源，2026 春，16 週）",
@@ -177,7 +180,7 @@ function ApplyTab({ onNavigate }) {
   const [decisions, setDecisions] = useState({});
   const copy = (id, text) => { navigator.clipboard.writeText(text); setCopiedId(id); setTimeout(()=>setCopiedId(null), 2000); };
   const sections = [
-    ["flow","工作流程"],["prompts","提示詞範本"],["digest","指引彙編"],["gaps","資料缺口"],["sts","STS 課程範例"],["files","下載"],
+    ["flow","工作流程"],["suggest","AI 課程建議"],["prompts","提示詞範本"],["digest","指引彙編"],["gaps","資料缺口"],["sts","STS 課程範例"],["files","下載"],
   ];
   const subNav = (
     <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:18, position:"sticky", top:-24, background:C.skyBg, padding:"6px 0", zIndex:5 }}>
@@ -237,6 +240,36 @@ function ApplyTab({ onNavigate }) {
                   <div style={{ color:C.muted, marginTop:3, lineHeight:1.5 }}>{d}</div>
                 </div>
               ))}
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {section==="suggest" && (
+        <div>
+          <Card style={{ marginBottom:14, borderTop:`4px solid ${C.teal}` }}>
+            <h3 style={{ margin:"0 0 8px", fontSize:15, color:C.navy }}>老師只要上傳課程大綱</h3>
+            <div style={{ fontSize:13, color:C.text, lineHeight:1.75 }}>
+              階段二（Step 5–7）已做成一個對話框：老師貼上或上傳 .docx 課程大綱，<strong>後台自動注入中心專屬的分析 PROMPT 與《教學指引整理檔》</strong>，回傳逐週的素材與活動建議（含使用時機、理由、查證方式、衝突清單與教師把關表）。PROMPT 不會出現在網頁或任何公開檔案裡。
+            </div>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))", gap:8, marginTop:12, fontSize:12 }}>
+              {[
+                ["省 token","PROMPT＋整理檔固定在 system 層並標記快取；每次只為課綱與回答付全價，快取部分約 1/10 價格。"],
+                ["存取控制","中心發給老師共用通行碼，後台另設每日次數上限。"],
+                ["資料","課綱內容會送到模型 API；請勿放入學生個資或未去識別化資料。"],
+              ].map(([t,d])=>(
+                <div key={t} style={{ padding:10, borderRadius:7, background:C.grayBg, border:`1px solid ${C.border}` }}>
+                  <div style={{ fontWeight:700, color:C.navy, marginBottom:3 }}>{t}</div>
+                  <div style={{ color:C.muted, lineHeight:1.55 }}>{d}</div>
+                </div>
+              ))}
+            </div>
+            <a href={AI_SUGGEST_URL} target="_blank" rel="noopener noreferrer"
+              style={{ display:"inline-block", marginTop:14, padding:"10px 18px", borderRadius:8, background:C.teal, color:"white", fontWeight:700, fontSize:13 }}>
+              開啟 AI 課程建議 →
+            </a>
+            <div style={{ color:C.muted, fontSize:11, marginTop:8, lineHeight:1.6 }}>
+              目前為本機測試版（{AI_SUGGEST_URL}，需先在中心電腦執行 `後台/啟動.ps1`）；部署到中心主機後，此連結會改為正式網址。
             </div>
           </Card>
         </div>

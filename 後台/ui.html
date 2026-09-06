@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 課程建議</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans TC',system-ui,sans-serif;background:#f0f9ff;color:#1e293b;min-height:100vh}
+.wrap{max-width:1100px;margin:0 auto;padding:28px 20px 60px}
+h1{font-size:24px;color:#0f172a;display:flex;align-items:center;gap:8px}
+.sub{color:#64748b;font-size:13px;margin:6px 0 18px;line-height:1.6}
+.bar{height:3px;width:48px;background:linear-gradient(90deg,#0ea5e9,#0d9488);border-radius:2px;margin-bottom:22px}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:18px}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:18px}
+label{display:block;font-size:12px;font-weight:700;color:#0f172a;margin:12px 0 5px}
+input[type=text],input[type=password],textarea{width:100%;border:1px solid #cbd5e1;border-radius:7px;padding:9px 10px;font:inherit;font-size:13px;color:#1e293b}
+textarea{min-height:220px;resize:vertical;line-height:1.6}
+input[type=file]{font-size:12px}
+.hint{font-size:11px;color:#94a3b8;margin-top:4px;line-height:1.5}
+button.go{margin-top:16px;width:100%;padding:12px;border:none;border-radius:8px;background:#0d9488;color:#fff;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+button.go:disabled{background:#94a3b8;cursor:wait}
+.status{font-size:11px;color:#64748b;margin-top:10px;line-height:1.6}
+.status b{color:#0f172a}
+.ok{color:#16a34a}.bad{color:#dc2626}
+.out{min-height:300px}
+.out h1,.out h2,.out h3{margin:18px 0 8px;color:#0f172a}
+.out h1{font-size:19px}.out h2{font-size:16px;border-bottom:2px solid #e2e8f0;padding-bottom:4px}.out h3{font-size:14px}
+.out p,.out li{font-size:13px;line-height:1.75}
+.out ul,.out ol{padding-left:22px;margin:6px 0}
+.out table{border-collapse:collapse;width:100%;font-size:12px;margin:8px 0;display:block;overflow-x:auto}
+.out th,.out td{border:1px solid #e2e8f0;padding:6px 8px;text-align:left;vertical-align:top}
+.out th{background:#f1f5f9}
+.out blockquote{border-left:3px solid #0ea5e9;padding-left:10px;color:#475569;margin:8px 0}
+.out code{background:#f1f5f9;padding:1px 4px;border-radius:3px;font-size:12px}
+.usage{margin-top:14px;padding:10px 12px;border-radius:7px;background:#f0fdfa;border:1px solid #99f6e4;font-size:11px;color:#134e4a;line-height:1.6}
+.err{margin-top:12px;padding:10px 12px;border-radius:7px;background:#fef2f2;border:1px solid #fecaca;color:#991b1b;font-size:12px;line-height:1.6;white-space:pre-wrap}
+.tools{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.tools button{padding:6px 12px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;color:#0ea5e9;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:r 1s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes r{to{transform:rotate(360deg)}}
+.empty{color:#94a3b8;font-size:13px;line-height:1.7;padding:20px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🎯 AI 課程建議</h1>
+  <div class="sub">貼上或上傳你的課程大綱，後台會自動套用人社 AI 中心的分析框架與《台灣 AI 教學指引整理檔》，產出這門課專屬的素材與活動建議（含週次、時機、理由、查證方式）。分析框架不會顯示，也不需要你提供。<br>產出只是參考版本；影片與連結請依「查證方式」逐一確認，最後由教師判斷保留、修改或刪除。</div>
+  <div class="bar"></div>
+  <div class="grid">
+    <div class="card">
+      <label>通行碼</label>
+      <input type="password" id="pass" placeholder="由中心提供" autocomplete="off">
+      <label>課程大綱（貼文字，或上傳 .docx）</label>
+      <textarea id="text" placeholder="貼上完整課程大綱：課程目標、AI 使用規範、每週主題與指定閱讀……"></textarea>
+      <div style="margin-top:8px"><input type="file" id="file" accept=".docx,.txt,.md"></div>
+      <div class="hint">上傳 .docx 時以檔案內容為準，會忽略上方文字框。請勿放入學生個資或未去識別化的資料。</div>
+      <label>補充課程脈絡（選填）</label>
+      <input type="text" id="extra" placeholder="例：學生背景、班級人數、課堂時間限制、教學風格、特別想強化的週次">
+      <button class="go" id="go">產生課程專屬建議</button>
+      <div class="status" id="status">連線中…</div>
+    </div>
+    <div class="card">
+      <div class="out" id="out"><div class="empty">結果會顯示在這裡。第一次呼叫會建立快取（約 1 分鐘）；5 分鐘內的後續呼叫因為分析框架與整理檔已快取，只為課綱本身付費。</div></div>
+      <div class="usage" id="usage" hidden></div>
+      <div class="err" id="err" hidden></div>
+      <div class="tools" id="tools" hidden>
+        <button id="copy">複製 Markdown</button>
+        <button id="dl">下載 .md</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+let lastMd = "";
+function fmt(n){ return (n||0).toLocaleString(); }
+async function status(){
+  try{
+    const s = await (await fetch("/api/status")).json();
+    const parts = [
+      `模型 <b>${s.model}</b>（${s.provider}）`,
+      `分析框架 ${s.prompt_loaded?'<span class=ok>已載入</span>':'<span class=bad>缺 private/prompt.md</span>'}`,
+      `整理檔 ${s.digest_loaded?'<span class=ok>已載入</span>':'<span class=bad>缺 private/digest.md</span>'}`,
+      `API 金鑰 ${s.api_key_set?'<span class=ok>已設定</span>':'<span class=bad>缺 .env API_KEY</span>'}`,
+      `今日已用 <b>${s.used_today}/${s.daily_limit}</b>`,
+    ];
+    $("status").innerHTML = parts.join(" · ");
+    if(!s.passcode_required) $("pass").placeholder = "（後台未設通行碼）";
+  }catch(e){ $("status").innerHTML = '<span class=bad>無法連到後台</span>'; }
+}
+status();
+function readFile(f){
+  return new Promise((res,rej)=>{
+    const r = new FileReader();
+    if(f.name.toLowerCase().endsWith(".docx")){ r.onload=()=>res({docx_base64:r.result.split(",")[1]}); r.readAsDataURL(f); }
+    else { r.onload=()=>res({text:r.result}); r.readAsText(f); }
+    r.onerror = rej;
+  });
+}
+$("go").onclick = async () => {
+  $("err").hidden = true; $("usage").hidden = true; $("tools").hidden = true;
+  let payload = { passcode: $("pass").value, extra: $("extra").value, text: $("text").value };
+  const f = $("file").files[0];
+  if (f) Object.assign(payload, await readFile(f));
+  $("go").disabled = true; $("go").innerHTML = '<span class="spin"></span>分析中，約 1–2 分鐘…';
+  $("out").innerHTML = '<div class="empty">正在讀課綱、對照整理檔、逐週產生建議……</div>';
+  try{
+    const r = await fetch("/api/suggest", { method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify(payload) });
+    const j = await r.json();
+    if(!r.ok){ throw new Error(j.error + (j.detail? "\n"+j.detail : "")); }
+    lastMd = j.markdown;
+    $("out").innerHTML = window.marked ? marked.parse(j.markdown) : "<pre style='white-space:pre-wrap'>"+j.markdown.replace(/</g,"&lt;")+"</pre>";
+    const u = j.usage, cached = u.cache_read, fresh = u.input + u.cache_write;
+    $("usage").innerHTML = `本次 token：課綱與指令 ${fmt(fresh)}（其中建立快取 ${fmt(u.cache_write)}）· <b>快取讀取 ${fmt(cached)}</b>（分析框架＋整理檔，以約 1/10 價格計）· 回答 ${fmt(u.output)} · 今日 ${j.used_today}/${j.daily_limit}` + (cached ? ` · 這次省下約 ${Math.round(cached*0.9).toLocaleString()} 個全價輸入 token` : " · 首次呼叫已建立快取，5 分鐘內的下一次呼叫會便宜很多");
+    $("usage").hidden = false; $("tools").hidden = false;
+  }catch(e){
+    $("out").innerHTML = '<div class="empty">沒有產出。</div>';
+    $("err").textContent = e.message; $("err").hidden = false;
+  }finally{
+    $("go").disabled = false; $("go").textContent = "產生課程專屬建議"; status();
+  }
+};
+$("copy").onclick = () => navigator.clipboard.writeText(lastMd);
+$("dl").onclick = () => { const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([lastMd],{type:"text/markdown"})); a.download="課程專屬建議.md"; a.click(); };
+</script>
+</body>
+</html>

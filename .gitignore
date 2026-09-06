@@ -24,3 +24,9 @@ venv/
 # 專屬 PROMPT，不得公開
 *Prompt_*
 **/Prompt_*
+
+# AI 課程建議後台的秘密與紀錄
+後台/private/*
+!後台/private/README.txt
+後台/.env
+後台/usage.log
