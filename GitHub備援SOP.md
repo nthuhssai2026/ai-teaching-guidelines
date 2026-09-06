@@ -2,9 +2,13 @@
 
 本專案採用三地備援：
 
-1. 本地工作區：`D:\Users\ASUS\Desktop\AI助教\AI教學指引彙整`
-2. GitHub repository：保存版本歷史與救援點
-3. 網站部署端：建議使用 GitHub Pages 發布 `index.html`
+1. 本地工作區：`D:\Users\ASUS\Desktop\AI助教\AI教學指引彙整`（唯一的編輯來源）
+2. GitHub repository：<https://github.com/nthuhssai2026/ai-teaching-guidelines>（版本歷史、救援點、備用網站）
+3. 正式網站：清大人社AI中心 RPAGE 平台 <https://nthuhssai.site.nthu.edu.tw/platform/>（人工上傳）
+
+三地的關係是「本地 → GitHub → RPAGE」單向流動：**永遠只在本地改檔案**，改完先 push 到 GitHub，再把同一份 `index.html`（與有更動的 PDF）上傳到 RPAGE。不要直接在 GitHub 網頁或 RPAGE 後台改內容，否則三地會分歧。
+
+GitHub Pages 版本（<https://nthuhssai2026.github.io/ai-teaching-guidelines/>）會在每次 push 後自動更新，可當作 RPAGE 掛掉時的備用網址，也方便先預覽再上傳 RPAGE。
 
 ## 每次更新流程
 
@@ -22,7 +26,7 @@ python build_guidelines_app.py
 start .\index.html
 ```
 
-確認正常後提交 Git：
+確認正常後提交 Git（push 之後 GitHub Pages 約 1 分鐘內更新）：
 
 ```powershell
 git status
@@ -37,23 +41,19 @@ git push
 powershell -ExecutionPolicy Bypass -File .\一鍵備援更新.ps1
 ```
 
-## 第一次連到 GitHub
+## 更新 RPAGE 正式網站
 
-先在 GitHub 建立一個空 repository。不要勾選 README、.gitignore 或 license，避免第一次 push 衝突。
+GitHub push 完成後，登入 RPAGE 後台，把本地的 `index.html` 上傳覆蓋原檔；若這次有新增或更換 `台灣各大學AI教學指引/` 裡的 PDF，也一併上傳到 RPAGE 上相同的資料夾路徑（網頁內的 PDF 連結是相對路徑 `台灣各大學AI教學指引/xx.pdf`）。上傳後開正式網址確認「台灣資料」分頁的 📄 PDF 連結可開。
 
-然後執行：
+## GitHub 連線（已設定完成，2026-09-06）
 
-```powershell
-git remote add origin https://github.com/你的帳號/你的repo名稱.git
-git branch -M main
-git push -u origin main
-```
-
-之後每次只要：
+remote `origin` 已指向 <https://github.com/nthuhssai2026/ai-teaching-guidelines>，之後每次只要：
 
 ```powershell
 git push
 ```
+
+第一次 push 時 Windows 會跳出 GitHub 登入視窗，用瀏覽器登入一次即可，之後會記住。
 
 ## GitHub Pages 發布網站
 
@@ -85,13 +85,12 @@ git commit -m "Restore working website files"
 git push
 ```
 
-如果網站壞掉但 GitHub 正常：
+如果 RPAGE 正式網站壞掉但 GitHub 正常：
 
-```powershell
-git push
-```
+- 先把備用網址 <https://nthuhssai2026.github.io/ai-teaching-guidelines/> 給使用者。
+- 從 GitHub 下載 `index.html` 與 PDF 資料夾（或本地 `git pull`），重新上傳 RPAGE。
 
-或重新到 GitHub Pages 設定頁確認 branch/folder 是否仍是 `main` + `/root`。
+如果 GitHub Pages 壞掉：到 repo `Settings → Pages` 確認 Source 仍是 `Deploy from a branch`、`main` + `/ (root)`。
 
 ## 本專案目前應納入 Git 的重要檔案
 
@@ -107,6 +106,7 @@ git push
 - `台灣各大學AI教學指引/`
 - `GitHub備援SOP.md`
 - `一鍵備援更新.ps1`
+- `.gitattributes`（統一換行符號，避免 Windows/Linux 之間整檔誤判為修改）
 
 ## 注意事項
 
