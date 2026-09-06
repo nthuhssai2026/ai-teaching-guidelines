@@ -20,3 +20,7 @@ Thumbs.db
 node_modules/
 .venv/
 venv/
+
+# 專屬 PROMPT，不得公開
+*Prompt_*
+**/Prompt_*

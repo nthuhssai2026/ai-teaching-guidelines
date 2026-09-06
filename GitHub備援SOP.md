@@ -107,6 +107,8 @@ git push
 - `GitHub備援SOP.md`
 - `一鍵備援更新.ps1`
 - `.gitattributes`（統一換行符號，避免 Windows/Linux 之間整檔誤判為修改）
+- `課程應用/`（八步驟執行文件、分析 PROMPT、指引彙編與 STS 課程建議；網頁「課程應用」分頁的下載連結指向這裡，上傳 RPAGE 時要一併上傳此資料夾）
+- `apply_tab.jsx`、`build_apply.py`（「課程應用」分頁的元件與建置腳本；改分頁內容時改 apply_tab.jsx 再重跑 build_apply.py）
 
 ## 注意事項
 
